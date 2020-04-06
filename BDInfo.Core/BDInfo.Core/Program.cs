@@ -198,7 +198,7 @@ namespace BDInfo.Core
         if (BDInfoSettings.AutosaveReport)
         {
           List<string> report = new List<string>();
-          string reportName = string.Format("BDINFO.{0}.txt", _rom.VolumeLabel);
+          string reportName = string.Format("report_{0}.txt", _rom.VolumeLabel);
           using (var reportFile = File.CreateText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportName)))
           {
             string protection = (_rom.IsBDPlus ? "BD+" : _rom.IsUHD ? "AACS2" : "AACS");
