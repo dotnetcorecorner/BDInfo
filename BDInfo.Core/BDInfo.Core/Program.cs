@@ -34,10 +34,9 @@ namespace BDInfo.Core
       Console.WriteLine("Getting report");
       Console.Clear();
 
+      Console.WriteLine("<--- START --->");
       pr.GetReport().GetAwaiter().GetResult();
-
-      //Console.WriteLine("done");
-      //Console.Read();
+      Console.WriteLine("<--- END --->");
     }
 
     async Task Scan(string path)
@@ -151,7 +150,19 @@ namespace BDInfo.Core
       {
         if (state is ScanBDROMState scanState)
         {
-          Console.WriteLine($"State: {scanState.TotalBytes}");
+          if (scanState.TotalBytes == 0)
+          {
+            return;
+          }
+
+          Console.Write($"\rState:");
+          var val = (int)(((double)scanState.FinishedBytes / (double)scanState.TotalBytes) * 100);
+
+          Console.Write(" {0} % :: ", val);
+
+          Console.BackgroundColor = ConsoleColor.Green;
+          Console.Write(new string(' ', val));
+          Console.ResetColor();
         }
       }
       catch { }
