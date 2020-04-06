@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommandLine;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -12,7 +13,6 @@ namespace BDInfo.Core
   {
     private static BDROM _rom;
     private ScanBDROMResult _scanResult = new ScanBDROMResult();
-
     const string PROD_VERSION = "0.7.5.5";
 
     static void Main(string[] args)
@@ -23,15 +23,23 @@ namespace BDInfo.Core
         return;
       }
 
+      Parser.Default.ParseArguments<CmdOptions>(args)
+        .WithParsed(opts => Exec(opts))
+        .WithNotParsed((errs) => HandleParseError(errs));
+    }
+
+    static void Exec(CmdOptions opts)
+    {
       var pr = new Program();
+      BDInfoSettings.Load(opts);
 
       try
       {
         Console.WriteLine("Scanning content");
-        pr.InitBDRom(args[0]).GetAwaiter().GetResult();
+        pr.InitBDRom(opts.Path).GetAwaiter().GetResult();
 
         Console.WriteLine("Scanning bitrate");
-        pr.Scan(args[0]).GetAwaiter().GetResult();
+        pr.Scan(opts.Path).GetAwaiter().GetResult();
 
         Console.WriteLine("Getting report");
         Console.Clear();
@@ -1244,6 +1252,21 @@ namespace BDInfo.Core
     {
       Console.WriteLine("An error occurred while scanning the playlist file {0}.\n\nThe disc may be copy-protected or damaged.\n\nDo you want to continue scanning the playlist files?", playlistFile.Name);
       return false;
+    }
+
+    private static void HandleParseError(IEnumerable<Error> errs)
+    {
+      //foreach (var error in errs)
+      //{
+      //  if (error is SetValueExceptionError)
+      //  {
+      //    var serr = error as SetValueExceptionError;
+      //    log.Error(serr.Exception);
+      //    log.Error(serr.Value);
+      //  }
+
+      //  log.Error(error.Tag);
+      //}
     }
   }
 }

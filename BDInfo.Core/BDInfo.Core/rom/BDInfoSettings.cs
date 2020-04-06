@@ -19,34 +19,41 @@
 
 namespace BDInfo.Core
 {
-  public class BDInfoSettings
+  public static class BDInfoSettings
   {
-    public static bool GenerateStreamDiagnostics => true;
+    private static CmdOptions _opts;
 
-    public static bool ExtendedStreamDiagnostics => false;
+    internal static void Load(CmdOptions opts)
+    {
+      _opts = opts;
+    }
 
-    public static bool EnableSSIF => true;
+    public static bool GenerateStreamDiagnostics => _opts?.GenerateStreamDiagnostics ?? true;
 
-    public static bool DisplayChapterCount => false;
+    public static bool ExtendedStreamDiagnostics => _opts?.ExtendedStreamDiagnostics ?? false;
 
-    public static bool AutosaveReport => true;
+    public static bool EnableSSIF => _opts?.EnableSSIF ?? true;
 
-    public static bool GenerateFrameDataFile => false;
+    public static bool DisplayChapterCount => _opts?.DisplayChapterCount ?? false;
 
-    public static bool FilterLoopingPlaylists => true;
+    public static bool AutosaveReport => _opts?.AutosaveReport ?? true;
 
-    public static bool FilterShortPlaylists => true;
+    public static bool GenerateFrameDataFile => _opts?.GenerateFrameDataFile ?? false;
 
-    public static int FilterShortPlaylistsValue => 20;
+    public static bool FilterLoopingPlaylists => _opts?.FilterLoopingPlaylists ?? true;
 
-    public static bool UseImagePrefix => false;
+    public static bool FilterShortPlaylists => _opts?.FilterShortPlaylists ?? true;
 
-    public static string UseImagePrefixValue => "video-";
+    public static int FilterShortPlaylistsValue => _opts?.FilterShortPlaylistsValue ?? 20;
 
-    public static bool KeepStreamOrder => true;
+    public static bool UseImagePrefix => _opts?.UseImagePrefix ?? false;
 
-    public static bool GenerateTextSummary => true;
+    public static string UseImagePrefixValue => _opts?.UseImagePrefixValue ?? "video-";
 
-    public static string LastPath => string.Empty;
+    public static bool KeepStreamOrder => _opts?.KeepStreamOrder ?? true;
+
+    public static bool GenerateTextSummary => _opts?.GenerateTextSummary ?? true;
+
+    public static string LastPath => _opts?.LastPath ?? string.Empty;
   }
 }
