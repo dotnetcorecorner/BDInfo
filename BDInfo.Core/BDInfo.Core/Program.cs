@@ -10,7 +10,7 @@ namespace BDInfo.Core
 {
   class Program
   {
-    private BDROM _rom;
+    private static BDROM _rom;
     private ScanBDROMResult _scanResult = new ScanBDROMResult();
 
     const string PROD_VERSION = "0.7.5.5";
@@ -25,18 +25,28 @@ namespace BDInfo.Core
 
       var pr = new Program();
 
-      Console.WriteLine("Scanning content");
-      pr.InitBDRom(args[0]).GetAwaiter().GetResult();
+      try
+      {
+        Console.WriteLine("Scanning content");
+        pr.InitBDRom(args[0]).GetAwaiter().GetResult();
 
-      Console.WriteLine("Scanning bitrate");
-      pr.Scan(args[0]).GetAwaiter().GetResult();
+        Console.WriteLine("Scanning bitrate");
+        pr.Scan(args[0]).GetAwaiter().GetResult();
 
-      Console.WriteLine("Getting report");
-      Console.Clear();
+        Console.WriteLine("Getting report");
+        Console.Clear();
 
-      Console.WriteLine("<--- START --->");
-      pr.GetReport().GetAwaiter().GetResult();
-      Console.WriteLine("<--- END --->");
+        Console.WriteLine("<--- START --->");
+        pr.GetReport().GetAwaiter().GetResult();
+        Console.WriteLine("<--- END --->");
+      }
+      finally
+      {
+        if (_rom != null && _rom.IsImage && _rom.CdReader != null)
+        {
+          _rom.CloseDiscImage();
+        }
+      }
     }
 
     async Task Scan(string path)
@@ -190,10 +200,6 @@ namespace BDInfo.Core
       await Task.Factory.StartNew(() =>
       {
         _rom = new BDROM(path);
-        if (_rom != null && _rom.IsImage && _rom.CdReader != null)
-        {
-          _rom.CloseDiscImage();
-        }
 
         _rom.StreamClipFileScanError += new BDROM.OnStreamClipFileScanError(BDROM_StreamClipFileScanError);
         _rom.StreamFileScanError += new BDROM.OnStreamFileScanError(BDROM_StreamFileScanError);
