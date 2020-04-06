@@ -11,7 +11,7 @@ namespace BDInfo.Core
   class Program
   {
     private BDROM _rom;
-    private ScanBDROMResult _scanResult;
+    private ScanBDROMResult _scanResult = new ScanBDROMResult();
 
     const string PROD_VERSION = "0.7.5.5";
 
@@ -32,7 +32,12 @@ namespace BDInfo.Core
       pr.Scan(args[0]).GetAwaiter().GetResult();
 
       Console.WriteLine("Getting report");
+      Console.Clear();
+
       pr.GetReport().GetAwaiter().GetResult();
+
+      //Console.WriteLine("done");
+      //Console.Read();
     }
 
     async Task Scan(string path)
@@ -144,7 +149,10 @@ namespace BDInfo.Core
     {
       try
       {
-        Console.WriteLine($"State: {state}");
+        if (state is ScanBDROMState scanState)
+        {
+          Console.WriteLine($"State: {scanState.TotalBytes}");
+        }
       }
       catch { }
     }
@@ -189,11 +197,11 @@ namespace BDInfo.Core
       {
         if (BDInfoSettings.AutosaveReport)
         {
+          List<string> report = new List<string>();
           string reportName = string.Format("BDINFO.{0}.txt", _rom.VolumeLabel);
           using (var reportFile = File.CreateText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportName)))
           {
             string protection = (_rom.IsBDPlus ? "BD+" : _rom.IsUHD ? "AACS2" : "AACS");
-            List<string> report = new List<string>();
 
             if (!string.IsNullOrEmpty(_rom.DiscTitle))
             {
@@ -1188,22 +1196,17 @@ namespace BDInfo.Core
                 report.Add("\r\n");
               }
 
-              if (BDInfoSettings.AutosaveReport && reportFile != null)
-              {
-                try { reportFile.Write(report); }
-                catch { }
-              }
-
               GC.Collect();
             }
 
             if (BDInfoSettings.AutosaveReport && reportFile != null)
             {
-              try { reportFile.Write(report); }
+              try { reportFile.Write(string.Join("", report)); }
               catch { }
-
             }
           }
+
+          Console.WriteLine(string.Join("", report));
         }
       });
     }

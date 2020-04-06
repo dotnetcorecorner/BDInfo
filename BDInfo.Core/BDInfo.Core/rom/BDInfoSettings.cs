@@ -29,7 +29,7 @@ namespace BDInfo.Core
 
     public static bool DisplayChapterCount => false;
 
-    public static bool AutosaveReport => false;
+    public static bool AutosaveReport => true;
 
     public static bool GenerateFrameDataFile => false;
 
