@@ -13,7 +13,7 @@ namespace BDInfo.Core
     [Option('e', "extendedstreamdiagnostics", Required = false, Default = false)]
     public bool ExtendedStreamDiagnostics { get; set; }
 
-    [Option('f', "enablessif", Required = false, Default = true)]
+    [Option('b', "enablessif", Required = false, Default = true)]
     public bool EnableSSIF { get; set; }
 
     [Option('c', "displaychaptercount", Required = false, Default = false)]
@@ -22,7 +22,7 @@ namespace BDInfo.Core
     [Option('a', "autosavereport", Required = false, Default = true)]
     public bool AutosaveReport { get; set; }
 
-    [Option('r', "generateframedatafile", Required = false, Default = false)]
+    [Option('f', "generateframedatafile", Required = false, Default = false)]
     public bool GenerateFrameDataFile { get; set; }
 
     [Option('l', "filterloopingplaylists", Required = false, Default = true)]
@@ -48,5 +48,8 @@ namespace BDInfo.Core
 
     [Option('t', "lastpath", Required = false, Default = "")]
     public string LastPath { get; set; }
+
+    [Option('r', "reportpath", Required = false, Default = null)]
+    public string ReportPath { get; set; }
   }
 }

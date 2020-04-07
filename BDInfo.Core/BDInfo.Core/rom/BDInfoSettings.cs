@@ -17,6 +17,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //=============================================================================
 
+using System;
+
 namespace BDInfo.Core
 {
   public static class BDInfoSettings
@@ -55,5 +57,7 @@ namespace BDInfo.Core
     public static bool GenerateTextSummary => _opts?.GenerateTextSummary ?? true;
 
     public static string LastPath => _opts?.LastPath ?? string.Empty;
+
+    public static string ReportPath => _opts?.ReportPath ?? AppDomain.CurrentDomain.BaseDirectory;
   }
 }
