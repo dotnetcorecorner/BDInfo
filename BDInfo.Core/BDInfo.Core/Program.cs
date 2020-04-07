@@ -181,12 +181,12 @@ namespace BDInfo.Core
           }
 
           Console.Write($"\rState:");
-          var val = (int)(((double)scanState.FinishedBytes / (double)scanState.TotalBytes) * 100);
+          double val = (((double)scanState.FinishedBytes / (double)scanState.TotalBytes) * 100);
 
-          Console.Write(" {0} % :: ", val);
+          Console.Write(" {0:N2} % :: ", val);
 
           Console.BackgroundColor = ConsoleColor.Green;
-          Console.Write(new string(' ', val));
+          Console.Write(new string(' ', (int)val));
           Console.ResetColor();
         }
       }
