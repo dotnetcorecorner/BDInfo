@@ -31,6 +31,13 @@ namespace BDInfo.Core
     static void Exec(CmdOptions opts)
     {
       var pr = new Program();
+
+      if (!Directory.Exists(opts.Path) || !File.Exists(opts.Path))
+      {
+        Console.WriteLine("No directory or file found");
+        return;
+      }
+
       BDInfoSettings.Load(opts);
 
       try
