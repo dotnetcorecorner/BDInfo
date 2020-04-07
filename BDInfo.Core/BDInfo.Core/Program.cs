@@ -32,7 +32,7 @@ namespace BDInfo.Core
     {
       var pr = new Program();
 
-      if (!Directory.Exists(opts.Path) || !File.Exists(opts.Path))
+      if (!Directory.Exists(opts.Path) && !File.Exists(opts.Path))
       {
         Console.WriteLine("No directory or file found");
         return;
