@@ -48,6 +48,7 @@ namespace BDInfo.Core
         Console.WriteLine("Scanning bitrate");
         pr.Scan(opts.Path).GetAwaiter().GetResult();
 
+        Console.WriteLine();
         Console.WriteLine("Getting report");
         pr.GetReport().GetAwaiter().GetResult();
       }
