@@ -1249,6 +1249,10 @@ namespace BDInfo.Core
             Console.WriteLine(string.Join("", report));
             Console.WriteLine("<--- END --->");
           }
+          else
+          {
+            Console.WriteLine("DONE !");
+          }
         }
       });
     }
