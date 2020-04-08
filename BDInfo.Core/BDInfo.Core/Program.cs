@@ -49,11 +49,7 @@ namespace BDInfo.Core
         pr.Scan(opts.Path).GetAwaiter().GetResult();
 
         Console.WriteLine("Getting report");
-        Console.Clear();
-
-        Console.WriteLine("<--- START --->");
         pr.GetReport().GetAwaiter().GetResult();
-        Console.WriteLine("<--- END --->");
       }
       finally
       {
@@ -276,18 +272,22 @@ namespace BDInfo.Core
             report.Add(string.Format("{0,-16}{1}\r\n", "BDInfo:", PROD_VERSION));
 
             report.Add("\r\n");
-            report.Add(string.Format("{0,-16}{1}\r\n", "Notes:", ""));
-            report.Add("\r\n");
-            report.Add("BDINFO HOME:\r\n");
-            report.Add("  Cinema Squid (old)\r\n");
-            report.Add("    http://www.cinemasquid.com/blu-ray/tools/bdinfo\r\n");
-            report.Add("  UniqProject GitHub (new)\r\n");
-            report.Add("   https://github.com/UniqProject/BDInfo\r\n");
-            report.Add("\r\n");
-            report.Add("INCLUDES FORUMS REPORT FOR:\r\n");
-            report.Add("  AVS Forum Blu-ray Audio and Video Specifications Thread\r\n");
-            report.Add("    http://www.avsforum.com/avs-vb/showthread.php?t=1155731\r\n");
-            report.Add("\r\n");
+
+            if (BDInfoSettings.IncludeVersionAndNotes)
+            {
+              report.Add(string.Format("{0,-16}{1}\r\n", "Notes:", ""));
+              report.Add("\r\n");
+              report.Add("BDINFO HOME:\r\n");
+              report.Add("  Cinema Squid (old)\r\n");
+              report.Add("    http://www.cinemasquid.com/blu-ray/tools/bdinfo\r\n");
+              report.Add("  UniqProject GitHub (new)\r\n");
+              report.Add("   https://github.com/UniqProject/BDInfo\r\n");
+              report.Add("\r\n");
+              report.Add("INCLUDES FORUMS REPORT FOR:\r\n");
+              report.Add("  AVS Forum Blu-ray Audio and Video Specifications Thread\r\n");
+              report.Add("    http://www.avsforum.com/avs-vb/showthread.php?t=1155731\r\n");
+              report.Add("\r\n");
+            }
 
             if (_scanResult.FileExceptions.Count > 0)
             {
@@ -300,9 +300,15 @@ namespace BDInfo.Core
               }
             }
 
-            foreach (TSPlaylistFile playlist in _rom.PlaylistFiles.Select(s => s.Value))
+            var playlistData = _rom.PlaylistFiles.OrderByDescending(s => s.Value.FileSize).Select(s => s.Value);
+            if (BDInfoSettings.PrintOnlyForBigPlaylist)
             {
-              string summary = "";
+              playlistData = playlistData.Take(2);
+            }
+
+            foreach (TSPlaylistFile playlist in playlistData)
+            {
+              string summary = string.Empty;
 
               string title = playlist.Name;
               string discSize = string.Format("{0:N0}", _rom.Size);
@@ -401,8 +407,8 @@ namespace BDInfo.Core
                 }
               }
 
-              string videoCodec = "";
-              string videoBitrate = "";
+              string videoCodec = string.Empty;
+              string videoBitrate = string.Empty;
               if (playlist.VideoStreams.Count > 0)
               {
                 TSStream videoStream = playlist.VideoStreams[0];
@@ -410,8 +416,8 @@ namespace BDInfo.Core
                 videoBitrate = string.Format("{0:F2}", Math.Round((double)videoStream.BitRate / 10000) / 100);
               }
 
-              string audio1 = "";
-              string languageCode1 = "";
+              string audio1 = string.Empty;
+              string languageCode1 = string.Empty;
               if (playlist.AudioStreams.Count > 0)
               {
                 TSAudioStream audioStream = playlist.AudioStreams[0];
@@ -437,7 +443,7 @@ namespace BDInfo.Core
                 }
               }
 
-              string audio2 = "";
+              string audio2 = string.Empty;
               if (playlist.AudioStreams.Count > 1)
               {
                 for (int i = 1; i < playlist.AudioStreams.Count; i++)
@@ -479,6 +485,7 @@ namespace BDInfo.Core
               report.Add("PLAYLIST: " + playlist.Name + "\r\n");
               report.Add("********************\r\n");
               report.Add("\r\n");
+
               report.Add("<--- BEGIN FORUMS PASTE --->\r\n");
               report.Add("[code]\r\n");
 
@@ -603,10 +610,7 @@ namespace BDInfo.Core
                 report.Add(string.Format(
                                         "{0,-24}{1} Mbps\r\n", "All Angles Bitrate:", totalAngleBitrate));
               }
-              /*
-              report += string.Format(
-                  "{0,-24}{1}\r\n", "Description:", "");
-               */
+
               if (!string.IsNullOrEmpty(_rom.DiscTitle))
                 summary += string.Format(
                                         "Disc Title: {0}\r\n", _rom.DiscTitle);
@@ -1194,7 +1198,7 @@ namespace BDInfo.Core
                            (double)clipStream.PayloadBytes * 8 /
                            clip.StreamFile.Length / 1000).ToString("N0", CultureInfo.InvariantCulture);
                     }
-                    string language = "";
+                    string language = string.Empty;
                     if (!string.IsNullOrEmpty(playlistStream.LanguageCode))
                     {
                       language = string.Format(
@@ -1238,7 +1242,13 @@ namespace BDInfo.Core
             }
           }
 
-          Console.WriteLine(string.Join("", report));
+          if (BDInfoSettings.PrintReportToConsole)
+          {
+            Console.Clear();
+            Console.WriteLine("<--- START --->");
+            Console.WriteLine(string.Join("", report));
+            Console.WriteLine("<--- END --->");
+          }
         }
       });
     }

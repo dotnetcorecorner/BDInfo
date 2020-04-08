@@ -59,5 +59,11 @@ namespace BDInfo.Core
     public static string LastPath => _opts?.LastPath ?? string.Empty;
 
     public static string ReportPath => _opts?.ReportPath ?? AppDomain.CurrentDomain.BaseDirectory;
+
+    public static bool IncludeVersionAndNotes => false;
+
+    public static bool PrintOnlyForBigPlaylist => true;
+
+    public static bool PrintReportToConsole => false;
   }
 }
