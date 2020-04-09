@@ -133,7 +133,6 @@ namespace AnotherBDInfo
         return;
       }
 
-      if (!string.IsNullOrEmpty(BDROM.DiscTitle))
       {
         textBoxDetails.Text += string.Format(CultureInfo.InvariantCulture,
                                             "Disc Title: {0}{1}",
