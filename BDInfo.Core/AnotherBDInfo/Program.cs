@@ -14,14 +14,14 @@ namespace AnotherBDInfo
     static ListElement textBoxDetails = new ListElement(0);
     static ListElement textBoxSource = new ListElement(1);
     static ScanBDROMResult ScanResult = new ScanBDROMResult();
-    static ListElement labelProgress = new ListElement(4);
-    static ListElement labelTimeElapsed = new ListElement(5);
-    static ListElement labelTimeRemaining = new ListElement(6);
-    static ListElement textBoxReport = new ListElement(7);
+    static ListElement labelProgress = new ListElement(6);
+    static ListElement labelTimeElapsed = new ListElement(7);
+    static ListElement labelTimeRemaining = new ListElement(8);
+    static ListElement textBoxReport = new ListElement(9);
 
     static readonly string ProductVersion = "0.7.5";
-    static ListElement progressBarScan = new ListElement(8);
-    static int nextRow = 11;
+    static ListElement progressBarScan = new ListElement(10);
+    static int nextRow = 12;
 
     static void Main(string[] args)
     {
@@ -156,7 +156,7 @@ namespace AnotherBDInfo
                                             "Detected BDMV Folder: {0} (Disc Label: {1}){3}ISO Image: {2}{3}",
                                             BDROM.DiscDirectoryBDMV.FullName,
                                             BDROM.VolumeLabel,
-                                            textBoxSource.Text,
+                                            textBoxSource.Text ?? BDROM.DiscTitle,
                                             Environment.NewLine);
       }
 
