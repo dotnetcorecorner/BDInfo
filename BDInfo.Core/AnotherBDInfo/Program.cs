@@ -14,14 +14,14 @@ namespace AnotherBDInfo
     static ListElement textBoxDetails = new ListElement(0);
     static ListElement textBoxSource = new ListElement(1);
     static ScanBDROMResult ScanResult = new ScanBDROMResult();
-    static ListElement labelProgress = new ListElement(3);
-    static ListElement labelTimeElapsed = new ListElement(4);
-    static ListElement labelTimeRemaining = new ListElement(5);
-    static ListElement textBoxReport = new ListElement(6);
+    static ListElement labelProgress = new ListElement(4);
+    static ListElement labelTimeElapsed = new ListElement(5);
+    static ListElement labelTimeRemaining = new ListElement(6);
+    static ListElement textBoxReport = new ListElement(7);
 
     static readonly string ProductVersion = "0.7.5";
     static ListElement progressBarScan = new ListElement(8);
-    static int nextRow = 9;
+    static int nextRow = 11;
 
     static void Main(string[] args)
     {
@@ -34,8 +34,6 @@ namespace AnotherBDInfo
       Parser.Default.ParseArguments<CmdOptions>(args)
         .WithParsed(opts => Exec(opts))
         .WithNotParsed((errs) => HandleParseError(errs));
-
-      Console.ReadLine();
     }
 
     static void Exec(CmdOptions opts)
@@ -65,15 +63,13 @@ namespace AnotherBDInfo
       progressBarScan.OnProgressChanged += (val, pos) =>
       {
         Console.SetCursorPosition(0, pos);
-        //Console.Write(new string(' ', Console.WindowWidth));
-        Console.Write($"Progress: {val} %");
+        Console.Write(string.Format(CultureInfo.InvariantCulture, "Progress: {0:N2} %", val));
       };
     }
 
     static void OnTextChanged(string obj, int position)
     {
       Console.SetCursorPosition(0, position);
-      //Console.Write(new string(' ', Console.WindowWidth));
       Console.Write($"{obj}");
     }
 
@@ -315,7 +311,7 @@ namespace AnotherBDInfo
         }
 
         double progress = ((double)finishedBytes / scanState.TotalBytes);
-        int progressValue = (int)Math.Round(progress * 100);
+        double progressValue = Math.Round(progress * 100, 2);
         if (progressValue < 0) progressValue = 0;
         if (progressValue > 100) progressValue = 100;
         progressBarScan.Value = progressValue;
@@ -333,13 +329,13 @@ namespace AnotherBDInfo
         }
 
         labelTimeElapsed.Text = string.Format(CultureInfo.InvariantCulture,
-            "{0:D2}:{1:D2}:{2:D2}",
+            "Elapsed: {0:D2}:{1:D2}:{2:D2}",
             elapsedTime.Hours,
             elapsedTime.Minutes,
             elapsedTime.Seconds);
 
         labelTimeRemaining.Text = string.Format(CultureInfo.InvariantCulture,
-            "{0:D2}:{1:D2}:{2:D2}",
+            "Remaining: {0:D2}:{1:D2}:{2:D2}",
             remainingTime.Hours,
             remainingTime.Minutes,
             remainingTime.Seconds);
@@ -351,7 +347,7 @@ namespace AnotherBDInfo
     {
       labelProgress.Text = $"Scan complete.{new string(' ', 100)}";
       progressBarScan.Value = 100;
-      labelTimeRemaining.Text = "00:00:00";
+      labelTimeRemaining.Text = "Remaining: 00:00:00";
 
       if (ScanResult.ScanException != null)
       {
@@ -399,10 +395,15 @@ namespace AnotherBDInfo
 
     static void GenerateReport()
     {
+      Console.SetCursorPosition(0, nextRow);
+
       if (BDInfoSettings.PrintReportToConsole)
       {
-        Console.SetCursorPosition(0, nextRow);
         Console.WriteLine("Please wait while we generate the report...");
+      }
+      else
+      {
+        Console.WriteLine("Done !");
       }
 
       IEnumerable<TSPlaylistFile> playlists = BDROM.PlaylistFiles.Select(s => s.Value);
@@ -1460,13 +1461,12 @@ namespace AnotherBDInfo
         }
 
         textBoxReport.Text += report;
-        report = "";
         GC.Collect();
       }
 
-      using (StreamWriter reportFile = File.CreateText(Path.Combine(BDInfoSettings.ReportPath, reportName)))
+      if (BDInfoSettings.AutosaveReport)
       {
-        if (BDInfoSettings.AutosaveReport)
+        using (StreamWriter reportFile = File.CreateText(Path.Combine(BDInfoSettings.ReportPath, reportName)))
         {
           try { reportFile.Write(report); }
           catch { }
@@ -1474,6 +1474,7 @@ namespace AnotherBDInfo
       }
 
       textBoxReport.Text += report;
+      report = string.Empty;
       return textBoxReport.Text;
     }
   }
