@@ -11,15 +11,12 @@ namespace AnotherBDInfo
   class Program
   {
     static BDROM BDROM = null;
-    private static BackgroundWorker InitBDROMWorker;
     private static ListElement textBoxDetails = new ListElement();
     private static ListElement textBoxSource = new ListElement();
-    private static BackgroundWorker ScanBDROMWorker;
     static ScanBDROMResult ScanResult = new ScanBDROMResult();
     private static ListElement labelProgress = new ListElement();
     private static ListElement labelTimeElapsed = new ListElement();
     private static ListElement labelTimeRemaining = new ListElement();
-    private static BackgroundWorker ReportWorker;
     private static ListElement textBoxReport = new ListElement();
 
     private static string ProductVersion = "0.7.5";
@@ -27,37 +24,55 @@ namespace AnotherBDInfo
 
     static void Main(string[] args)
     {
-      Console.WriteLine("Hello World!");
+      if (args.Length > 0)
+      {
+        textBoxDetails.OnTextChanged += OnTextChanged;
+        textBoxSource.OnTextChanged += OnTextChanged;
+        labelProgress.OnTextChanged += OnTextChanged;
+        labelTimeElapsed.OnTextChanged += OnTextChanged;
+        labelTimeRemaining.OnTextChanged += OnTextChanged;
+        textBoxReport.OnTextChanged += OnTextChanged;
+        progressBarScan.OnProgressChanged += (val) =>
+        {
+          Console.WriteLine($"\rProgress: {val} %");
+        };
+
+        InitBDROM(args[0]);
+        ScanBDROM();
+      }
+
+      Console.ReadLine();
+    }
+
+    private static void OnTextChanged(string obj)
+    {
+      Console.WriteLine(obj);
     }
 
     static void InitBDROM(string path)
     {
       if (BDROM != null && BDROM.IsImage && BDROM.CdReader != null)
+      {
         BDROM.CloseDiscImage();
+      }
 
-      InitBDROMWorker = new BackgroundWorker();
-      InitBDROMWorker.WorkerReportsProgress = true;
-      InitBDROMWorker.WorkerSupportsCancellation = true;
-      InitBDROMWorker.DoWork += InitBDROMWork;
-      InitBDROMWorker.ProgressChanged += InitBDROMProgress;
-      InitBDROMWorker.RunWorkerCompleted += InitBDROMCompleted;
-      InitBDROMWorker.RunWorkerAsync(path);
+      InitBDROMCompleted(InitBDROMWork(path));
     }
 
-    static void InitBDROMWork(object sender, DoWorkEventArgs e)
+    static object InitBDROMWork(string path)
     {
       try
       {
-        BDROM = new BDROM((string)e.Argument);
+        BDROM = new BDROM(path);
         BDROM.StreamClipFileScanError += new BDROM.OnStreamClipFileScanError(BDROM_StreamClipFileScanError);
         BDROM.StreamFileScanError += new BDROM.OnStreamFileScanError(BDROM_StreamFileScanError);
         BDROM.PlaylistFileScanError += new BDROM.OnPlaylistFileScanError(BDROM_PlaylistFileScanError);
         BDROM.Scan();
-        e.Result = null;
+        return null;
       }
       catch (Exception ex)
       {
-        e.Result = ex;
+        return ex;
       }
     }
 
@@ -88,12 +103,12 @@ namespace AnotherBDInfo
     {
     }
 
-    static void InitBDROMCompleted(object sender, RunWorkerCompletedEventArgs e)
+    static void InitBDROMCompleted(object result)
     {
-      if (e.Result != null)
+      if (result != null)
       {
         string msg = string.Format(CultureInfo.InvariantCulture,
-                                    "{0}", ((Exception)e.Result).Message);
+                                    "{0}", ((Exception)result).Message);
 
         Console.WriteLine(msg);
         return;
@@ -169,40 +184,22 @@ namespace AnotherBDInfo
 
     static void ScanBDROM()
     {
-      if (ScanBDROMWorker != null &&
-          ScanBDROMWorker.IsBusy)
-      {
-        ScanBDROMWorker.CancelAsync();
-        return;
-      }
+      List<TSStreamFile> streamFiles = new List<TSStreamFile>(BDROM.StreamFiles.Values);
 
-      List<TSStreamFile> streamFiles = new List<TSStreamFile>();
-      foreach (TSStreamFile streamFile
-            in BDROM.StreamFiles.Values)
-      {
-        streamFiles.Add(streamFile);
-      }
-
-      ScanBDROMWorker = new BackgroundWorker();
-      ScanBDROMWorker.WorkerReportsProgress = true;
-      ScanBDROMWorker.WorkerSupportsCancellation = true;
-      ScanBDROMWorker.DoWork += ScanBDROMWork;
-      ScanBDROMWorker.ProgressChanged += ScanBDROMProgress;
-      ScanBDROMWorker.RunWorkerCompleted += ScanBDROMCompleted;
-      ScanBDROMWorker.RunWorkerAsync(streamFiles);
+      ScanBDROMWork(streamFiles);
+      ScanBDROMCompleted();
     }
 
-    static void ScanBDROMWork(object sender, DoWorkEventArgs e)
+    static void ScanBDROMWork(List<TSStreamFile> streamFiles)
     {
       ScanResult = new ScanBDROMResult { ScanException = new Exception("Scan is still running.") };
 
-      System.Threading.Timer timer = null;
+      Timer timer = null;
       try
       {
-        List<TSStreamFile> streamFiles =
-            (List<TSStreamFile>)e.Argument;
-
         ScanBDROMState scanState = new ScanBDROMState();
+        scanState.OnReportChange += ScanBDROMProgress;
+
         foreach (TSStreamFile streamFile in streamFiles)
         {
           if (BDInfoSettings.EnableSSIF &&
@@ -226,8 +223,7 @@ namespace AnotherBDInfo
             scanState.PlaylistMap[streamFile.Name] = new List<TSPlaylistFile>();
           }
 
-          foreach (TSPlaylistFile playlist
-              in BDROM.PlaylistFiles.Values)
+          foreach (TSPlaylistFile playlist in BDROM.PlaylistFiles.Values)
           {
             playlist.ClearBitrates();
 
@@ -254,14 +250,9 @@ namespace AnotherBDInfo
           thread.Start(scanState);
           while (thread.IsAlive)
           {
-            if (ScanBDROMWorker.CancellationPending)
-            {
-              ScanResult.ScanException = new Exception("Scan was cancelled.");
-              thread.Abort();
-              return;
-            }
-            Thread.Sleep(0);
+            Thread.Sleep(10);
           }
+
           if (streamFile.FileInfo != null)
             scanState.FinishedBytes += streamFile.FileInfo.Length;
           else
@@ -283,10 +274,8 @@ namespace AnotherBDInfo
       }
     }
 
-    static void ScanBDROMProgress(object sender, ProgressChangedEventArgs e)
+    static void ScanBDROMProgress(ScanBDROMState scanState)
     {
-      ScanBDROMState scanState = (ScanBDROMState)e.UserState;
-
       try
       {
         if (scanState.StreamFile != null)
@@ -335,7 +324,7 @@ namespace AnotherBDInfo
       catch { }
     }
 
-    static void ScanBDROMCompleted(object sender, RunWorkerCompletedEventArgs e)
+    static void ScanBDROMCompleted()
     {
       labelProgress.Text = "Scan complete.";
       progressBarScan.Value = 100;
@@ -367,15 +356,7 @@ namespace AnotherBDInfo
 
     static void ScanBDROMEvent(object state)
     {
-      try
-      {
-        if (ScanBDROMWorker.IsBusy &&
-            !ScanBDROMWorker.CancellationPending)
-        {
-          ScanBDROMWorker.ReportProgress(0, state);
-        }
-      }
-      catch { }
+      ScanBDROMProgress(state as ScanBDROMState);
     }
 
     static void ScanBDROMThread(object parameter)
@@ -399,51 +380,47 @@ namespace AnotherBDInfo
 
       IEnumerable<TSPlaylistFile> playlists = BDROM.PlaylistFiles.Select(s => s.Value);
 
-      ReportWorker = new BackgroundWorker();
-      ReportWorker.WorkerReportsProgress = true;
-      ReportWorker.WorkerSupportsCancellation = true;
-      ReportWorker.DoWork += GenerateReportWork;
-      ReportWorker.ProgressChanged += GenerateReportProgress;
-      ReportWorker.RunWorkerCompleted += GenerateReportCompleted;
-      ReportWorker.RunWorkerAsync(playlists);
+      GenerateReportCompleted(GenerateReportWork(playlists));
+
+      //ReportWorker = new BackgroundWorker();
+      //ReportWorker.WorkerReportsProgress = true;
+      //ReportWorker.WorkerSupportsCancellation = true;
+      //ReportWorker.DoWork += GenerateReportWork;
+      //ReportWorker.ProgressChanged += GenerateReportProgress;
+      //ReportWorker.RunWorkerCompleted += GenerateReportCompleted;
+      //ReportWorker.RunWorkerAsync(playlists);
     }
 
-    static void GenerateReportProgress(object sender, ProgressChangedEventArgs e)
-    {
-    }
-
-    static void GenerateReportWork(object sender, DoWorkEventArgs e)
+    static object GenerateReportWork(IEnumerable<TSPlaylistFile> playlists)
     {
       try
       {
-        List<TSPlaylistFile> playlists = (List<TSPlaylistFile>)e.Argument;
-        e.Result = Generate(BDROM, playlists, ScanResult);
+        return Generate(BDROM, playlists, ScanResult);
       }
       catch (Exception ex)
       {
-        e.Result = ex;
+        return ex;
       }
     }
 
-    static void GenerateReportCompleted(object sender, RunWorkerCompletedEventArgs e)
+    static void GenerateReportCompleted(object e)
     {
-      if (e.Result != null)
+      if (e != null)
       {
-        if (e.Result is string)
+        if (e is string)
         {
-          Console.WriteLine(e.Result);
+          Console.WriteLine(e);
         }
-        else if (e.Result is Exception)
+        else if (e is Exception)
         {
-          string msg = string.Format(
-              "{0}", ((Exception)e.Result).Message);
+          string msg = string.Format("{0}", ((Exception)e).Message);
 
           Console.WriteLine(msg);
         }
       }
     }
 
-    static string Generate(BDROM BDROM, List<TSPlaylistFile> playlists, ScanBDROMResult scanResult)
+    static string Generate(BDROM BDROM, IEnumerable<TSPlaylistFile> playlists, ScanBDROMResult scanResult)
     {
 
       StreamWriter reportFile = null;
