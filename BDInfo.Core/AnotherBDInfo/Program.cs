@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -19,7 +18,7 @@ namespace AnotherBDInfo
     private static ListElement labelTimeRemaining = new ListElement();
     private static ListElement textBoxReport = new ListElement();
 
-    private static string ProductVersion = "0.7.5";
+    private static readonly string ProductVersion = "0.7.5";
     private static ListElement progressBarScan = new ListElement();
 
     static void Main(string[] args)
@@ -97,10 +96,6 @@ namespace AnotherBDInfo
           "An error occurred while scanning the playlist file {0}.\n\nThe disc may be copy-protected or damaged.\n\nWill continue scanning the playlist files", playlistFile.Name));
 
       return true;
-    }
-
-    static void InitBDROMProgress(object sender, ProgressChangedEventArgs e)
-    {
     }
 
     static void InitBDROMCompleted(object result)

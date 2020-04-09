@@ -305,6 +305,8 @@ namespace BDInfo.Core
 
       public byte PreferredTransferCharacteristics;
 
+      public bool IsHdr10Plus;
+
       public ExtendedDataSet()
       {
         VideoParamSets = new List<VideoParamSetStruct>();
@@ -416,6 +418,7 @@ namespace BDInfo.Core
     public static bool LightLevelAvailable;
 
     public static byte PreferredTransferCharacteristics;
+    public static bool IsHdr10Plus;
 
     public static void Scan(TSVideoStream stream, TSStreamBuffer buffer, ref string tag)
     {
@@ -511,6 +514,7 @@ namespace BDInfo.Core
       ExtendedData.VUIParameterSets = VUIParameterSets;
       ExtendedData.SeqParameterSets = SeqParameterSets;
       ExtendedData.PicParameterSets = PicParameterSets;
+      ExtendedData.IsHdr10Plus = IsHdr10Plus;
 
       stream.ExtendedData = ExtendedData;
 
@@ -587,7 +591,7 @@ namespace BDInfo.Core
               seqParameterSet.VUIParameters.MatrixCoefficients == 10) &&      //MatrixCoefficients BT.2020 constant
               !string.IsNullOrEmpty(MasteringDisplayColorPrimaries))
           {
-            ExtendedFormatInfo.Add(stream.PID >= 4117 ? "Dolby Vision" : "HDR10");
+            ExtendedFormatInfo.Add(stream.PID >= 4117 ? "Dolby Vision" : IsHdr10Plus ? "HDR10+" : "HDR10");
           }
 
           if (seqParameterSet.VUIParameters.VideoSignalTypePresentFlag)
@@ -951,6 +955,9 @@ namespace BDInfo.Core
           case 147:
             SeiAlternativeTransferCharacteristics(buffer);
             break;
+          case 4: // SEI_USER_DATA_REGISTERED_ITU_T_T35
+            SeiUserDataRegisteredItuTT35(buffer, payloadSize);
+            break;
           default:
             buffer.BSSkipBytes((int)payloadSize);
             break;
@@ -958,6 +965,29 @@ namespace BDInfo.Core
         if (SavedPos > (ulong)buffer.Position)
           buffer.BSSkipBytes((int)(SavedPos - (ulong)buffer.Position));
       } while (buffer.Position < elementStart + elementSize);
+    }
+
+    // SEI - 4 SEI_USER_DATA_REGISTERED_ITU_T_T35
+    private static void SeiUserDataRegisteredItuTT35(TSStreamBuffer buffer, uint payloadSize)
+    {
+      ushort country_code = buffer.ReadBits2(8);                      // itu_t_t35_country_code
+      ushort terminal_provider_code = buffer.ReadBits2(16);           // itu_t_t35_terminal_provider_code
+      ushort terminal_provider_oriented_code = buffer.ReadBits2(16);  // itu_t_t35_terminal_provider_oriented_code
+      uint application_id = buffer.ReadBits4(8);                      // application_identifier
+      uint application_version = buffer.ReadBits4(8);                 // application_version
+      uint num_windows = buffer.ReadBits4(2);                         // num_windows
+      buffer.BSSkipBits(6);
+      // ST 2094-40 page 4
+      if (country_code == 0xB5 && terminal_provider_code == 0x003C && terminal_provider_oriented_code == 0x0001)
+      {
+        // ST 2094-40 application #4 page 4
+        if (application_id == 4 && (application_version == 0 || application_version == 1) && num_windows == 1)
+        {
+          IsHdr10Plus = true;
+        }
+      }
+      payloadSize -= 8;
+      buffer.BSSkipBytes((int)payloadSize);
     }
 
     // SEI - 0
