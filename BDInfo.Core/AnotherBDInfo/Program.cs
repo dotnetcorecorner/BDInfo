@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommandLine;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -10,42 +11,70 @@ namespace AnotherBDInfo
   class Program
   {
     static BDROM BDROM = null;
-    private static ListElement textBoxDetails = new ListElement();
-    private static ListElement textBoxSource = new ListElement();
+    static ListElement textBoxDetails = new ListElement(0);
+    static ListElement textBoxSource = new ListElement(1);
     static ScanBDROMResult ScanResult = new ScanBDROMResult();
-    private static ListElement labelProgress = new ListElement();
-    private static ListElement labelTimeElapsed = new ListElement();
-    private static ListElement labelTimeRemaining = new ListElement();
-    private static ListElement textBoxReport = new ListElement();
+    static ListElement labelProgress = new ListElement(3);
+    static ListElement labelTimeElapsed = new ListElement(4);
+    static ListElement labelTimeRemaining = new ListElement(5);
+    static ListElement textBoxReport = new ListElement(6);
 
-    private static readonly string ProductVersion = "0.7.5";
-    private static ListElement progressBarScan = new ListElement();
+    static readonly string ProductVersion = "0.7.5";
+    static ListElement progressBarScan = new ListElement(8);
+    static int nextRow = 9;
 
     static void Main(string[] args)
     {
-      if (args.Length > 0)
+      if (args.Length == 0)
       {
-        textBoxDetails.OnTextChanged += OnTextChanged;
-        textBoxSource.OnTextChanged += OnTextChanged;
-        labelProgress.OnTextChanged += OnTextChanged;
-        labelTimeElapsed.OnTextChanged += OnTextChanged;
-        labelTimeRemaining.OnTextChanged += OnTextChanged;
-        textBoxReport.OnTextChanged += OnTextChanged;
-        progressBarScan.OnProgressChanged += (val) =>
-        {
-          Console.WriteLine($"\rProgress: {val} %");
-        };
-
-        InitBDROM(args[0]);
-        ScanBDROM();
+        Console.WriteLine("No path specified !");
+        return;
       }
+
+      Parser.Default.ParseArguments<CmdOptions>(args)
+        .WithParsed(opts => Exec(opts))
+        .WithNotParsed((errs) => HandleParseError(errs));
 
       Console.ReadLine();
     }
 
-    private static void OnTextChanged(string obj)
+    static void Exec(CmdOptions opts)
     {
-      Console.WriteLine(obj);
+      BDInfoSettings.Load(opts);
+      InitEvents();
+
+      InitBDROM(opts.Path);
+      ScanBDROM();
+    }
+
+    static void HandleParseError(IEnumerable<Error> errs) { }
+
+    static void InitEvents()
+    {
+      textBoxDetails.OnTextChanged += OnTextChanged;
+      textBoxSource.OnTextChanged += OnTextChanged;
+      labelProgress.OnTextChanged += OnTextChanged;
+      labelTimeElapsed.OnTextChanged += OnTextChanged;
+      labelTimeRemaining.OnTextChanged += OnTextChanged;
+
+      if (BDInfoSettings.PrintReportToConsole)
+      {
+        textBoxReport.OnTextChanged += OnTextChanged;
+      }
+
+      progressBarScan.OnProgressChanged += (val, pos) =>
+      {
+        Console.SetCursorPosition(0, pos);
+        //Console.Write(new string(' ', Console.WindowWidth));
+        Console.Write($"Progress: {val} %");
+      };
+    }
+
+    static void OnTextChanged(string obj, int position)
+    {
+      Console.SetCursorPosition(0, position);
+      //Console.Write(new string(' ', Console.WindowWidth));
+      Console.Write($"{obj}");
     }
 
     static void InitBDROM(string path)
@@ -102,8 +131,7 @@ namespace AnotherBDInfo
     {
       if (result != null)
       {
-        string msg = string.Format(CultureInfo.InvariantCulture,
-                                    "{0}", ((Exception)result).Message);
+        string msg = string.Format(CultureInfo.InvariantCulture, "{0}", ((Exception)result).Message);
 
         Console.WriteLine(msg);
         return;
@@ -321,7 +349,7 @@ namespace AnotherBDInfo
 
     static void ScanBDROMCompleted()
     {
-      labelProgress.Text = "Scan complete.";
+      labelProgress.Text = $"Scan complete.{new string(' ', 100)}";
       progressBarScan.Value = 100;
       labelTimeRemaining.Text = "00:00:00";
 
@@ -371,19 +399,20 @@ namespace AnotherBDInfo
 
     static void GenerateReport()
     {
-      Console.WriteLine("Please wait while we generate the report...");
+      if (BDInfoSettings.PrintReportToConsole)
+      {
+        Console.SetCursorPosition(0, nextRow);
+        Console.WriteLine("Please wait while we generate the report...");
+      }
 
       IEnumerable<TSPlaylistFile> playlists = BDROM.PlaylistFiles.Select(s => s.Value);
 
-      GenerateReportCompleted(GenerateReportWork(playlists));
+      if (BDInfoSettings.PrintOnlyForBigPlaylist)
+      {
+        playlists = playlists.Take(2);
+      }
 
-      //ReportWorker = new BackgroundWorker();
-      //ReportWorker.WorkerReportsProgress = true;
-      //ReportWorker.WorkerSupportsCancellation = true;
-      //ReportWorker.DoWork += GenerateReportWork;
-      //ReportWorker.ProgressChanged += GenerateReportProgress;
-      //ReportWorker.RunWorkerCompleted += GenerateReportCompleted;
-      //ReportWorker.RunWorkerAsync(playlists);
+      GenerateReportCompleted(GenerateReportWork(playlists));
     }
 
     static object GenerateReportWork(IEnumerable<TSPlaylistFile> playlists)
@@ -400,33 +429,16 @@ namespace AnotherBDInfo
 
     static void GenerateReportCompleted(object e)
     {
-      if (e != null)
+      if (e != null && e is Exception)
       {
-        if (e is string)
-        {
-          Console.WriteLine(e);
-        }
-        else if (e is Exception)
-        {
-          string msg = string.Format("{0}", ((Exception)e).Message);
-
-          Console.WriteLine(msg);
-        }
+        string msg = string.Format("{0}", ((Exception)e).Message);
+        Console.WriteLine(msg);
       }
     }
 
     static string Generate(BDROM BDROM, IEnumerable<TSPlaylistFile> playlists, ScanBDROMResult scanResult)
     {
-
-      StreamWriter reportFile = null;
-      if (BDInfoSettings.AutosaveReport)
-      {
-        string reportName = string.Format(CultureInfo.InvariantCulture,
-                                            "BDINFO.{0}.txt",
-                                            BDROM.VolumeLabel);
-
-        reportFile = File.CreateText(Path.Combine(Environment.CurrentDirectory, reportName));
-      }
+      string reportName = string.Format("report_{0}.txt", BDROM.VolumeLabel);
       textBoxReport.Text = "";
 
       string report = "";
@@ -1447,29 +1459,21 @@ namespace AnotherBDInfo
           report += "\r\n";
         }
 
-        if (BDInfoSettings.AutosaveReport && reportFile != null)
-        {
-          try { reportFile.Write(report); }
-          catch { }
-        }
         textBoxReport.Text += report;
         report = "";
         GC.Collect();
       }
 
-      if (BDInfoSettings.AutosaveReport && reportFile != null)
+      using (StreamWriter reportFile = File.CreateText(Path.Combine(BDInfoSettings.ReportPath, reportName)))
       {
-        try { reportFile.Write(report); }
-        catch { }
-
+        if (BDInfoSettings.AutosaveReport)
+        {
+          try { reportFile.Write(report); }
+          catch { }
+        }
       }
+
       textBoxReport.Text += report;
-
-      if (reportFile != null)
-      {
-        reportFile.Close();
-      }
-
       return textBoxReport.Text;
     }
   }
