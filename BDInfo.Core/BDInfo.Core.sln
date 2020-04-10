@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29806.167
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnotherBDInfo", "AnotherBDInfo\AnotherBDInfo.csproj", "{8993A1DB-DB2E-46C8-BA1E-F6C8FE8158F7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BDInfo", "AnotherBDInfo\BDInfo.csproj", "{8993A1DB-DB2E-46C8-BA1E-F6C8FE8158F7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "items", "items", "{25E27F2B-A85E-43BF-B04D-23B85F0C13E3}"
 	ProjectSection(SolutionItems) = preProject
