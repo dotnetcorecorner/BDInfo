@@ -12,6 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "items", "items", "{25E27F2B
 		myscript.sh = myscript.sh
 		ps\parameters.json = ps\parameters.json
 		ps\template.json = ps\template.json
+		ps\vsftpd.conf = ps\vsftpd.conf
 	EndProjectSection
 EndProject
 Global
