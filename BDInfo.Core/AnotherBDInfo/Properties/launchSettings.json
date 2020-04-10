@@ -2,7 +2,7 @@
   "profiles": {
     "AnotherBDInfo": {
       "commandName": "Project",
-      "commandLineArgs": "\"C:\\p\\Frosty.the.Snowman.1969.1080p.Blu-ray.AVC.TrueHD.5.1\""
+      "commandLineArgs": "-p \"C:\\p\\Frosty.the.Snowman.1969.1080p.Blu-ray.AVC.TrueHD.5.1\" -o \"test1.txt\""
     }
   }
 }

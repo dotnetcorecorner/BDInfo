@@ -46,10 +46,10 @@ namespace AnotherBDInfo
     [Option('m', "generatetextsummary", Required = false, Default = true)]
     public bool GenerateTextSummary { get; set; }
 
-    [Option('t', "lastpath", Required = false, Default = "")]
-    public string LastPath { get; set; }
-
     [Option('r', "reportpath", Required = false, Default = null)]
     public string ReportPath { get; set; }
+
+    [Option('o', "reportfilename", Required = false, Default = null)]
+    public string ReportFileName { get; set; }
   }
 }

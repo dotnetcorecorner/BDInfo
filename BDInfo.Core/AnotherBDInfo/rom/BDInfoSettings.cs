@@ -56,9 +56,9 @@ namespace AnotherBDInfo
 
     public static bool GenerateTextSummary => _opts?.GenerateTextSummary ?? true;
 
-    public static string LastPath => _opts?.LastPath ?? string.Empty;
-
     public static string ReportPath => _opts?.ReportPath ?? AppDomain.CurrentDomain.BaseDirectory;
+
+    public static string ReportFileName => _opts?.ReportFileName ?? "report_{0}.txt";
 
     public static bool IncludeVersionAndNotes => false;
 

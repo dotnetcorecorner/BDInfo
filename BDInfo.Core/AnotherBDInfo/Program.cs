@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace AnotherBDInfo
@@ -438,7 +439,10 @@ namespace AnotherBDInfo
 
     static string Generate(BDROM BDROM, IEnumerable<TSPlaylistFile> playlists, ScanBDROMResult scanResult)
     {
-      string reportName = string.Format("report_{0}.txt", BDROM.VolumeLabel);
+      string reportName = Regex.IsMatch(BDInfoSettings.ReportFileName, @"\{\d+\}", RegexOptions.IgnoreCase) ?
+        string.Format(BDInfoSettings.ReportFileName, BDROM.VolumeLabel) :
+        BDInfoSettings.ReportFileName;
+
       textBoxReport.Text = "";
 
       string report = "";
@@ -494,19 +498,23 @@ namespace AnotherBDInfo
                                   ProductVersion);
 
       report += "\r\n";
-      report += string.Format(CultureInfo.InvariantCulture,
-                                  "{0,-16}{1}\r\n", "Notes:", "");
-      report += "\r\n";
-      report += "BDINFO HOME:\r\n";
-      report += "  Cinema Squid (old)\r\n";
-      report += "    http://www.cinemasquid.com/blu-ray/tools/bdinfo\r\n";
-      report += "  UniqProject GitHub (new)\r\n";
-      report += "   https://github.com/UniqProject/BDInfo\r\n";
-      report += "\r\n";
-      report += "INCLUDES FORUMS REPORT FOR:\r\n";
-      report += "  AVS Forum Blu-ray Audio and Video Specifications Thread\r\n";
-      report += "    http://www.avsforum.com/avs-vb/showthread.php?t=1155731\r\n";
-      report += "\r\n";
+
+      if (BDInfoSettings.IncludeVersionAndNotes)
+      {
+        report += string.Format(CultureInfo.InvariantCulture,
+                                    "{0,-16}{1}\r\n", "Notes:", "");
+        report += "\r\n";
+        report += "BDINFO HOME:\r\n";
+        report += "  Cinema Squid (old)\r\n";
+        report += "    http://www.cinemasquid.com/blu-ray/tools/bdinfo\r\n";
+        report += "  UniqProject GitHub (new)\r\n";
+        report += "   https://github.com/UniqProject/BDInfo\r\n";
+        report += "\r\n";
+        report += "INCLUDES FORUMS REPORT FOR:\r\n";
+        report += "  AVS Forum Blu-ray Audio and Video Specifications Thread\r\n";
+        report += "    http://www.avsforum.com/avs-vb/showthread.php?t=1155731\r\n";
+        report += "\r\n";
+      }
 
       if (scanResult.ScanException != null)
       {
