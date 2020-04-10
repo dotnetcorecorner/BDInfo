@@ -443,6 +443,11 @@ namespace AnotherBDInfo
         string.Format(BDInfoSettings.ReportFileName, BDROM.VolumeLabel) :
         BDInfoSettings.ReportFileName;
 
+      if (!Regex.IsMatch(reportName, @"\.(\w+)$", RegexOptions.IgnoreCase))
+      {
+        reportName = $"{reportName}.txt";
+      }
+
       textBoxReport.Text = "";
 
       string report = "";
