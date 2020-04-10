@@ -60,10 +60,10 @@ namespace AnotherBDInfo
 
     public static string ReportFileName => _opts?.ReportFileName ?? "report_{0}.txt";
 
-    public static bool IncludeVersionAndNotes => false;
+    public static bool IncludeVersionAndNotes => _opts?.IncludeVersionAndNotes ?? false;
 
-    public static bool PrintOnlyForBigPlaylist => true;
+    public static bool PrintOnlyForBigPlaylist => _opts?.PrintOnlyForBigPlaylist ?? true;
 
-    public static bool PrintReportToConsole => false;
+    public static bool PrintReportToConsole => _opts?.PrintReportToConsole ?? false;
   }
 }

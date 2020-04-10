@@ -51,5 +51,14 @@ namespace AnotherBDInfo
 
     [Option('o', "reportfilename", Required = false, Default = null, HelpText = "The report filename with extension. If no extension provided then will append .txt at end of filename")]
     public string ReportFileName { get; set; }
+
+    [Option('q', "includeversionandnotes", Required = false, Default = false, HelpText = "Include version and notes inside report")]
+    public bool IncludeVersionAndNotes { get; set; }
+
+    [Option('y', "printonlybigplaylist", Required = false, Default = true, HelpText = "Print report with only biggest playlist")]
+    public bool PrintOnlyForBigPlaylist { get; set; }
+
+    [Option('w', "printtoconsole", Required = false, Default = false, HelpText = "Print report to console")]
+    public bool PrintReportToConsole { get; set; }
   }
 }
