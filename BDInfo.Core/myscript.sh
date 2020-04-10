@@ -29,9 +29,9 @@ if [[ $generatescreens -eq "y" ]]; then
 	read ssnum
 	
 	if [[ $ssnum -eq 0 ]]; then
-		$screenshotnum=3
+		screenshotnum=3
 	else
-		$screenshotnum=$ssnum
+		screenshotnum=$ssnum
 	fi
 fi
 
