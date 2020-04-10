@@ -11,18 +11,19 @@ namespace AnotherBDInfo
 {
   class Program
   {
+    static readonly int CurrentPos = Console.CursorTop;
     static BDROM BDROM = null;
-    static ListElement textBoxDetails = new ListElement(0);
-    static ListElement textBoxSource = new ListElement(1);
+    static ListElement textBoxDetails = new ListElement(CurrentPos);
+    static ListElement textBoxSource = new ListElement(CurrentPos + 1);
     static ScanBDROMResult ScanResult = new ScanBDROMResult();
-    static ListElement labelProgress = new ListElement(6);
-    static ListElement labelTimeElapsed = new ListElement(7);
-    static ListElement labelTimeRemaining = new ListElement(8);
-    static ListElement textBoxReport = new ListElement(9);
+    static ListElement labelProgress = new ListElement(CurrentPos + 6);
+    static ListElement labelTimeElapsed = new ListElement(CurrentPos + 7);
+    static ListElement labelTimeRemaining = new ListElement(CurrentPos + 8);
+    static ListElement textBoxReport = new ListElement(CurrentPos + 9);
 
     static readonly string ProductVersion = "0.7.5.5";
-    static ListElement progressBarScan = new ListElement(10);
-    static int nextRow = 12;
+    static ListElement progressBarScan = new ListElement(CurrentPos + 10);
+    static int nextRow = CurrentPos + 12;
 
     static void Main(string[] args)
     {

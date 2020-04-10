@@ -54,7 +54,7 @@ if [[ $? -eq 1 ]]; then
 fi
 
 echo Generate bd info
-dotnet $mntdisk/bdinfo/BDInfo.Core.dll -p $isodir -r $outputftp -o "${foldername}.txt"
+dotnet $mntdisk/bdinfo/BDInfo.dll -p $isodir -r $outputftp -o "${foldername}.txt"
 
 if [[ $? -eq 1 ]]; then
 	echo Generating info failed
