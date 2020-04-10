@@ -3,3 +3,4 @@ az deployment group create --name MyMachineDeployment --resource-group UbuntuRG 
 
 
 #az group delete UbuntuRG
+#az group delete NetworkWatcherRG
