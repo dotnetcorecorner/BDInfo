@@ -407,7 +407,7 @@ namespace AnotherBDInfo
         Console.WriteLine("Done !");
       }
 
-      IEnumerable<TSPlaylistFile> playlists = BDROM.PlaylistFiles.Select(s => s.Value);
+      IEnumerable<TSPlaylistFile> playlists = BDROM.PlaylistFiles.Select(s => s.Value).OrderByDescending(s => s.FileSize);
 
       if (BDInfoSettings.PrintOnlyForBigPlaylist)
       {
