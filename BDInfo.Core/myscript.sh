@@ -37,52 +37,56 @@ fi
 
 [ ! -d "$isodir" ] && sudo mkdir "$isodir"
 
-echo Copying ISO from remote
-scp -r -P $remoteport $remoteuser@$remoteip:$remotepath/$isofile $mntdisk/$isofile
+if [ ! -f "$mntdisk/$isofile" ]; then
+	echo Copying ISO from remote
+	scp -r -P $remoteport $remoteuser@$remoteip:$remotepath/$isofile $mntdisk/$isofile
+fi
 
 if [[ $? -eq 1 ]]; then
 	echo Copying ISO failed
 	exit 1;
 fi
 
-echo Mounting $mntdisk/$isofile
-sudo mount -o loop $mntdisk/$isofile $isodir
+if [ ! -d "$mntdisk/$foldername" ]; then
+	echo Mounting $mntdisk/$isofile
+	sudo mount -o loop $mntdisk/$isofile $isodir
 
-if [[ $? -eq 1 ]]; then
-	echo Mounting ISO failed
-	exit 1;
-fi
+	if [[ $? -eq 1 ]]; then
+		echo Mounting ISO failed
+		exit 1;
+	fi
 
-echo Generate bd info
-dotnet $mntdisk/bdinfo/BDInfo.dll -p $isodir -r $outputftp -o "${foldername}.txt"
+	echo Generate bd info
+	dotnet $mntdisk/bdinfo/BDInfo.dll -p $isodir -r $outputftp -o "${foldername}.txt"
 
-if [[ $? -eq 1 ]]; then
-	echo Generating info failed
-	exit 1;
-fi
+	if [[ $? -eq 1 ]]; then
+		echo Generating info failed
+		exit 1;
+	fi
 
-echo Creating $foldername
-mkdir $mntdisk/$foldername
+	echo Creating $foldername
+	mkdir $mntdisk/$foldername
 
-if [[ $? -eq 1 ]]; then
-	echo Creating folder $foldername failed
-	exit 1;
-fi
+	if [[ $? -eq 1 ]]; then
+		echo Creating folder $foldername failed
+		exit 1;
+	fi
 
-echo Copying ISO content to $foldername
-scp -r $isodir/* $mntdisk/$foldername/
+	echo Copying ISO content to $foldername
+	scp -r $isodir/* $mntdisk/$foldername/
 
-if [[ $? -eq 1 ]]; then
-	echo Copying ISO content to $foldername failed
-	exit 1;
-fi
+	if [[ $? -eq 1 ]]; then
+		echo Copying ISO content to $foldername failed
+		exit 1;
+	fi
 
-echo Unmount ISO
-sudo umount $isodir
+	echo Unmount ISO
+	sudo umount $isodir
 
-if [[ $? -eq 1 ]]; then
-	echo Unmounting ISO failed
-	exit 1;
+	if [[ $? -eq 1 ]]; then
+		echo Unmounting ISO failed
+		exit 1;
+	fi
 fi
 
 if [[ $generatescreens -eq "y" ]]; then
