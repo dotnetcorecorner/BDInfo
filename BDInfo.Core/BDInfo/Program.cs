@@ -11,19 +11,18 @@ namespace AnotherBDInfo
 {
   class Program
   {
-    static readonly int CurrentPos = Console.CursorTop;
     static BDROM BDROM = null;
-    static ListElement textBoxDetails = new ListElement(CurrentPos);
-    static ListElement textBoxSource = new ListElement(CurrentPos + 1);
-    static ScanBDROMResult ScanResult = new ScanBDROMResult();
-    static ListElement labelProgress = new ListElement(CurrentPos + 6);
-    static ListElement labelTimeElapsed = new ListElement(CurrentPos + 7);
-    static ListElement labelTimeRemaining = new ListElement(CurrentPos + 8);
-    static ListElement textBoxReport = new ListElement(CurrentPos + 9);
+    static ListElement textBoxDetails = null;
+    static ListElement textBoxSource = null;
+    static ScanBDROMResult ScanResult = null;
+    static ListElement labelProgress = null;
+    static ListElement labelTimeElapsed = null;
+    static ListElement labelTimeRemaining = null;
+    static ListElement textBoxReport = null;
 
     static readonly string ProductVersion = "0.7.5.5";
-    static ListElement progressBarScan = new ListElement(CurrentPos + 10);
-    static int nextRow = CurrentPos + 12;
+    static ListElement progressBarScan = null;
+    static int nextRow = 0;
 
     static void Main(string[] args)
     {
@@ -41,10 +40,26 @@ namespace AnotherBDInfo
     static void Exec(CmdOptions opts)
     {
       BDInfoSettings.Load(opts);
+      InitObjects();
       InitEvents();
 
       InitBDROM(opts.Path);
       ScanBDROM();
+    }
+
+    private static void InitObjects()
+    {
+      int currentPos = Console.CursorTop;
+      textBoxDetails = new ListElement(currentPos);
+      textBoxSource = new ListElement(currentPos + 1);
+      ScanResult = new ScanBDROMResult();
+      labelProgress = new ListElement(currentPos + 6);
+      labelTimeElapsed = new ListElement(currentPos + 7);
+      labelTimeRemaining = new ListElement(currentPos + 8);
+      textBoxReport = new ListElement(currentPos + 9);
+
+      progressBarScan = new ListElement(currentPos + 10);
+      nextRow = currentPos + 12;
     }
 
     static void HandleParseError(IEnumerable<Error> errs) { }
@@ -407,7 +422,7 @@ namespace AnotherBDInfo
         Console.WriteLine("Done !");
       }
 
-      IEnumerable<TSPlaylistFile> playlists = BDROM.PlaylistFiles.Select(s => s.Value).OrderByDescending(s => s.FileSize);
+      IEnumerable<TSPlaylistFile> playlists = BDROM.PlaylistFiles.OrderByDescending(s => s.Value.FileSize).Select(s => s.Value);
 
       if (BDInfoSettings.PrintOnlyForBigPlaylist)
       {

@@ -56,14 +56,6 @@ if [ ! -d "$mntdisk/$foldername" ]; then
 		exit 1;
 	fi
 
-	echo Generate bd info
-	dotnet $mntdisk/bdinfo/BDInfo.dll -p $isodir -r $outputftp -o "${foldername}.txt"
-
-	if [[ $? -eq 1 ]]; then
-		echo Generating info failed
-		exit 1;
-	fi
-
 	echo Creating $foldername
 	mkdir $mntdisk/$foldername
 
@@ -73,7 +65,7 @@ if [ ! -d "$mntdisk/$foldername" ]; then
 	fi
 
 	echo Copying ISO content to $foldername
-	scp -r $isodir/* $mntdisk/$foldername/
+	scp -r $isodir/* $mntdisk/$foldername
 
 	if [[ $? -eq 1 ]]; then
 		echo Copying ISO content to $foldername failed
@@ -87,6 +79,14 @@ if [ ! -d "$mntdisk/$foldername" ]; then
 		echo Unmounting ISO failed
 		exit 1;
 	fi
+fi
+
+echo Generate bd info
+dotnet $mntdisk/bdinfo/BDInfo.dll -p $mntdisk/$foldername -r $outputftp -o "${foldername}.txt"
+
+if [[ $? -eq 1 ]]; then
+	echo Generating info failed
+	exit 1;
 fi
 
 if [[ $generatescreens -eq "y" ]]; then
