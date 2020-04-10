@@ -1,0 +1,129 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "value": "eastus"
+        },
+        "networkInterfaceName": {
+            "value": "ubuntuvm707"
+        },
+        "networkSecurityGroupName": {
+            "value": "UbuntuVM-nsg"
+        },
+        "networkSecurityGroupRules": {
+            "value": [
+                {
+                    "name": "SSH",
+                    "properties": {
+                        "priority": 300,
+                        "protocol": "TCP",
+                        "access": "Allow",
+                        "direction": "Inbound",
+                        "sourceAddressPrefix": "*",
+                        "sourcePortRange": "*",
+                        "destinationAddressPrefix": "*",
+                        "destinationPortRange": "63433"
+                    }
+                }
+            ]
+        },
+        "subnetName": {
+            "value": "default"
+        },
+        "virtualNetworkName": {
+            "value": "UbuntuRG-vnet"
+        },
+        "addressPrefixes": {
+            "value": [
+                "10.0.0.0/24"
+            ]
+        },
+        "subnets": {
+            "value": [
+                {
+                    "name": "default",
+                    "properties": {
+                        "addressPrefix": "10.0.0.0/24"
+                    }
+                }
+            ]
+        },
+        "publicIpAddressName": {
+            "value": "UbuntuVM-ip"
+        },
+        "publicIpAddressType": {
+            "value": "Dynamic"
+        },
+        "publicIpAddressSku": {
+            "value": "Basic"
+        },
+        "virtualMachineName": {
+            "value": "UbuntuVM"
+        },
+        "virtualMachineRG": {
+            "value": "UbuntuRG"
+        },
+        "osDiskType": {
+            "value": "Standard_LRS"
+        },
+        "dataDisks": {
+            "value": [
+                {
+                    "lun": 0,
+                    "createOption": "attach",
+                    "caching": "ReadWrite",
+                    "writeAcceleratorEnabled": false,
+                    "id": null,
+                    "name": "UbuntuVM_DataDisk_0",
+                    "storageAccountType": null,
+                    "diskSizeGB": null,
+                    "diskEncryptionSet": {
+                        "id": null
+                    }
+                }
+            ]
+        },
+        "dataDiskResources": {
+            "value": [
+                {
+                    "name": "UbuntuVM_DataDisk_0",
+                    "sku": "Standard_LRS",
+                    "properties": {
+                        "diskSizeGB": 128,
+                        "creationData": {
+                            "createOption": "empty"
+                        }
+                    }
+                }
+            ]
+        },
+        "virtualMachineSize": {
+            "value": "Standard_D2s_v3"
+        },
+        "adminUsername": {
+            "value": "tmm2012"
+        },
+        "adminPassword": {
+            "value": null
+        },
+        "autoShutdownStatus": {
+            "value": "Enabled"
+        },
+        "autoShutdownTime": {
+            "value": "19:00"
+        },
+        "autoShutdownTimeZone": {
+            "value": "UTC"
+        },
+        "autoShutdownNotificationStatus": {
+            "value": "Enabled"
+        },
+        "autoShutdownNotificationLocale": {
+            "value": "en"
+        },
+        "autoShutdownNotificationEmail": {
+            "value": "mihail.teodorescu@cegeka.com"
+        }
+    }
+}
