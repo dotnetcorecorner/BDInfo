@@ -20,7 +20,7 @@ namespace AnotherBDInfo
     static ListElement labelTimeRemaining = new ListElement(8);
     static ListElement textBoxReport = new ListElement(9);
 
-    static readonly string ProductVersion = "0.7.5";
+    static readonly string ProductVersion = "0.7.5.5";
     static ListElement progressBarScan = new ListElement(10);
     static int nextRow = 12;
 
