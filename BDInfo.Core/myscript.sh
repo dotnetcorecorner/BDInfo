@@ -1,6 +1,7 @@
 #!/bin/bash
-mntdisk="/mnt/MyDisk"
+mntdisk="/datadrive"
 isodir="/mnt/iso"
+outputftp="/home/ftpuser"
 
 remotepath="/downloads/extract"
 remoteuser="Sonic3R"
@@ -53,7 +54,7 @@ if [[ $? -eq 1 ]]; then
 fi
 
 echo Generate bd info
-dotnet $mntdisk/bdinfo/BDInfo.Core.dll -p $isodir -r /home/ftpuser/
+dotnet $mntdisk/bdinfo/BDInfo.Core.dll -p $isodir -r $outputftp
 
 if [[ $? -eq 1 ]]; then
 	echo Generating info failed
@@ -98,13 +99,9 @@ if [[ $generatescreens -eq "y" ]]; then
 	i=1;
 	while [[ $i -le $screenshotnum ]]
 	do
-		ffmpeg -ss $((period*i)) -t 1 -i $bigfile -vcodec png -vframes 1 "/home/ftpuser/${foldername}_${i}.png"
+		ffmpeg -ss $((period*i)) -t 1 -i $bigfile -vcodec png -vframes 1 "${outputftp}/${foldername}_${i}.png"
 		i=$(( $i + 1 ))
 	done
-	
-	#ffmpeg -ss 600 -t 1 -i $bigfile -vcodec png -vframes 1 "/home/ftpuser/${foldername}_1.png"
-	#ffmpeg -ss 1200 -t 1 -i $bigfile -vcodec png -vframes 1 "/home/ftpuser/${foldername}_2.png"
-	#ffmpeg -ss 1800 -t 1 -i $bigfile -vcodec png -vframes 1 "/home/ftpuser/${foldername}_3.png"
 fi
 
 if [[ $? -eq 1 ]]; then
