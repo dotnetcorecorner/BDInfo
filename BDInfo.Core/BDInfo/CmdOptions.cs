@@ -55,7 +55,7 @@ namespace AnotherBDInfo
     [Option('q', "includeversionandnotes", Required = false, Default = false, HelpText = "Include version and notes inside report")]
     public bool IncludeVersionAndNotes { get; set; }
 
-    [Option('y', "printonlybigplaylist", Required = false, Default = true, HelpText = "Print report with only biggest playlist")]
+    [Option('z', "printonlybigplaylist", Required = false, Default = true, HelpText = "Print report with only biggest playlist")]
     public bool PrintOnlyForBigPlaylist { get; set; }
 
     [Option('w', "printtoconsole", Required = false, Default = false, HelpText = "Print report to console")]
