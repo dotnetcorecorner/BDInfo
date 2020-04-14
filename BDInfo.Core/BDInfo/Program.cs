@@ -424,7 +424,7 @@ namespace AnotherBDInfo
         Console.WriteLine("Done !");
       }
 
-      IEnumerable<TSPlaylistFile> playlists = BDROM.PlaylistFiles.OrderByDescending(s => s.Value.InterleavedFileSize).Select(s => s.Value);
+      IEnumerable<TSPlaylistFile> playlists = BDROM.PlaylistFiles.OrderByDescending(s => s.Value.FileSize).Select(s => s.Value);
 
       if (BDInfoSettings.PrintOnlyForBigPlaylist)
       {
