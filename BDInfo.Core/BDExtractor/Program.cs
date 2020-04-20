@@ -21,6 +21,11 @@ namespace BDExtractor
 
     static void Exec(CmdOptions opts)
     {
+      if (!Directory.Exists(opts.Output))
+      {
+        Directory.CreateDirectory(opts.Output);
+      }
+
       using (FileStream isoStream = File.Open(opts.Path, FileMode.Open))
       {
         UdfReader cd = new UdfReader(isoStream);
@@ -54,18 +59,32 @@ namespace BDExtractor
       var files = ddi.GetFiles();
       if (files.Length > 0)
       {
-        foreach (var file in files)
+        foreach (DiscFileInfo file in files)
         {
-          var filePath = Path.Combine(path, file.FullName);
+          var filePath = Path.Combine(outpath, file.FullName);
           Console.WriteLine($"Creating file {filePath} ( {SizeConverter.SizeToText(file.Length)} )");
-          file.CopyTo(filePath);
+
+          if (File.Exists(filePath))
+          {
+            File.Delete(filePath);
+          }
+
+          using (FileStream fs = File.Create(filePath))
+          {
+            using (var fileStream = file.Open(FileMode.Open))
+            {
+              fileStream.CopyTo(fs);
+            }
+          }
+
+          Console.WriteLine($"Creating file {filePath} ( {SizeConverter.SizeToText(file.Length)} )");
         }
       }
 
       var dirs = ddi.GetDirectories();
       if (dirs.Length > 0)
       {
-        foreach (var dir in dirs)
+        foreach (DiscDirectoryInfo dir in dirs)
         {
           CopyDirs(dir, outpath);
         }
