@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.7.82" />
-    <PackageReference Include="CommonStuff" Version="1.0.0.521" />
+    <PackageReference Include="CommonStuff" Version="1.0.0.701" />
     <PackageReference Include="Quamotion.DiscUtils" Version="1.0.3" />
   </ItemGroup>
 
