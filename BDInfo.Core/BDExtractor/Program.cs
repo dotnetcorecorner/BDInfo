@@ -39,7 +39,7 @@ namespace BDExtractor
 
         foreach (var file in files)
         {
-          var path = Path.Combine(opts.Output, file.Name);
+          var path = Utility.PathCombine(opts.Output, file.Name);
           file.CopyTo(path, true);
         }
       }
@@ -49,7 +49,7 @@ namespace BDExtractor
 
     static void CopyDirs(DiscDirectoryInfo ddi, string outpath)
     {
-      string path = Path.Combine(outpath, ddi.FullName);
+      string path = Utility.PathCombine(outpath, ddi.FullName);
       if (!Directory.Exists(path))
       {
         Console.WriteLine($"Creating directory {path}");
@@ -61,7 +61,8 @@ namespace BDExtractor
       {
         foreach (DiscFileInfo file in files)
         {
-          var filePath = Path.Combine(outpath, file.FullName);
+          var filePath = Utility.PathCombine(outpath, file.FullName);
+
           Console.WriteLine($"Creating file {filePath} ( {SizeConverter.SizeToText(file.Length)} )");
 
           if (File.Exists(filePath))
