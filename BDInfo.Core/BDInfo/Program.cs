@@ -91,7 +91,7 @@ namespace AnotherBDInfo
       progressBarScan.OnProgressChanged += (val, pos) =>
       {
         Console.SetCursorPosition(0, pos);
-        Console.Write(string.Format(CultureInfo.InvariantCulture, "Progress: {0:N2} %", val));
+        Console.Write(string.Format(CultureInfo.InvariantCulture, "Progress: {0:N2} %  ", val));
       };
     }
 
