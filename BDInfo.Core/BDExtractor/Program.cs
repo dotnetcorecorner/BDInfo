@@ -26,28 +26,36 @@ namespace BDExtractor
         Directory.CreateDirectory(opts.Output);
       }
 
-      using (FileStream isoStream = File.Open(opts.Path, FileMode.Open))
+      try
       {
-        UdfReader cd = new UdfReader(isoStream);
-        var dirs = cd.Root.GetDirectories();
-        var files = cd.Root.GetFiles();
-
-        foreach (var dir in dirs)
+        using (FileStream isoStream = File.Open(opts.Path, FileMode.Open))
         {
-          CopyDirs(dir, opts.Output);
-        }
+          UdfReader cd = new UdfReader(isoStream);
+          var dirs = cd.Root.GetDirectories();
+          var files = cd.Root.GetFiles();
 
-        foreach (var file in files)
-        {
-          var path = FolderUtility.Combine(opts.Output, file.Name);
-          file.CopyTo(path, true);
+          foreach (var dir in dirs)
+          {
+            CopyDir(dir, opts.Output);
+          }
+
+          foreach (var file in files)
+          {
+            var path = FolderUtility.Combine(opts.Output, file.Name);
+            CopyFile(file, path);
+          }
         }
+      }
+      catch (Exception ex)
+      {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine(ex.Message);
       }
     }
 
     static void HandleParseError(IEnumerable<Error> errs) { }
 
-    static void CopyDirs(DiscDirectoryInfo ddi, string outpath)
+    static void CopyDir(DiscDirectoryInfo ddi, string outpath)
     {
       string path = FolderUtility.Combine(outpath, ddi.FullName);
       if (!Directory.Exists(path))
@@ -70,15 +78,7 @@ namespace BDExtractor
             File.Delete(filePath);
           }
 
-          using (FileStream fs = File.Create(filePath))
-          {
-            using (var fileStream = file.Open(FileMode.Open))
-            {
-              fileStream.CopyTo(fs);
-            }
-          }
-
-          Console.WriteLine($"Creating file {filePath} ( {SizeConverter.SizeToText(file.Length)} )");
+          CopyFile(file, filePath);
         }
       }
 
@@ -87,7 +87,18 @@ namespace BDExtractor
       {
         foreach (DiscDirectoryInfo dir in dirs)
         {
-          CopyDirs(dir, outpath);
+          CopyDir(dir, outpath);
+        }
+      }
+    }
+
+    static void CopyFile(DiscFileInfo file, string filePath)
+    {
+      using (FileStream fs = File.Create(filePath))
+      {
+        using (var fileStream = file.Open(FileMode.Open))
+        {
+          fileStream.CopyTo(fs);
         }
       }
     }

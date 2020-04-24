@@ -41,12 +41,21 @@ namespace AnotherBDInfo
 
     static void Exec(CmdOptions opts)
     {
-      BDInfoSettings.Load(opts);
-      InitObjects();
-      InitEvents();
+      try
+      {
+        BDInfoSettings.Load(opts);
+        InitObjects();
+        InitEvents();
 
-      InitBDROM(opts.Path);
-      ScanBDROM();
+        InitBDROM(opts.Path);
+        ScanBDROM();
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine();
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine(ex.Message);
+      }
     }
 
     private static void InitObjects()
