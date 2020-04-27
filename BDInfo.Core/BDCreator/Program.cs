@@ -1,4 +1,5 @@
-﻿using CommandLine;
+﻿using BDCommon;
+using CommandLine;
 using DiscUtils.Iso9660;
 using System;
 using System.Collections.Generic;
@@ -31,9 +32,14 @@ namespace BDCreator
       try
       {
         CDBuilder builder = new CDBuilder();
-        builder.VolumeIdentifier = Path.GetDirectoryName(opts.Path);
+        BDROM rom = new BDROM(opts.Path, new DefaultSettings());
+        rom.Scan();
+
+        builder.UseJoliet = true;
 
         AddDir(opts.Path, builder, opts.Path);
+
+        builder.Build(opts.Output);
       }
       catch (Exception ex)
       {
@@ -52,19 +58,18 @@ namespace BDCreator
 
       if (!string.IsNullOrWhiteSpace(pathDiff))
       {
+        Console.WriteLine($"Adding directory {pathDiff}");
         builder.AddDirectory(pathDiff);
       }
 
       foreach (var file in files)
       {
-        if (string.IsNullOrWhiteSpace(pathDiff))
-        {
-          builder.AddFile(Path.GetFileName(file), file);
-        }
-        else
-        {
-          builder.AddFile($"{pathDiff}{separator}{Path.GetFileName(file)}", file);
-        }
+        string location = string.IsNullOrWhiteSpace(pathDiff) ?
+           Path.GetFileName(file) :
+           $"{pathDiff}{separator}{Path.GetFileName(file)}";
+
+        Console.WriteLine($"Adding file: {location}");
+        builder.AddFile(location, file);
       }
 
       foreach (var dir in dirs)
