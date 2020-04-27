@@ -2,7 +2,7 @@
 
 namespace BDCommon
 {
-  internal sealed class ListElement
+  public sealed class ListElement
   {
     private readonly int _position;
     private string _text;

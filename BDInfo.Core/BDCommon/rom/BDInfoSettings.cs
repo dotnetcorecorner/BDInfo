@@ -17,46 +17,44 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //=============================================================================
 
-using System;
-
 namespace BDCommon
 {
   public abstract class BDInfoSettings
   {
-    public virtual bool GenerateStreamDiagnostics => true;
+    public abstract bool GenerateStreamDiagnostics { get; }
 
-    public virtual bool ExtendedStreamDiagnostics => false;
+    public abstract bool ExtendedStreamDiagnostics { get; }
 
-    public virtual bool EnableSSIF => true;
+    public abstract bool EnableSSIF { get; }
 
-    public virtual bool DisplayChapterCount => false;
+    public abstract bool DisplayChapterCount { get; }
 
-    public virtual bool AutosaveReport => true;
+    public abstract bool AutosaveReport { get; }
 
-    public virtual bool GenerateFrameDataFile => false;
+    public abstract bool GenerateFrameDataFile { get; }
 
-    public virtual bool FilterLoopingPlaylists => true;
+    public abstract bool FilterLoopingPlaylists { get; }
 
-    public virtual bool FilterShortPlaylists => true;
+    public abstract bool FilterShortPlaylists { get; }
 
-    public virtual int FilterShortPlaylistsValue => 20;
+    public abstract int FilterShortPlaylistsValue { get; }
 
-    public virtual bool UseImagePrefix => false;
+    public abstract bool UseImagePrefix { get; }
 
-    public virtual string UseImagePrefixValue => "video-";
+    public abstract string UseImagePrefixValue { get; }
 
-    public virtual bool KeepStreamOrder => true;
+    public abstract bool KeepStreamOrder { get; }
 
-    public virtual bool GenerateTextSummary => true;
+    public abstract bool GenerateTextSummary { get; }
 
-    public virtual string ReportPath => AppDomain.CurrentDomain.BaseDirectory;
+    public abstract string ReportPath { get; }
 
-    public virtual string ReportFileName => "report_{0}.txt";
+    public abstract string ReportFileName { get; }
 
-    public virtual bool IncludeVersionAndNotes => false;
+    public abstract bool IncludeVersionAndNotes { get; }
 
-    public virtual bool PrintOnlyForBigPlaylist => true;
+    public abstract bool PrintOnlyForBigPlaylist { get; }
 
-    public virtual bool PrintReportToConsole => false;
+    public abstract bool PrintReportToConsole { get; }
   }
 }

@@ -1,4 +1,5 @@
-﻿using CommandLine;
+﻿using BDCommon;
+using CommandLine;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -23,6 +24,7 @@ namespace BDInfo
     static readonly string ProductVersion = "0.7.5.5";
     static ListElement progressBarScan = null;
     static int nextRow = 0;
+    private static BDSettings _bdinfoSettings;
 
     static void Main(string[] args)
     {
@@ -43,7 +45,7 @@ namespace BDInfo
     {
       try
       {
-        BDInfoSettings.Load(opts);
+        _bdinfoSettings = new BDSettings(opts);
         InitObjects();
         InitEvents();
 
@@ -83,7 +85,7 @@ namespace BDInfo
       labelTimeElapsed.OnTextChanged += OnTextChanged;
       labelTimeRemaining.OnTextChanged += OnTextChanged;
 
-      if (BDInfoSettings.PrintReportToConsole)
+      if (_bdinfoSettings.PrintReportToConsole)
       {
         textBoxReport.OnTextChanged += OnTextChanged;
       }
@@ -115,7 +117,7 @@ namespace BDInfo
     {
       try
       {
-        BDROM = new BDROM(path);
+        BDROM = new BDROM(path, _bdinfoSettings);
         BDROM.StreamClipFileScanError += new BDROM.OnStreamClipFileScanError(BDROM_StreamClipFileScanError);
         BDROM.StreamFileScanError += new BDROM.OnStreamFileScanError(BDROM_StreamFileScanError);
         BDROM.PlaylistFileScanError += new BDROM.OnPlaylistFileScanError(BDROM_PlaylistFileScanError);
@@ -248,7 +250,7 @@ namespace BDInfo
 
         foreach (TSStreamFile streamFile in streamFiles)
         {
-          if (BDInfoSettings.EnableSSIF &&
+          if (_bdinfoSettings.EnableSSIF &&
               streamFile.InterleavedFile != null)
           {
             if (streamFile.InterleavedFile.FileInfo != null)
@@ -385,7 +387,7 @@ namespace BDInfo
       }
       else
       {
-        if (BDInfoSettings.AutosaveReport)
+        if (_bdinfoSettings.AutosaveReport)
         {
           GenerateReport();
         }
@@ -424,7 +426,7 @@ namespace BDInfo
     {
       Console.SetCursorPosition(0, nextRow);
 
-      if (BDInfoSettings.PrintReportToConsole)
+      if (_bdinfoSettings.PrintReportToConsole)
       {
         Console.WriteLine("Please wait while we generate the report...");
       }
@@ -435,7 +437,7 @@ namespace BDInfo
 
       IEnumerable<TSPlaylistFile> playlists = BDROM.PlaylistFiles.OrderByDescending(s => s.Value.FileSize).Select(s => s.Value);
 
-      if (BDInfoSettings.PrintOnlyForBigPlaylist)
+      if (_bdinfoSettings.PrintOnlyForBigPlaylist)
       {
         playlists = playlists.Take(2);
       }
@@ -466,9 +468,9 @@ namespace BDInfo
 
     static string Generate(BDROM BDROM, IEnumerable<TSPlaylistFile> playlists, ScanBDROMResult scanResult)
     {
-      string reportName = Regex.IsMatch(BDInfoSettings.ReportFileName, @"\{\d+\}", RegexOptions.IgnoreCase) ?
-        string.Format(BDInfoSettings.ReportFileName, BDROM.VolumeLabel) :
-        BDInfoSettings.ReportFileName;
+      string reportName = Regex.IsMatch(_bdinfoSettings.ReportFileName, @"\{\d+\}", RegexOptions.IgnoreCase) ?
+        string.Format(_bdinfoSettings.ReportFileName, BDROM.VolumeLabel) :
+        _bdinfoSettings.ReportFileName;
 
       if (!Regex.IsMatch(reportName, @"\.(\w+)$", RegexOptions.IgnoreCase))
       {
@@ -531,7 +533,7 @@ namespace BDInfo
 
       report += "\r\n";
 
-      if (BDInfoSettings.IncludeVersionAndNotes)
+      if (_bdinfoSettings.IncludeVersionAndNotes)
       {
         report += string.Format(CultureInfo.InvariantCulture,
                                     "{0,-16}{1}\r\n", "Notes:", "");
@@ -1406,7 +1408,7 @@ namespace BDInfo
           }
         }
 
-        if (BDInfoSettings.GenerateStreamDiagnostics)
+        if (_bdinfoSettings.GenerateStreamDiagnostics)
         {
           report += "\r\n";
           report += "STREAM DIAGNOSTICS:\r\n";
@@ -1492,7 +1494,7 @@ namespace BDInfo
         report += "<---- END FORUMS PASTE ---->\r\n";
         report += "\r\n";
 
-        if (BDInfoSettings.GenerateTextSummary)
+        if (_bdinfoSettings.GenerateTextSummary)
         {
           report += "QUICK SUMMARY:\r\n\r\n";
           report += summary;
@@ -1503,9 +1505,9 @@ namespace BDInfo
         GC.Collect();
       }
 
-      if (BDInfoSettings.AutosaveReport)
+      if (_bdinfoSettings.AutosaveReport)
       {
-        using (StreamWriter reportFile = File.CreateText(Path.Combine(BDInfoSettings.ReportPath, reportName)))
+        using (StreamWriter reportFile = File.CreateText(Path.Combine(_bdinfoSettings.ReportPath, reportName)))
         {
           try { reportFile.Write(report); }
           catch { }
