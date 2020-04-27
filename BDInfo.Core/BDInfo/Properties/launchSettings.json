@@ -2,7 +2,7 @@
   "profiles": {
     "BDInfo": {
       "commandName": "Project",
-      "commandLineArgs": "-p \"C:\\p\\Frosty.the.Snowman.1969.1080p.Blu-ray.AVC.TrueHD.5.1\" -g -b -a -l -y -k -m -z"
+      "commandLineArgs": "-p \"C:\\p\\Frosty.the.Snowman.1969.1080p.Blu-ray.AVC.TrueHD.5.1\" -b -a -l -y -k -m -z"
     }
   }
 }
