@@ -1515,7 +1515,6 @@ namespace BDInfo
       }
 
       textBoxReport.Text += report;
-      report = string.Empty;
       return textBoxReport.Text;
     }
   }
