@@ -26,7 +26,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml;
 
-namespace AnotherBDInfo
+namespace BDInfo
 {
   public class BDROM
   {

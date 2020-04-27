@@ -19,7 +19,7 @@
 
 using System.IO;
 
-namespace AnotherBDInfo
+namespace BDInfo
 {
     public abstract class TSCodecDTSHD
     {

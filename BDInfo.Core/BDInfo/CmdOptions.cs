@@ -1,6 +1,6 @@
 ﻿using CommandLine;
 
-namespace AnotherBDInfo
+namespace BDInfo
 {
   public sealed class CmdOptions
   {

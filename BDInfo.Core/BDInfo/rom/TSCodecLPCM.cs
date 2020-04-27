@@ -21,7 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnotherBDInfo
+namespace BDInfo
 {
     public abstract class TSCodecLPCM
     {

@@ -22,7 +22,7 @@ using System.Collections;
 using System.Collections.Specialized;
 using System.IO;
 
-namespace AnotherBDInfo
+namespace BDInfo
 {
     public class TSStreamBuffer
     {

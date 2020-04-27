@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Text;
 
-namespace AnotherBDInfo
+namespace BDInfo
 {
   public class ToolBox
   {

@@ -21,7 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 
-namespace AnotherBDInfo
+namespace BDInfo
 {
   public abstract class TSCodecHEVC
   {

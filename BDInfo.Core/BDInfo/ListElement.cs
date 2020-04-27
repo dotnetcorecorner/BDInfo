@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AnotherBDInfo
+namespace BDInfo
 {
   internal sealed class ListElement
   {

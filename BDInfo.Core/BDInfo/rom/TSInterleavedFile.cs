@@ -23,7 +23,7 @@ using DiscUtils.Udf;
 
 // TODO: Do more interesting things here...
 
-namespace AnotherBDInfo
+namespace BDInfo
 {
     public class TSInterleavedFile
     {

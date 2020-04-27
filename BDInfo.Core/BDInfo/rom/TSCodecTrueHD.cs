@@ -19,7 +19,7 @@
 
 using System;
 
-namespace AnotherBDInfo
+namespace BDInfo
 {
     public abstract class TSCodecTrueHD
     {

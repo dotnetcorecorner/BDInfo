@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace AnotherBDInfo
+namespace BDInfo
 {
   public class ScanBDROMResult
   {

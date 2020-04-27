@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 
-namespace AnotherBDInfo
+namespace BDInfo
 {
   class Program
   {

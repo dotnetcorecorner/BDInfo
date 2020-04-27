@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace AnotherBDInfo
+namespace BDInfo
 {
   public class TSStreamState
   {
