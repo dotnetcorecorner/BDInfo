@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace BDInfo
+namespace BDCommon
 {
   public class TSStreamState
   {
@@ -156,7 +156,7 @@ namespace BDInfo
   {
     public DiscFileInfo DFileInfo = null;
     public UdfReader CdReader = null;
-
+    private readonly BDInfoSettings _settings;
     public FileInfo FileInfo = null;
     public string Name = null;
     public long Size = 0;
@@ -175,8 +175,10 @@ namespace BDInfo
 
     private List<TSPlaylistFile> Playlists = null;
 
-    public TSStreamFile(FileInfo fileInfo)
+    public TSStreamFile(FileInfo fileInfo, BDInfoSettings settings)
     {
+      _settings = settings;
+
       FileInfo = fileInfo;
       DFileInfo = null;
       CdReader = null;
@@ -184,8 +186,10 @@ namespace BDInfo
     }
 
     public TSStreamFile(DiscFileInfo fileInfo,
-        UdfReader reader)
+        UdfReader reader, BDInfoSettings settings)
     {
+      _settings = settings;
+
       DFileInfo = fileInfo;
       FileInfo = null;
       CdReader = reader;
@@ -196,7 +200,7 @@ namespace BDInfo
     {
       get
       {
-        if (BDInfoSettings.EnableSSIF &&
+        if (_settings.EnableSSIF &&
             InterleavedFile != null)
         {
           return InterleavedFile.Name;
@@ -261,7 +265,7 @@ namespace BDInfo
 
         case TSStreamType.HEVC_VIDEO:
           TSCodecHEVC.Scan(
-              (TSVideoStream)stream, buffer, ref streamState.StreamTag);
+              (TSVideoStream)stream, buffer, _settings, ref streamState.StreamTag);
           break;
 
         case TSStreamType.VC1_VIDEO:
@@ -480,7 +484,7 @@ namespace BDInfo
       try
       {
         string fileName;
-        if (BDInfoSettings.EnableSSIF &&
+        if (_settings.EnableSSIF &&
             InterleavedFile != null)
         {
           if (InterleavedFile.FileInfo != null)

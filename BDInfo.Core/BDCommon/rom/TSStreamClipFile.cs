@@ -25,7 +25,7 @@ using System.Text;
 using DiscUtils;
 using DiscUtils.Udf;
 
-namespace BDInfo
+namespace BDCommon
 {
     public class TSStreamClipFile
     {

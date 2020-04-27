@@ -21,7 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 
-namespace BDInfo
+namespace BDCommon
 {
   public abstract class TSCodecHEVC
   {
@@ -420,7 +420,7 @@ namespace BDInfo
     public static byte PreferredTransferCharacteristics;
     public static bool IsHdr10Plus;
 
-    public static void Scan(TSVideoStream stream, TSStreamBuffer buffer, ref string tag)
+    public static void Scan(TSVideoStream stream, TSStreamBuffer buffer, BDInfoSettings settings, ref string tag)
     {
       if (stream.IsInitialized) return;
 
@@ -574,7 +574,7 @@ namespace BDInfo
                 chromaFormat = "4:4:4";
                 break;
             }
-            if (chromaFormat != string.Empty && BDInfoSettings.ExtendedStreamDiagnostics)
+            if (chromaFormat != string.Empty && settings.ExtendedStreamDiagnostics)
               ExtendedFormatInfo.Add(chromaFormat);
           }
 
@@ -596,13 +596,13 @@ namespace BDInfo
 
           if (seqParameterSet.VUIParameters.VideoSignalTypePresentFlag)
           {
-            if (BDInfoSettings.ExtendedStreamDiagnostics)
+            if (settings.ExtendedStreamDiagnostics)
               ExtendedFormatInfo.Add(seqParameterSet.VUIParameters.VideoFullRangeFlag == 1 ? "Full Range" : "Limited Range");
 
             if (seqParameterSet.VUIParameters.ColourDescriptionPresentFlag)
             {
               ExtendedFormatInfo.Add(ColourPrimaries(seqParameterSet.VUIParameters.ColourPrimaries));
-              if (BDInfoSettings.ExtendedStreamDiagnostics)
+              if (settings.ExtendedStreamDiagnostics)
               {
                 ExtendedFormatInfo.Add(TransferCharacteristics(seqParameterSet.VUIParameters.TransferCharacteristics));
                 ExtendedFormatInfo.Add(MatrixCoefficients(seqParameterSet.VUIParameters.MatrixCoefficients));
@@ -613,7 +613,7 @@ namespace BDInfo
         }
       }
 
-      if (BDInfoSettings.ExtendedStreamDiagnostics)
+      if (settings.ExtendedStreamDiagnostics)
       {
         if (MasteringDisplayColorPrimaries != string.Empty)
         {

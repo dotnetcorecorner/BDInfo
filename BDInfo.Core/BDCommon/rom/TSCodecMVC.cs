@@ -21,7 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace BDInfo
+namespace BDCommon
 {
     // TODO: Do something more interesting here...
 

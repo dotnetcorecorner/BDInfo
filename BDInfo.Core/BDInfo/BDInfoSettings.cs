@@ -19,7 +19,7 @@
 
 using System;
 
-namespace BDInfo
+namespace BDCommon
 {
   public static class BDInfoSettings
   {

@@ -21,7 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 
-namespace BDInfo
+namespace BDCommon
 {
     public enum TSStreamType : byte
     {

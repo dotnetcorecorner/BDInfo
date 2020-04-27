@@ -20,7 +20,7 @@
 #undef DEBUG
 using System.IO;
 
-namespace BDInfo
+namespace BDCommon
 {
   public abstract class TSCodecAC3
   {

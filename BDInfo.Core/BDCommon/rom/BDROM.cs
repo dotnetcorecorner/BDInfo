@@ -26,7 +26,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml;
 
-namespace BDInfo
+namespace BDCommon
 {
   public class BDROM
   {
@@ -94,7 +94,7 @@ namespace BDInfo
     public event OnPlaylistFileScanError PlaylistFileScanError;
 
     public BDROM(
-        string path)
+        string path, BDInfoSettings settings)
     {
       //
       // Locate BDMV directories.
@@ -233,7 +233,7 @@ namespace BDInfo
           }
           foreach (DiscFileInfo file in files)
           {
-            PlaylistFiles.Add(file.Name.ToUpper(), new TSPlaylistFile(this, file, CdReader));
+            PlaylistFiles.Add(file.Name.ToUpper(), new TSPlaylistFile(this, file, CdReader, settings));
           }
         }
 
@@ -246,7 +246,7 @@ namespace BDInfo
           }
           foreach (DiscFileInfo file in files)
           {
-            StreamFiles.Add(file.Name.ToUpper(), new TSStreamFile(file, CdReader));
+            StreamFiles.Add(file.Name.ToUpper(), new TSStreamFile(file, CdReader, settings));
           }
         }
 
@@ -360,7 +360,7 @@ namespace BDInfo
           foreach (FileInfo file in files)
           {
             PlaylistFiles.Add(
-                file.Name.ToUpper(), new TSPlaylistFile(this, file));
+                file.Name.ToUpper(), new TSPlaylistFile(this, file, settings));
           }
         }
 
@@ -374,7 +374,7 @@ namespace BDInfo
           foreach (FileInfo file in files)
           {
             StreamFiles.Add(
-                file.Name.ToUpper(), new TSStreamFile(file));
+                file.Name.ToUpper(), new TSStreamFile(file, settings));
           }
         }
 
