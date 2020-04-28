@@ -34,11 +34,12 @@ namespace BDCreator
         CDBuilder builder = new CDBuilder();
         BDROM rom = new BDROM(opts.Path, new DefaultSettings());
         rom.Scan();
-
-        builder.UseJoliet = true;
+        //builder.UseJoliet = true;
 
         AddDir(opts.Path, builder, opts.Path);
 
+        Console.WriteLine("");
+        Console.WriteLine($"Creating {opts.Output} file");
         builder.Build(opts.Output);
       }
       catch (Exception ex)
