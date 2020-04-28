@@ -33,7 +33,7 @@ namespace BDCreator
       try
       {
         CDBuilder builder = new CDBuilder();
-        builder.UseJoliet = false;
+        builder.UseJoliet = true;
 
         BDROM rom = new BDROM(opts.Path, new DefaultSettings());
         rom.Scan();
@@ -53,6 +53,8 @@ namespace BDCreator
 
         if (opts.Test)
         {
+          bool err = false;
+
           try
           {
             rom = new BDROM(opts.Output, new DefaultSettings());
@@ -64,9 +66,16 @@ namespace BDCreator
             Console.WriteLine(ex.Message);
             Console.ResetColor();
 
-            rom.CloseDiscImage();
+            err = true;
+          }
+          finally
+          {
+            if (rom.IsImage && rom.CdReader != null)
+            {
+              rom.CloseDiscImage();
+            }
 
-            if (opts.Delete)
+            if (opts.Delete && err)
             {
               Console.WriteLine($"Deleting {opts.Output}");
               File.Delete(opts.Output);
