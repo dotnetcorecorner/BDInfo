@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace BDCreator
 {
@@ -32,6 +33,8 @@ namespace BDCreator
       try
       {
         CDBuilder builder = new CDBuilder();
+        builder.UseJoliet = false;
+
         BDROM rom = new BDROM(opts.Path, new DefaultSettings());
         rom.Scan();
 
@@ -39,6 +42,13 @@ namespace BDCreator
 
         Console.WriteLine("");
         Console.WriteLine($"Creating {opts.Output} file");
+
+        string title = string.IsNullOrWhiteSpace(rom.DiscTitle) ? rom.VolumeLabel : rom.DiscTitle;
+        var volumeIdentifier = Regex.Replace(title, @"\W+", "_").TrimEnd('_');
+        volumeIdentifier = volumeIdentifier.Substring(0, Math.Min(volumeIdentifier.Length, 32));
+        volumeIdentifier = Regex.Split(volumeIdentifier, "(2160|1080)(p|i)", RegexOptions.IgnoreCase)[0].TrimEnd('_');
+
+        builder.VolumeIdentifier = volumeIdentifier.ToUpperInvariant();
         builder.Build(opts.Output);
 
         if (opts.Test)
@@ -52,6 +62,9 @@ namespace BDCreator
           {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(ex.Message);
+            Console.ResetColor();
+
+            rom.CloseDiscImage();
 
             if (opts.Delete)
             {
