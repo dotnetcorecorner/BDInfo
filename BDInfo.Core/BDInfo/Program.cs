@@ -876,10 +876,7 @@ namespace BDInfo
           report += string.Format(CultureInfo.InvariantCulture,
                                   "{0,-24}{1} Mbps\r\n", "All Angles Bitrate:", totalAngleBitrate);
         }
-        /*
-        report += string.Format(
-            "{0,-24}{1}\r\n", "Description:", "");
-         */
+
         if (!string.IsNullOrEmpty(BDROM.DiscTitle))
           summary += string.Format(CultureInfo.InvariantCulture,
                                   "Disc Title: {0}\r\n", BDROM.DiscTitle);
