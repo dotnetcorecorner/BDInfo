@@ -97,7 +97,7 @@ namespace BDExtractor
 
       fc.OnProgressChanged += (percentage) =>
       {
-        Console.Write($"\rPercent: {percentage} %  ");
+        Console.Write($"\rPercent: {percentage} %{new string(' ', 10)}");
       };
 
       fc.OnComplete += () =>
