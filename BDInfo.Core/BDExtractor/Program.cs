@@ -71,8 +71,6 @@ namespace BDExtractor
         {
           var filePath = FolderUtility.Combine(outpath, file.FullName);
 
-          Console.WriteLine($"Creating file {filePath} ( {SizeConverter.SizeToText(file.Length)} )");
-
           if (File.Exists(filePath))
           {
             File.Delete(filePath);
@@ -94,6 +92,19 @@ namespace BDExtractor
 
     static void CopyFile(DiscFileInfo file, string filePath)
     {
+      var fc = new FileCopier(file.FullName, filePath, 4096 * 1024);
+      Console.WriteLine($"Creating file {filePath} ( {SizeConverter.SizeToText(file.Length)} )");
+
+      fc.OnProgressChanged += (percentage) =>
+      {
+        Console.Write($"\rPercent: {percentage} %  ");
+      };
+
+      fc.OnComplete += () =>
+      {
+        Console.WriteLine();
+      };
+
       using (FileStream fs = File.Create(filePath))
       {
         using (var fileStream = file.Open(FileMode.Open))
