@@ -105,13 +105,15 @@ namespace BDExtractor
         Console.WriteLine();
       };
 
-      using (FileStream fs = File.Create(filePath))
-      {
-        using (var fileStream = file.Open(FileMode.Open))
-        {
-          fileStream.CopyTo(fs);
-        }
-      }
+      fc.Copy();
+
+      //using (FileStream fs = File.Create(filePath))
+      //{
+      //  using (var fileStream = file.Open(FileMode.Open))
+      //  {
+      //    fileStream.CopyTo(fs);
+      //  }
+      //}
     }
   }
 }
