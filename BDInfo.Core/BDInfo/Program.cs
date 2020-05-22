@@ -1102,13 +1102,6 @@ namespace BDInfo
                                 "----",
                                 "-------------");
 
-        if (_bdinfoSettings.GroupByTime)
-        {
-          report += "\r\n";
-          report += "End group";
-          report += separator + "\r\n\r\n";
-        }
-
         foreach (TSStreamClip clip in playlist.StreamClips)
         {
           string clipName = clip.DisplayName;
@@ -1152,6 +1145,13 @@ namespace BDInfo
                                   clipLength,
                                   clipSize,
                                   clipBitrate);
+        }
+
+        if (_bdinfoSettings.GroupByTime)
+        {
+          report += "\r\n";
+          report += "End group";
+          report += separator + "\r\n\r\n";
         }
 
         report += "\r\n";
