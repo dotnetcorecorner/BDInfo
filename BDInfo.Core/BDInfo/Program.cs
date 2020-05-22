@@ -1150,8 +1150,8 @@ namespace BDInfo
         if (_bdinfoSettings.GroupByTime)
         {
           report += "\r\n";
-          report += "End group";
-          report += separator + "\r\n\r\n";
+          report += separator + "End group" + separator;
+          report += "\r\n\r\n";
         }
 
         report += "\r\n";
