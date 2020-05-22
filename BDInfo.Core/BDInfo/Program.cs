@@ -583,12 +583,6 @@ namespace BDInfo
         TimeSpan playlistTotalLength =
             new TimeSpan((long)(playlist.TotalLength * 10000000));
 
-        if (_bdinfoSettings.GroupByTime)
-        {
-          report += $"{separator}Total time length: {playlistTotalLength.TotalMilliseconds}{separator}";
-          report += "\r\n";
-        }
-
         string totalLength = string.Format(CultureInfo.InvariantCulture,
                                                     "{0:D1}:{1:D2}:{2:D2}.{3:D3}",
                                                     playlistTotalLength.Hours,
@@ -815,6 +809,13 @@ namespace BDInfo
         report += "[/code]\r\n";
         report += "\r\n";
         report += "[code]\r\n";
+
+        if (_bdinfoSettings.GroupByTime)
+        {
+          report += separator + "\r\n";
+          report += $"{separator}Total time length: {playlistTotalLength.TotalMilliseconds}{separator}";
+          report += "\r\n" + "Start group";
+        }
 
         report += "\r\n";
         report += "DISC INFO:\r\n";
@@ -1102,6 +1103,13 @@ namespace BDInfo
                                 "------",
                                 "----",
                                 "-------------");
+
+        if (_bdinfoSettings.GroupByTime)
+        {
+          report += "\r\n";
+          report += "End group";
+          report += separator;
+        }
 
         foreach (TSStreamClip clip in playlist.StreamClips)
         {
