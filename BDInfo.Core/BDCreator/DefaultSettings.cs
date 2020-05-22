@@ -39,5 +39,7 @@ namespace BDCreator
     public override bool PrintOnlyForBigPlaylist => true;
 
     public override bool PrintReportToConsole => true;
+
+    public override bool GroupByTime => false;
   }
 }

@@ -60,5 +60,8 @@ namespace BDInfo
 
     [Option('w', "printtoconsole", Required = false, Default = false, HelpText = "Print report to console")]
     public bool PrintReportToConsole { get; set; }
+
+    [Option('j', "groupbytime", Required = false, Default = false, HelpText = "Group by time")]
+    public bool GroupByTime { get; set; }
   }
 }

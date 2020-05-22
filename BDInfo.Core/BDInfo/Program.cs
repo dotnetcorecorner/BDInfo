@@ -571,6 +571,8 @@ namespace BDInfo
         }
       }
 
+      string separator = new string('#', 10);
+
       foreach (TSPlaylistFile playlist in playlists)
       {
         string summary = "";
@@ -580,6 +582,13 @@ namespace BDInfo
 
         TimeSpan playlistTotalLength =
             new TimeSpan((long)(playlist.TotalLength * 10000000));
+
+        if (_bdinfoSettings.GroupByTime)
+        {
+          report += $"{separator}Total time length: {playlistTotalLength.TotalMilliseconds}{separator}";
+          report += "\r\n";
+        }
+
         string totalLength = string.Format(CultureInfo.InvariantCulture,
                                                     "{0:D1}:{1:D2}:{2:D2}.{3:D3}",
                                                     playlistTotalLength.Hours,

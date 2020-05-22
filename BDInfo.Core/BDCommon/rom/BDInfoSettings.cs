@@ -56,5 +56,7 @@ namespace BDCommon
     public abstract bool PrintOnlyForBigPlaylist { get; }
 
     public abstract bool PrintReportToConsole { get; }
+
+    public abstract bool GroupByTime { get; }
   }
 }
