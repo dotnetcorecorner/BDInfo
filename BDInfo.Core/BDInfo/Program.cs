@@ -812,9 +812,7 @@ namespace BDInfo
 
         if (_bdinfoSettings.GroupByTime)
         {
-          report += separator + "\r\n";
-          report += $"{separator}Total time length: {playlistTotalLength.TotalMilliseconds}{separator}";
-          report += "\r\n" + "Start group";
+          report += $"\r\n{separator}Start group {playlistTotalLength.TotalMilliseconds}{separator}\r\n";
         }
 
         report += "\r\n";
@@ -1108,7 +1106,7 @@ namespace BDInfo
         {
           report += "\r\n";
           report += "End group";
-          report += separator;
+          report += separator + "\r\n\r\n";
         }
 
         foreach (TSStreamClip clip in playlist.StreamClips)
