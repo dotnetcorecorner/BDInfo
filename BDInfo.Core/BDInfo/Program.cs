@@ -10,23 +10,23 @@ using System.Threading;
 
 namespace BDInfo
 {
-  class Program
+  internal class Program
   {
-    static BDROM BDROM = null;
-    static ListElement textBoxDetails = null;
-    static ListElement textBoxSource = null;
-    static ScanBDROMResult ScanResult = null;
-    static ListElement labelProgress = null;
-    static ListElement labelTimeElapsed = null;
-    static ListElement labelTimeRemaining = null;
-    static ListElement textBoxReport = null;
+    private static BDROM BDROM = null;
+    private static ListElement textBoxDetails = null;
+    private static ListElement textBoxSource = null;
+    private static ScanBDROMResult ScanResult = null;
+    private static ListElement labelProgress = null;
+    private static ListElement labelTimeElapsed = null;
+    private static ListElement labelTimeRemaining = null;
+    private static ListElement textBoxReport = null;
 
-    static readonly string ProductVersion = "0.7.5.5";
-    static ListElement progressBarScan = null;
-    static int nextRow = 0;
+    private static readonly string ProductVersion = "0.7.5.5";
+    private static ListElement progressBarScan = null;
+    private static int nextRow = 0;
     private static BDSettings _bdinfoSettings;
 
-    static void Main(string[] args)
+    private static void Main(string[] args)
     {
       if (args.Length == 0)
       {
@@ -41,7 +41,7 @@ namespace BDInfo
         .WithNotParsed((errs) => HandleParseError(errs));
     }
 
-    static void Exec(CmdOptions opts)
+    private static void Exec(CmdOptions opts)
     {
       try
       {
@@ -66,18 +66,19 @@ namespace BDInfo
       textBoxDetails = new ListElement(currentPos);
       textBoxSource = new ListElement(currentPos + 1);
       ScanResult = new ScanBDROMResult();
-      labelProgress = new ListElement(currentPos + 6);
-      labelTimeElapsed = new ListElement(currentPos + 7);
-      labelTimeRemaining = new ListElement(currentPos + 8);
-      textBoxReport = new ListElement(currentPos + 9);
+      labelProgress = new ListElement(currentPos + 8);
+      labelTimeElapsed = new ListElement(currentPos + 9);
+      labelTimeRemaining = new ListElement(currentPos + 10);
+      textBoxReport = new ListElement(currentPos + 11);
 
-      progressBarScan = new ListElement(currentPos + 10);
+      progressBarScan = new ListElement(currentPos + 12);
       nextRow = currentPos + 12;
     }
 
-    static void HandleParseError(IEnumerable<Error> errs) { }
+    private static void HandleParseError(IEnumerable<Error> errs)
+    { }
 
-    static void InitEvents()
+    private static void InitEvents()
     {
       textBoxDetails.OnTextChanged += OnTextChanged;
       textBoxSource.OnTextChanged += OnTextChanged;
@@ -97,13 +98,13 @@ namespace BDInfo
       };
     }
 
-    static void OnTextChanged(string obj, int position)
+    private static void OnTextChanged(string obj, int position)
     {
       Console.SetCursorPosition(0, position);
       Console.Write($"{obj}");
     }
 
-    static void InitBDROM(string path)
+    private static void InitBDROM(string path)
     {
       if (BDROM != null && BDROM.IsImage && BDROM.CdReader != null)
       {
@@ -113,7 +114,7 @@ namespace BDInfo
       InitBDROMCompleted(InitBDROMWork(path));
     }
 
-    static object InitBDROMWork(string path)
+    private static object InitBDROMWork(string path)
     {
       try
       {
@@ -130,14 +131,14 @@ namespace BDInfo
       }
     }
 
-    static bool BDROM_StreamClipFileScanError(TSStreamClipFile streamClipFile, Exception ex)
+    private static bool BDROM_StreamClipFileScanError(TSStreamClipFile streamClipFile, Exception ex)
     {
       Console.WriteLine(string.Format(CultureInfo.InvariantCulture,
           "An error occurred while scanning the stream clip file {0}.\n\nThe disc may be copy-protected or damaged.\n\nWill continue scanning the stream clip files", streamClipFile.Name));
       return true;
     }
 
-    static bool BDROM_StreamFileScanError(TSStreamFile streamFile, Exception ex)
+    private static bool BDROM_StreamFileScanError(TSStreamFile streamFile, Exception ex)
     {
       Console.WriteLine(string.Format(CultureInfo.InvariantCulture,
           "An error occurred while scanning the stream file {0}.\n\nThe disc may be copy-protected or damaged.\n\nWill continue scanning the stream files", streamFile.Name));
@@ -145,7 +146,7 @@ namespace BDInfo
       return true;
     }
 
-    static bool BDROM_PlaylistFileScanError(TSPlaylistFile playlistFile, Exception ex)
+    private static bool BDROM_PlaylistFileScanError(TSPlaylistFile playlistFile, Exception ex)
     {
       Console.WriteLine(string.Format(CultureInfo.InvariantCulture,
           "An error occurred while scanning the playlist file {0}.\n\nThe disc may be copy-protected or damaged.\n\nWill continue scanning the playlist files", playlistFile.Name));
@@ -153,7 +154,7 @@ namespace BDInfo
       return true;
     }
 
-    static void InitBDROMCompleted(object result)
+    private static void InitBDROMCompleted(object result)
     {
       if (result != null)
       {
@@ -230,7 +231,7 @@ namespace BDInfo
                                           Environment.NewLine);
     }
 
-    static void ScanBDROM()
+    private static void ScanBDROM()
     {
       List<TSStreamFile> streamFiles = new List<TSStreamFile>(BDROM.StreamFiles.Values);
 
@@ -238,7 +239,7 @@ namespace BDInfo
       ScanBDROMCompleted();
     }
 
-    static void ScanBDROMWork(List<TSStreamFile> streamFiles)
+    private static void ScanBDROMWork(List<TSStreamFile> streamFiles)
     {
       ScanResult = new ScanBDROMResult { ScanException = new Exception("Scan is still running.") };
 
@@ -322,7 +323,7 @@ namespace BDInfo
       }
     }
 
-    static void ScanBDROMProgress(ScanBDROMState scanState)
+    private static void ScanBDROMProgress(ScanBDROMState scanState)
     {
       try
       {
@@ -372,7 +373,7 @@ namespace BDInfo
       catch { }
     }
 
-    static void ScanBDROMCompleted()
+    private static void ScanBDROMCompleted()
     {
       labelProgress.Text = $"Scan complete.{new string(' ', 100)}";
       progressBarScan.Value = 100;
@@ -402,12 +403,12 @@ namespace BDInfo
       }
     }
 
-    static void ScanBDROMEvent(object state)
+    private static void ScanBDROMEvent(object state)
     {
       ScanBDROMProgress(state as ScanBDROMState);
     }
 
-    static void ScanBDROMThread(object parameter)
+    private static void ScanBDROMThread(object parameter)
     {
       ScanBDROMState scanState = (ScanBDROMState)parameter;
       try
@@ -422,7 +423,7 @@ namespace BDInfo
       }
     }
 
-    static void GenerateReport()
+    private static void GenerateReport()
     {
       Console.SetCursorPosition(0, nextRow);
 
@@ -445,7 +446,7 @@ namespace BDInfo
       GenerateReportCompleted(GenerateReportWork(playlists));
     }
 
-    static object GenerateReportWork(IEnumerable<TSPlaylistFile> playlists)
+    private static object GenerateReportWork(IEnumerable<TSPlaylistFile> playlists)
     {
       try
       {
@@ -457,7 +458,7 @@ namespace BDInfo
       }
     }
 
-    static void GenerateReportCompleted(object e)
+    private static void GenerateReportCompleted(object e)
     {
       if (e != null && e is Exception)
       {
@@ -466,7 +467,7 @@ namespace BDInfo
       }
     }
 
-    static string Generate(BDROM BDROM, IEnumerable<TSPlaylistFile> playlists, ScanBDROMResult scanResult)
+    private static string Generate(BDROM BDROM, IEnumerable<TSPlaylistFile> playlists, ScanBDROMResult scanResult)
     {
       string reportName = Regex.IsMatch(_bdinfoSettings.ReportFileName, @"\{\d+\}", RegexOptions.IgnoreCase) ?
         string.Format(_bdinfoSettings.ReportFileName, BDROM.VolumeLabel) :
