@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
 using System.Text.RegularExpressions;
 using System.Threading;
 
@@ -58,18 +57,15 @@ namespace BDInfo
       }
       catch (Exception ex)
       {
-        if (opts.PrintReportToConsole)
-        {
-          Console.WriteLine();
-          Console.ForegroundColor = ConsoleColor.Red;
-          Console.WriteLine(ex.Message);
-        }
+        Console.WriteLine();
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine(ex.Message);
       }
     }
 
     private static void InitObjects()
     {
-      int currentPos = _bdinfoSettings.PrintReportToConsole ? Console.CursorTop : 0;
+      int currentPos = Console.CursorTop;
       textBoxDetails = new ListElement(currentPos);
       textBoxSource = new ListElement(currentPos + 1);
       ScanResult = new ScanBDROMResult();
@@ -87,25 +83,22 @@ namespace BDInfo
 
     private static void InitEvents()
     {
+      textBoxDetails.OnTextChanged += OnTextChanged;
+      textBoxSource.OnTextChanged += OnTextChanged;
+      labelProgress.OnTextChanged += OnTextChanged;
+      labelTimeElapsed.OnTextChanged += OnTextChanged;
+      labelTimeRemaining.OnTextChanged += OnTextChanged;
+
       if (_bdinfoSettings.PrintReportToConsole)
       {
-        textBoxDetails.OnTextChanged += OnTextChanged;
-        textBoxSource.OnTextChanged += OnTextChanged;
-        labelProgress.OnTextChanged += OnTextChanged;
-        labelTimeElapsed.OnTextChanged += OnTextChanged;
-        labelTimeRemaining.OnTextChanged += OnTextChanged;
-
-        if (_bdinfoSettings.PrintReportToConsole)
-        {
-          textBoxReport.OnTextChanged += OnTextChanged;
-        }
-
-        progressBarScan.OnProgressChanged += (val, pos) =>
-        {
-          Console.SetCursorPosition(0, pos);
-          Console.Write(string.Format(CultureInfo.InvariantCulture, "Progress: {0:N2} %  ", val));
-        };
+        textBoxReport.OnTextChanged += OnTextChanged;
       }
+
+      progressBarScan.OnProgressChanged += (val, pos) =>
+      {
+        Console.SetCursorPosition(0, pos);
+        Console.Write(string.Format(CultureInfo.InvariantCulture, "Progress: {0:N2} %  ", val));
+      };
     }
 
     private static void OnTextChanged(string obj, int position)
@@ -129,14 +122,9 @@ namespace BDInfo
       try
       {
         BDROM = new BDROM(path, _bdinfoSettings);
-
-        if (_bdinfoSettings.PrintReportToConsole)
-        {
-          BDROM.StreamClipFileScanError += new BDROM.OnStreamClipFileScanError(BDROM_StreamClipFileScanError);
-          BDROM.StreamFileScanError += new BDROM.OnStreamFileScanError(BDROM_StreamFileScanError);
-          BDROM.PlaylistFileScanError += new BDROM.OnPlaylistFileScanError(BDROM_PlaylistFileScanError);
-        }
-
+        BDROM.StreamClipFileScanError += new BDROM.OnStreamClipFileScanError(BDROM_StreamClipFileScanError);
+        BDROM.StreamFileScanError += new BDROM.OnStreamFileScanError(BDROM_StreamFileScanError);
+        BDROM.PlaylistFileScanError += new BDROM.OnPlaylistFileScanError(BDROM_PlaylistFileScanError);
         BDROM.Scan();
         return null;
       }
@@ -173,13 +161,9 @@ namespace BDInfo
     {
       if (result != null)
       {
-        if (_bdinfoSettings.PrintReportToConsole)
-        {
-          string msg = string.Format(CultureInfo.InvariantCulture, "{0}", ((Exception)result).Message);
+        string msg = string.Format(CultureInfo.InvariantCulture, "{0}", ((Exception)result).Message);
 
-          Console.WriteLine(msg);
-        }
-
+        Console.WriteLine(msg);
         return;
       }
 
@@ -403,10 +387,7 @@ namespace BDInfo
         string msg = string.Format(CultureInfo.InvariantCulture,
             "{0}", ScanResult.ScanException.Message);
 
-        if (_bdinfoSettings.PrintReportToConsole)
-        {
-          Console.WriteLine(msg);
-        }
+        Console.WriteLine(msg);
       }
       else
       {
@@ -414,16 +395,13 @@ namespace BDInfo
         {
           GenerateReport();
         }
-        else if (ScanResult.FileExceptions.Count > 0 && _bdinfoSettings.PrintReportToConsole)
+        else if (ScanResult.FileExceptions.Count > 0)
         {
           Console.WriteLine("Scan completed with errors (see report).");
         }
         else
         {
-          if (_bdinfoSettings.PrintReportToConsole)
-          {
-            Console.WriteLine("Scan completed successfully.");
-          }
+          Console.WriteLine("Scan completed successfully.");
         }
       }
     }
@@ -450,10 +428,7 @@ namespace BDInfo
 
     private static void GenerateReport()
     {
-      if (_bdinfoSettings.PrintReportToConsole)
-      {
-        Console.SetCursorPosition(0, nextRow);
-      }
+      Console.SetCursorPosition(0, nextRow);
 
       if (_bdinfoSettings.PrintReportToConsole)
       {
@@ -461,10 +436,7 @@ namespace BDInfo
       }
       else
       {
-        if (_bdinfoSettings.PrintReportToConsole)
-        {
-          Console.WriteLine("Done !");
-        }
+        Console.WriteLine("Done !");
       }
 
       IEnumerable<TSPlaylistFile> playlists = BDROM.PlaylistFiles.OrderByDescending(s => s.Value.FileSize).Select(s => s.Value);
@@ -491,13 +463,10 @@ namespace BDInfo
 
     private static void GenerateReportCompleted(object e)
     {
-      if (_bdinfoSettings.PrintReportToConsole)
+      if (e != null && e is Exception)
       {
-        if (e != null && e is Exception)
-        {
-          string msg = string.Format("{0}", ((Exception)e).Message);
-          Console.WriteLine(msg);
-        }
+        string msg = string.Format("{0}", ((Exception)e).Message);
+        Console.WriteLine(msg);
       }
     }
 
