@@ -63,5 +63,8 @@ namespace BDInfo
 
     [Option('j', "groupbytime", Required = false, Default = false, HelpText = "Group by time")]
     public bool GroupByTime { get; set; }
+
+    [Option('d', "isexecutedasscript", Required = false, Default = false, HelpText = "Check if is executed as script")]
+    public bool IsScriptExecuted { get; set; }
   }
 }

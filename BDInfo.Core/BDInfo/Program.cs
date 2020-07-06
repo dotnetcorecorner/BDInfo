@@ -30,7 +30,7 @@ namespace BDInfo
     {
       if (args.Length == 0)
       {
-        Console.WriteLine("No path specified !");
+        ConsoleWriteLine("No path specified !");
         return;
       }
 
@@ -43,7 +43,7 @@ namespace BDInfo
     {
       if (opts.PrintReportToConsole)
       {
-        Console.Clear();
+        ConsoleClear();
       }
 
       try
@@ -57,15 +57,18 @@ namespace BDInfo
       }
       catch (Exception ex)
       {
-        Console.Error.WriteLine();
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.Error.WriteLine(ex.Message);
+        if (IsNotExecutedAsScript())
+        {
+          Console.Error.WriteLine();
+          Console.ForegroundColor = ConsoleColor.Red;
+          Console.Error.WriteLine(ex.Message);
+        }
       }
     }
 
     private static void InitObjects()
     {
-      int currentPos = Console.CursorTop;
+      int currentPos = IsNotExecutedAsScript() ? Console.CursorTop : 0;
       textBoxDetails = new ListElement(currentPos);
       textBoxSource = new ListElement(currentPos + 1);
       ScanResult = new ScanBDROMResult();
@@ -96,15 +99,21 @@ namespace BDInfo
 
       progressBarScan.OnProgressChanged += (val, pos) =>
       {
-        Console.SetCursorPosition(0, pos);
-        Console.Write(string.Format(CultureInfo.InvariantCulture, "Progress: {0:N2} %  ", val));
+        if (IsNotExecutedAsScript())
+        {
+          Console.SetCursorPosition(0, pos);
+          Console.Write(string.Format(CultureInfo.InvariantCulture, "Progress: {0:N2} %  ", val));
+        }
       };
     }
 
     private static void OnTextChanged(string obj, int position)
     {
-      Console.SetCursorPosition(0, position);
-      Console.Write($"{obj}");
+      if (IsNotExecutedAsScript())
+      {
+        Console.SetCursorPosition(0, position);
+        Console.Write($"{obj}");
+      }
     }
 
     private static void InitBDROM(string path)
@@ -136,14 +145,14 @@ namespace BDInfo
 
     private static bool BDROM_StreamClipFileScanError(TSStreamClipFile streamClipFile, Exception ex)
     {
-      Console.WriteLine(string.Format(CultureInfo.InvariantCulture,
+      ConsoleWriteLine(string.Format(CultureInfo.InvariantCulture,
           "An error occurred while scanning the stream clip file {0}.\n\nThe disc may be copy-protected or damaged.\n\nWill continue scanning the stream clip files", streamClipFile.Name));
       return true;
     }
 
     private static bool BDROM_StreamFileScanError(TSStreamFile streamFile, Exception ex)
     {
-      Console.WriteLine(string.Format(CultureInfo.InvariantCulture,
+      ConsoleWriteLine(string.Format(CultureInfo.InvariantCulture,
           "An error occurred while scanning the stream file {0}.\n\nThe disc may be copy-protected or damaged.\n\nWill continue scanning the stream files", streamFile.Name));
 
       return true;
@@ -151,7 +160,7 @@ namespace BDInfo
 
     private static bool BDROM_PlaylistFileScanError(TSPlaylistFile playlistFile, Exception ex)
     {
-      Console.WriteLine(string.Format(CultureInfo.InvariantCulture,
+      ConsoleWriteLine(string.Format(CultureInfo.InvariantCulture,
           "An error occurred while scanning the playlist file {0}.\n\nThe disc may be copy-protected or damaged.\n\nWill continue scanning the playlist files", playlistFile.Name));
 
       return true;
@@ -163,7 +172,7 @@ namespace BDInfo
       {
         string msg = string.Format(CultureInfo.InvariantCulture, "{0}", ((Exception)result).Message);
 
-        Console.WriteLine(msg);
+        ConsoleWriteLine(msg);
         return;
       }
 
@@ -387,7 +396,7 @@ namespace BDInfo
         string msg = string.Format(CultureInfo.InvariantCulture,
             "{0}", ScanResult.ScanException.Message);
 
-        Console.WriteLine(msg);
+        ConsoleWriteLine(msg);
       }
       else
       {
@@ -397,11 +406,11 @@ namespace BDInfo
         }
         else if (ScanResult.FileExceptions.Count > 0)
         {
-          Console.WriteLine("Scan completed with errors (see report).");
+          ConsoleWriteLine("Scan completed with errors (see report).");
         }
         else
         {
-          Console.WriteLine("Scan completed successfully.");
+          ConsoleWriteLine("Scan completed successfully.");
         }
       }
     }
@@ -428,15 +437,18 @@ namespace BDInfo
 
     private static void GenerateReport()
     {
-      Console.SetCursorPosition(0, nextRow);
+      if (IsNotExecutedAsScript())
+      {
+        Console.SetCursorPosition(0, nextRow);
+      }
 
       if (_bdinfoSettings.PrintReportToConsole)
       {
-        Console.WriteLine("Please wait while we generate the report...");
+        ConsoleWriteLine("Please wait while we generate the report...");
       }
       else
       {
-        Console.WriteLine("Done !");
+        ConsoleWriteLine("Done !");
       }
 
       IEnumerable<TSPlaylistFile> playlists = BDROM.PlaylistFiles.OrderByDescending(s => s.Value.FileSize).Select(s => s.Value);
@@ -466,7 +478,7 @@ namespace BDInfo
       if (e != null && e is Exception)
       {
         string msg = string.Format("{0}", ((Exception)e).Message);
-        Console.WriteLine(msg);
+        ConsoleWriteLine(msg);
       }
     }
 
@@ -1532,6 +1544,27 @@ namespace BDInfo
 
       textBoxReport.Text += report;
       return textBoxReport.Text;
+    }
+
+    private static void ConsoleWriteLine(string text)
+    {
+      if (IsNotExecutedAsScript())
+      {
+        Console.WriteLine(text);
+      }
+    }
+
+    private static void ConsoleClear()
+    {
+      if (IsNotExecutedAsScript())
+      {
+        Console.Clear();
+      }
+    }
+
+    private static bool IsNotExecutedAsScript()
+    {
+      return _bdinfoSettings != null && !_bdinfoSettings.IsExecutedAsScript;
     }
   }
 }

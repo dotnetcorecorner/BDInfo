@@ -49,5 +49,7 @@ namespace BDInfo
     public override bool PrintReportToConsole => _opts?.PrintReportToConsole ?? false;
 
     public override bool GroupByTime => _opts?.GroupByTime ?? false;
+
+    public bool IsExecutedAsScript => _opts?.IsScriptExecuted ?? false;
   }
 }
