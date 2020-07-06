@@ -57,9 +57,9 @@ namespace BDInfo
       }
       catch (Exception ex)
       {
-        Console.WriteLine();
+        Console.Error.WriteLine();
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine(ex.Message);
+        Console.Error.WriteLine(ex.Message);
       }
     }
 
