@@ -41,11 +41,6 @@ namespace BDInfo
 
     private static void Exec(CmdOptions opts)
     {
-      if (opts.PrintReportToConsole)
-      {
-        ConsoleClear();
-      }
-
       try
       {
         _bdinfoSettings = new BDSettings(opts);
@@ -62,6 +57,8 @@ namespace BDInfo
           Console.Error.WriteLine();
           Console.ForegroundColor = ConsoleColor.Red;
           Console.Error.WriteLine(ex.Message);
+
+          Environment.Exit(1);
         }
       }
     }

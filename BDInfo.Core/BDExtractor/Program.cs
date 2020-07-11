@@ -12,8 +12,6 @@ namespace BDExtractor
   {
     static void Main(string[] args)
     {
-      Console.Clear();
-
       Parser.Default.ParseArguments<CmdOptions>(args)
         .WithParsed(opts => Exec(opts))
         .WithNotParsed((errs) => HandleParseError(errs));
@@ -50,6 +48,8 @@ namespace BDExtractor
       {
         Console.ForegroundColor = ConsoleColor.Red;
         Console.WriteLine(ex.Message);
+
+        Environment.Exit(1);
       }
     }
 
