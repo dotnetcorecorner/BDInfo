@@ -15,8 +15,6 @@ namespace BDCreator
 
     static void Main(string[] args)
     {
-      Console.Clear();
-
       Parser.Default.ParseArguments<CmdOptions>(args)
         .WithParsed(opts => Exec(opts))
         .WithNotParsed((errs) => HandleParseError(errs));

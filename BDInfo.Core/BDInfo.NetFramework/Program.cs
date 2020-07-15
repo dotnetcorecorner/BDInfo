@@ -34,8 +34,6 @@ namespace BDInfo.NetFramework
         return;
       }
 
-      Console.Clear();
-
       Parser.Default.ParseArguments<CmdOptions>(args)
         .WithParsed(opts => Exec(opts))
         .WithNotParsed((errs) => HandleParseError(errs));

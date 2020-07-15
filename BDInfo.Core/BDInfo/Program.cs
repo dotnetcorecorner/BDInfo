@@ -1550,15 +1550,6 @@ namespace BDInfo
         Console.WriteLine(text);
       }
     }
-
-    private static void ConsoleClear()
-    {
-      if (IsNotExecutedAsScript())
-      {
-        Console.Clear();
-      }
-    }
-
     private static bool IsNotExecutedAsScript()
     {
       return _bdinfoSettings != null && !_bdinfoSettings.IsExecutedAsScript;
