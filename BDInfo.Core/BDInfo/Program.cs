@@ -52,14 +52,11 @@ namespace BDInfo
       }
       catch (Exception ex)
       {
-        if (IsNotExecutedAsScript())
-        {
-          Console.Error.WriteLine();
-          Console.ForegroundColor = ConsoleColor.Red;
-          Console.Error.WriteLine(ex.Message);
+        Console.Error.WriteLine();
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.Error.WriteLine(ex.Message);
 
-          Environment.Exit(1);
-        }
+        Environment.Exit(1);
       }
     }
 
@@ -96,21 +93,15 @@ namespace BDInfo
 
       progressBarScan.OnProgressChanged += (val, pos) =>
       {
-        if (IsNotExecutedAsScript())
-        {
-          Console.SetCursorPosition(0, pos);
-          Console.Write(string.Format(CultureInfo.InvariantCulture, "Progress: {0:N2} %  ", val));
-        }
+        SetCursorPosition(0, pos);
+        Console.Write(string.Format(CultureInfo.InvariantCulture, "Progress: {0:N2} %  ", val));
       };
     }
 
     private static void OnTextChanged(string obj, int position)
     {
-      if (IsNotExecutedAsScript())
-      {
-        Console.SetCursorPosition(0, position);
-        Console.Write($"{obj}");
-      }
+      SetCursorPosition(0, position);
+      Console.Write($"{obj}");
     }
 
     private static void InitBDROM(string path)
@@ -434,10 +425,7 @@ namespace BDInfo
 
     private static void GenerateReport()
     {
-      if (IsNotExecutedAsScript())
-      {
-        Console.SetCursorPosition(0, nextRow);
-      }
+      SetCursorPosition(0, nextRow);
 
       if (_bdinfoSettings.PrintReportToConsole)
       {
@@ -1545,14 +1533,20 @@ namespace BDInfo
 
     private static void ConsoleWriteLine(string text)
     {
-      if (IsNotExecutedAsScript())
-      {
-        Console.WriteLine(text);
-      }
+      Console.WriteLine(text);
     }
+
     private static bool IsNotExecutedAsScript()
     {
       return _bdinfoSettings != null && !_bdinfoSettings.IsExecutedAsScript;
+    }
+
+    private static void SetCursorPosition(int left, int top)
+    {
+      if (IsNotExecutedAsScript())
+      {
+        Console.SetCursorPosition(left, top);
+      }
     }
   }
 }
