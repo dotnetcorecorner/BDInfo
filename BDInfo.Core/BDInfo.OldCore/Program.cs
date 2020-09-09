@@ -56,6 +56,7 @@ namespace BDInfo.OldCore21
         Console.ForegroundColor = ConsoleColor.Red;
         Console.Error.WriteLine(ex.Message);
 
+        Console.ResetColor();
         Environment.Exit(1);
       }
     }
