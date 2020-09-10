@@ -113,7 +113,7 @@ namespace BDCommon
 
       if ((!IsImage && DirectoryBDMV == null) || (IsImage && DiscDirectoryBDMV == null))
       {
-        throw new Exception("Unable to locate BD structure.");
+        throw new Exception($"Unable to locate BD structure for > {path} <.");
       }
 
       if (IsImage)
@@ -143,7 +143,7 @@ namespace BDCommon
 
       if ((!IsImage & (DirectoryCLIPINF == null || DirectoryPLAYLIST == null)) || (IsImage & (DiscDirectoryCLIPINF == null || DiscDirectoryPLAYLIST == null)))
       {
-        throw new Exception("Unable to locate BD structure.");
+        throw new Exception($"Unable to locate BD structure for > {path} <.");
       }
 
       //
