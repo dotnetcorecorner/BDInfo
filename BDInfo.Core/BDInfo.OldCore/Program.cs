@@ -54,7 +54,7 @@ namespace BDInfo.OldCore21
       {
         Console.Error.WriteLine();
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.Error.WriteLine(ex.Message);
+        Console.Error.WriteLine($"{opts.Path} ::: {ex.Message}");
 
         Console.ResetColor();
         Environment.Exit(1);

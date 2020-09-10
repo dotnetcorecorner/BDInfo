@@ -54,7 +54,7 @@ namespace BDInfo
       {
         Console.Error.WriteLine();
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.Error.WriteLine(ex.Message);
+        Console.Error.WriteLine($"{opts.Path} ::: {ex.Message}");
 
         Environment.Exit(1);
       }
