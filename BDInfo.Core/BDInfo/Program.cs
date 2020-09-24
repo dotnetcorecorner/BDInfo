@@ -1,5 +1,7 @@
 ﻿using BDCommon;
 using CommandLine;
+using CustomLogging.Core;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -25,6 +27,7 @@ namespace BDInfo
     private static ListElement progressBarScan = null;
     private static int nextRow = 0;
     private static BDSettings _bdinfoSettings;
+    private static NewLineLogger _log;
 
     private static void Main(string[] args)
     {
@@ -33,6 +36,9 @@ namespace BDInfo
         ConsoleWriteLine("No path specified !");
         return;
       }
+
+      CustomLogging.Core.LogSetup.ConfigureLog("bdinfo");
+      _log = new CustomLogging.Core.NewLineLogger();
 
       Parser.Default.ParseArguments<CmdOptions>(args)
         .WithParsed(opts => Exec(opts))
@@ -52,6 +58,7 @@ namespace BDInfo
       }
       catch (Exception ex)
       {
+        _log.Error(ex);
         Console.Error.WriteLine();
         Console.ForegroundColor = ConsoleColor.Red;
         Console.Error.WriteLine($"{opts.Path} ::: {ex.Message}");
