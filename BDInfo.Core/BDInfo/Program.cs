@@ -37,8 +37,8 @@ namespace BDInfo
         return;
       }
 
-      CustomLogging.Core.LogSetup.ConfigureLog("bdinfo");
-      _log = new CustomLogging.Core.NewLineLogger();
+      LogSetup.ConfigureLog("bdinfo");
+      _log = new NewLineLogger();
 
       Parser.Default.ParseArguments<CmdOptions>(args)
         .WithParsed(opts => Exec(opts))
@@ -125,6 +125,7 @@ namespace BDInfo
     {
       try
       {
+        _log.Debug($"Intialize bdinfo for {path}");
         BDROM = new BDROM(path, _bdinfoSettings);
         BDROM.StreamClipFileScanError += new BDROM.OnStreamClipFileScanError(BDROM_StreamClipFileScanError);
         BDROM.StreamFileScanError += new BDROM.OnStreamFileScanError(BDROM_StreamFileScanError);
@@ -171,12 +172,10 @@ namespace BDInfo
         return;
       }
 
-      {
         textBoxDetails.Text += string.Format(CultureInfo.InvariantCulture,
                                             "Disc Title: {0}{1}",
                                             BDROM.DiscTitle,
                                             Environment.NewLine);
-      }
 
       if (!BDROM.IsImage)
       {
@@ -240,6 +239,11 @@ namespace BDInfo
 
     private static void ScanBDROM()
     {
+      if(BDROM is null)
+      {
+        throw new Exception("BDROM is null");
+      }
+
       List<TSStreamFile> streamFiles = new List<TSStreamFile>(BDROM.StreamFiles.Values);
 
       ScanBDROMWork(streamFiles);
@@ -1540,6 +1544,7 @@ namespace BDInfo
 
     private static void ConsoleWriteLine(string text)
     {
+      _log.Debug(text);
       Console.WriteLine(text);
     }
 
