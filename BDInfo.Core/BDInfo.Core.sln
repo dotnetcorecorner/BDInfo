@@ -13,8 +13,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BDCreator", "BDCreator\BDCr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BDInfo.NetFramework", "BDInfo.NetFramework\BDInfo.NetFramework.csproj", "{4ADADACA-C761-4E0A-94CB-03FC4E715C1B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BDInfo.OldCore21", "BDInfo.OldCore\BDInfo.OldCore21.csproj", "{CB26A66B-4C35-47E5-9C27-A045D2CBB52B}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,10 +39,6 @@ Global
 		{4ADADACA-C761-4E0A-94CB-03FC4E715C1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4ADADACA-C761-4E0A-94CB-03FC4E715C1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4ADADACA-C761-4E0A-94CB-03FC4E715C1B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CB26A66B-4C35-47E5-9C27-A045D2CBB52B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CB26A66B-4C35-47E5-9C27-A045D2CBB52B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CB26A66B-4C35-47E5-9C27-A045D2CBB52B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CB26A66B-4C35-47E5-9C27-A045D2CBB52B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
