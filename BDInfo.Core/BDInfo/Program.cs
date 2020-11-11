@@ -1,7 +1,5 @@
 ﻿using BDCommon;
 using CommandLine;
-using CustomLogging.Core;
-using log4net;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -27,7 +25,6 @@ namespace BDInfo
     private static ListElement progressBarScan = null;
     private static int nextRow = 0;
     private static BDSettings _bdinfoSettings;
-    private static NewLineLogger _log;
 
     private static void Main(string[] args)
     {
@@ -36,9 +33,6 @@ namespace BDInfo
         ConsoleWriteLine("No path specified !");
         return;
       }
-
-      LogSetup.ConfigureLog("bdinfo");
-      _log = new NewLineLogger();
 
       Parser.Default.ParseArguments<CmdOptions>(args)
         .WithParsed(opts => Exec(opts))
@@ -58,7 +52,6 @@ namespace BDInfo
       }
       catch (Exception ex)
       {
-        _log.Error(ex);
         Console.Error.WriteLine();
         Console.ForegroundColor = ConsoleColor.Red;
         Console.Error.WriteLine($"{opts.Path} ::: {ex.Message}");
@@ -125,7 +118,6 @@ namespace BDInfo
     {
       try
       {
-        _log.Debug($"Intialize bdinfo for {path}");
         BDROM = new BDROM(path, _bdinfoSettings);
         BDROM.StreamClipFileScanError += new BDROM.OnStreamClipFileScanError(BDROM_StreamClipFileScanError);
         BDROM.StreamFileScanError += new BDROM.OnStreamFileScanError(BDROM_StreamFileScanError);
@@ -1544,7 +1536,6 @@ namespace BDInfo
 
     private static void ConsoleWriteLine(string text)
     {
-      _log.Debug(text);
       Console.WriteLine(text);
     }
 
