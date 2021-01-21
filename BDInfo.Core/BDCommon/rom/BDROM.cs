@@ -17,14 +17,14 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //=============================================================================
 
-using DiscUtils;
-using DiscUtils.Udf;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml;
+using DiscUtils;
+using DiscUtils.Udf;
 
 namespace BDCommon
 {
@@ -94,7 +94,7 @@ namespace BDCommon
     public event OnPlaylistFileScanError PlaylistFileScanError;
 
     public BDROM(
-        string path, BDInfoSettings settings)
+    string path, BDInfoSettings settings)
     {
       //
       // Locate BDMV directories.
@@ -548,7 +548,7 @@ namespace BDCommon
               Is50Hz = true;
             }
 
-            if (vidStreamCount > 1)
+            if (vidStreamCount > 1 && Is3D)
             {
               if ((videoStream.StreamType == TSStreamType.AVC_VIDEO && playlistFile.MVCBaseViewR) ||
                   (videoStream.StreamType == TSStreamType.MVC_VIDEO && !playlistFile.MVCBaseViewR))
@@ -691,7 +691,7 @@ namespace BDCommon
         try
         {
           long result = GetVolumeInformation(
-              dir.Name,
+              dir.FullName,
               volumeLabel,
               (uint)volumeLabel.Capacity,
               ref serialNumber,
@@ -775,7 +775,7 @@ namespace BDCommon
       }
     }
 
-    [DllImport("kernel32.dll")]
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     private static extern long GetVolumeInformation(
         string PathName,
         StringBuilder VolumeNameBuffer,

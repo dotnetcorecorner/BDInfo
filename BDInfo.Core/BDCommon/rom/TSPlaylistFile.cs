@@ -18,12 +18,12 @@
 //=============================================================================
 
 #undef DEBUG
-using DiscUtils;
-using DiscUtils.Udf;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using DiscUtils;
+using DiscUtils.Udf;
 
 namespace BDCommon
 {
@@ -371,6 +371,7 @@ namespace BDCommon
           streamClip.Length = streamClip.TimeOut - streamClip.TimeIn;
           streamClip.RelativeTimeIn = TotalLength;
           streamClip.RelativeTimeOut = streamClip.RelativeTimeIn + streamClip.Length;
+          streamClip.RelativeLength = streamClip.Length / TotalLength;
           StreamClips.Add(streamClip);
           chapterClips.Add(streamClip);
 
@@ -447,33 +448,59 @@ namespace BDCommon
           for (int i = 0; i < streamCountVideo; i++)
           {
             TSStream stream = CreatePlaylistStream(data, ref pos);
-            if (stream != null) PlaylistStreams[stream.PID] = stream;
+            if (stream != null)
+            {
+              if (!PlaylistStreams.ContainsKey(stream.PID) || streamClip.RelativeLength > 0.01)
+                PlaylistStreams[stream.PID] = stream;
+            }
           }
           for (int i = 0; i < streamCountAudio; i++)
           {
             TSStream stream = CreatePlaylistStream(data, ref pos);
-            if (stream != null) PlaylistStreams[stream.PID] = stream;
+            if (stream != null)
+            {
+              if (!PlaylistStreams.ContainsKey(stream.PID) || streamClip.RelativeLength > 0.01)
+                PlaylistStreams[stream.PID] = stream;
+            }
           }
           for (int i = 0; i < streamCountPG; i++)
           {
             TSStream stream = CreatePlaylistStream(data, ref pos);
-            if (stream != null) PlaylistStreams[stream.PID] = stream;
+            if (stream != null)
+            {
+              if (!PlaylistStreams.ContainsKey(stream.PID) || streamClip.RelativeLength > 0.01)
+                PlaylistStreams[stream.PID] = stream;
+            }
           }
           for (int i = 0; i < streamCountIG; i++)
           {
             TSStream stream = CreatePlaylistStream(data, ref pos);
-            if (stream != null) PlaylistStreams[stream.PID] = stream;
+            if (stream != null)
+            {
+              if (!PlaylistStreams.ContainsKey(stream.PID) || streamClip.RelativeLength > 0.01)
+                PlaylistStreams[stream.PID] = stream;
+            }
           }
           for (int i = 0; i < streamCountSecondaryAudio; i++)
           {
             TSStream stream = CreatePlaylistStream(data, ref pos);
-            if (stream != null) PlaylistStreams[stream.PID] = stream;
+            if (stream != null)
+            {
+              if (!PlaylistStreams.ContainsKey(stream.PID) || streamClip.RelativeLength > 0.01)
+                PlaylistStreams[stream.PID] = stream;
+            }
+
             pos += 2;
           }
           for (int i = 0; i < streamCountSecondaryVideo; i++)
           {
             TSStream stream = CreatePlaylistStream(data, ref pos);
-            if (stream != null) PlaylistStreams[stream.PID] = stream;
+            if (stream != null)
+            {
+              if (!PlaylistStreams.ContainsKey(stream.PID) || streamClip.RelativeLength > 0.01)
+                PlaylistStreams[stream.PID] = stream;
+            }
+
             pos += 6;
           }
           /*
@@ -771,7 +798,7 @@ namespace BDCommon
       }
       foreach (TSStreamClip clip in StreamClips)
       {
-        if (clip.StreamClipFile.Streams.Count > referenceClip.StreamClipFile.Streams.Count)
+        if (clip.StreamClipFile.Streams.Count > referenceClip.StreamClipFile.Streams.Count && clip.RelativeLength > 0.01)
         {
           referenceClip = clip;
         }
@@ -794,6 +821,8 @@ namespace BDCommon
           }
         }
       }
+
+      if (referenceClip == null) return;
 
       foreach (TSStream clipStream
           in referenceClip.StreamClipFile.Streams.Values)

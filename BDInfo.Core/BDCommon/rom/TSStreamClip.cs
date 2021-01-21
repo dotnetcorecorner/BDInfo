@@ -32,6 +32,7 @@ namespace BDCommon
     public double RelativeTimeIn;
     public double RelativeTimeOut;
     public double Length;
+    public double RelativeLength;
 
     public ulong FileSize = 0;
     public ulong InterleavedFileSize = 0;
@@ -49,7 +50,6 @@ namespace BDCommon
         TSStreamClipFile streamClipFile, BDInfoSettings settings)
     {
       _settings = settings;
-
       if (streamFile != null)
       {
         Name = streamFile.Name;

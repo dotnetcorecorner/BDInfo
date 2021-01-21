@@ -21,7 +21,7 @@ namespace BDInfo
     private static ListElement labelTimeRemaining = null;
     private static ListElement textBoxReport = null;
 
-    private static readonly string ProductVersion = "0.7.5.5";
+    private static readonly string ProductVersion = "0.7.5.6";
     private static ListElement progressBarScan = null;
     private static int nextRow = 0;
     private static BDSettings _bdinfoSettings;
