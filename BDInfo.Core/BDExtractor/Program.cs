@@ -49,7 +49,7 @@ namespace BDExtractor
         var cl = Console.ForegroundColor;
 
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine(ex.Message);
+        Console.Error.WriteLine(ex.Message);
 
         Console.ForegroundColor = cl;
 
