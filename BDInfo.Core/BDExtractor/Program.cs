@@ -46,10 +46,14 @@ namespace BDExtractor
       }
       catch (Exception ex)
       {
+        var cl = Console.ForegroundColor;
+
         Console.ForegroundColor = ConsoleColor.Red;
         Console.WriteLine(ex.Message);
 
-        Environment.Exit(1);
+        Console.ForegroundColor = cl;
+
+        Environment.Exit(-1);
       }
     }
 
