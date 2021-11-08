@@ -1,7 +1,9 @@
 ﻿using CommandLine;
+using System;
 
 namespace BDInfo
 {
+  [Serializable]
   public sealed class CmdOptions
   {
     [Option('p', "path", Required = true, HelpText = "The path to iso or bluray folder")]
