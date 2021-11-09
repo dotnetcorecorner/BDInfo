@@ -64,7 +64,7 @@ namespace BDInfo
 						var oldOpt = Cloner.Clone(opts);
 						List<string> reports = new List<string>();
 
-						foreach (var subDir in subItems)
+						foreach (var subDir in subItems.OrderBy(s => s))
 						{
 							opts.Path = isIsoLevel ? subDir : Path.GetDirectoryName(subDir);
 							if (!string.IsNullOrWhiteSpace(opts.ReportFileName) && !string.IsNullOrWhiteSpace(opts.ReportPath))
