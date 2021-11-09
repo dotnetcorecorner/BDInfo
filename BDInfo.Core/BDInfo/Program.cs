@@ -50,18 +50,26 @@ namespace BDInfo
 
 				if (!opts.Path.EndsWith(".iso", StringComparison.OrdinalIgnoreCase))
 				{
-					var bdmv = Directory.GetDirectories(opts.Path);
-					if (!bdmv.Any(s => s.EndsWith(BDMV, StringComparison.OrdinalIgnoreCase)))
+					var subItems = Directory.GetDirectories(opts.Path, BDMV, SearchOption.AllDirectories);
+					bool isIsoLevel = false;
+
+					if (!subItems.Any())
+					{
+						subItems = Directory.GetFiles(opts.Path, "*.iso", SearchOption.AllDirectories);
+						isIsoLevel = subItems.Any();
+					}
+
+					if (subItems.Any())
 					{
 						var oldOpt = Cloner.Clone(opts);
 						List<string> reports = new List<string>();
 
-						foreach (var subDir in Directory.GetDirectories(opts.Path, BDMV, SearchOption.AllDirectories))
+						foreach (var subDir in subItems)
 						{
-							opts.Path = Path.GetDirectoryName(subDir);
+							opts.Path = isIsoLevel ? subDir : Path.GetDirectoryName(subDir);
 							if (!string.IsNullOrWhiteSpace(opts.ReportFileName) && !string.IsNullOrWhiteSpace(opts.ReportPath))
 							{
-								opts.ReportFileName = Path.GetFileName(opts.Path) + "." + Path.GetExtension(opts.ReportFileName).TrimStart('.');
+								opts.ReportFileName = (isIsoLevel ? Path.GetFileNameWithoutExtension(opts.Path) : Path.GetFileName(opts.Path)) + "." + Path.GetExtension(opts.ReportFileName).TrimStart('.');
 								reports.Add(Path.Combine(opts.ReportPath, opts.ReportFileName));
 							}
 
@@ -69,13 +77,16 @@ namespace BDInfo
 							ScanBDROM();
 						}
 
-						var bigReport = Path.Combine(oldOpt.ReportPath, oldOpt.ReportFileName);
-						foreach(var report in reports)
+						if (reports.Count > 1)
 						{
-							File.AppendAllLines(bigReport, File.ReadAllLines(report));
-							File.AppendAllLines(bigReport, Enumerable.Repeat(Environment.NewLine, 5));
+							var bigReport = Path.Combine(oldOpt.ReportPath, oldOpt.ReportFileName);
+							foreach (var report in reports)
+							{
+								File.AppendAllLines(bigReport, File.ReadAllLines(report));
+								File.AppendAllLines(bigReport, Enumerable.Repeat(Environment.NewLine, 5));
 
-							File.Delete(report);
+								File.Delete(report);
+							}
 						}
 
 						return;
@@ -87,10 +98,12 @@ namespace BDInfo
 			}
 			catch (Exception ex)
 			{
+				var color = Console.ForegroundColor;
 				Console.Error.WriteLine();
 				Console.ForegroundColor = ConsoleColor.Red;
 				Console.Error.WriteLine($"{opts.Path} ::: {ex.Message}");
 
+				Console.ForegroundColor = color;
 				Environment.Exit(1);
 			}
 		}
