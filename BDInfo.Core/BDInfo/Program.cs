@@ -104,6 +104,13 @@ namespace BDInfo
 				Console.Error.WriteLine($"{opts.Path} ::: {ex.Message}");
 
 				Console.ForegroundColor = color;
+
+				try
+				{
+					File.AppendAllText($"error_{Path.GetFileName(opts.Path)}.log", $"{ex}{Environment.NewLine}{Environment.NewLine}");
+				}
+				catch { }
+
 				Environment.Exit(1);
 			}
 		}
