@@ -27,6 +27,8 @@ namespace BDInfo
 		private static BDSettings _bdinfoSettings;
 		private static readonly string BDMV = "BDMV";
 
+		private static string _error;
+
 		private static void Main(string[] args)
 		{
 			if (args.Length == 0)
@@ -44,6 +46,7 @@ namespace BDInfo
 		{
 			try
 			{
+				_error = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"error_{Path.Combine(opts.Path)}.log");
 				_bdinfoSettings = new BDSettings(opts);
 				InitObjects();
 				InitEvents();
@@ -107,7 +110,7 @@ namespace BDInfo
 
 				try
 				{
-					File.AppendAllText($"error_{Path.GetFileName(opts.Path)}.log", $"{ex}{Environment.NewLine}{Environment.NewLine}");
+					File.AppendAllText(_error, $"{ex}{Environment.NewLine}{Environment.NewLine}");
 				}
 				catch { }
 
@@ -443,6 +446,7 @@ namespace BDInfo
 						"{0}", ScanResult.ScanException.Message);
 
 				ConsoleWriteLine(msg);
+				File.AppendAllText(_error, $"{ScanResult.ScanException}{Environment.NewLine}{Environment.NewLine}");
 			}
 			else
 			{
