@@ -1286,7 +1286,7 @@ namespace BDInfo
 				double chapterMaxFrameSize = 0;
 				double chapterMaxFrameLocation = 0;
 
-				ushort diagPID = playlist.VideoStreams[0].PID;
+				ushort diagPID = playlist.VideoStreams.FirstOrDefault()?.PID ?? 0;
 
 				int chapterIndex = 0;
 				int clipIndex = 0;
