@@ -46,7 +46,7 @@ namespace BDInfo
 		{
 			try
 			{
-				_error = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"error_{Path.Combine(opts.Path)}.log");
+				_error = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"error_{Path.GetFileName(opts.Path)}.log");
 				_bdinfoSettings = new BDSettings(opts);
 				InitObjects();
 				InitEvents();
@@ -185,6 +185,7 @@ namespace BDInfo
 			}
 			catch (Exception ex)
 			{
+				File.AppendAllText(_error, $"{ex}{Environment.NewLine}{Environment.NewLine}");
 				return ex;
 			}
 		}
@@ -377,6 +378,7 @@ namespace BDInfo
 			catch (Exception ex)
 			{
 				ScanResult.ScanException = ex;
+				File.AppendAllText(_error, $"{ex}{Environment.NewLine}{Environment.NewLine}");
 			}
 			finally
 			{
@@ -431,7 +433,10 @@ namespace BDInfo
 						remainingTime.Minutes,
 						remainingTime.Seconds);
 			}
-			catch { }
+			catch (Exception ex)
+			{
+				File.AppendAllText(_error, $"{ex}{Environment.NewLine}{Environment.NewLine}");
+			}
 		}
 
 		private static void ScanBDROMCompleted()
@@ -482,6 +487,7 @@ namespace BDInfo
 			catch (Exception ex)
 			{
 				scanState.Exception = ex;
+				File.AppendAllText(_error, $"{ex}{Environment.NewLine}{Environment.NewLine}");
 			}
 		}
 
@@ -516,6 +522,7 @@ namespace BDInfo
 			}
 			catch (Exception ex)
 			{
+				File.AppendAllText(_error, $"{ex}{Environment.NewLine}{Environment.NewLine}");
 				return ex;
 			}
 		}
@@ -1585,7 +1592,10 @@ namespace BDInfo
 				using (StreamWriter reportFile = File.CreateText(Path.Combine(_bdinfoSettings.ReportPath, reportName)))
 				{
 					try { reportFile.Write(report); }
-					catch { }
+					catch (Exception ex)
+					{
+						File.AppendAllText(_error, $"{ex}{Environment.NewLine}{Environment.NewLine}");
+					}
 				}
 			}
 
