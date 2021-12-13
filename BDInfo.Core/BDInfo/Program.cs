@@ -83,7 +83,7 @@ namespace BDInfo
 						if (reports.Count > 0)
 						{
 							var bigReport = Path.Combine(oldOpt.ReportPath, oldOpt.ReportFileName);
-							if (reports.Count == 1 && bigReport.Equals(reports[0]))
+							if (reports.Count == 1)
 							{
 								File.Move(reports[0], bigReport);
 								return;
