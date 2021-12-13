@@ -80,9 +80,15 @@ namespace BDInfo
 							ScanBDROM();
 						}
 
-						if (reports.Count > 1)
+						if (reports.Count > 0)
 						{
 							var bigReport = Path.Combine(oldOpt.ReportPath, oldOpt.ReportFileName);
+							if (reports.Count == 1 && bigReport.Equals(reports[0]))
+							{
+								File.Move(reports[0], bigReport);
+								return;
+							}
+
 							foreach (var report in reports)
 							{
 								File.AppendAllLines(bigReport, File.ReadAllLines(report));
