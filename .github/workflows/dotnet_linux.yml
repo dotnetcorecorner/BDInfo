@@ -44,38 +44,23 @@ jobs:
         # Tool to use for archiving
         type: zip
         
-    - name: BDExtractor release
-      uses: TheDoctor0/zip-release@0.6.1
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        # Filename for archive
-        filename: bdextractor.zip
-        # Base path for archive files
-        path: BDInfo.Core/BDExtractor/bin/Release/netcoreapp3.1/linux-x64/publish/
-        # Working directory before zipping
-        directory: .
-        # List of excluded files / directories
-        #exclusions: # optional, default is 
-        # Tool to use for archiving
-        type: zip
-        
-    - name: Release & Assets
-      # You may pin to the exact commit or the version.
-      # uses: Hs1r1us/Release-AIO@354b8db50d5b6310b621cb6c5e29d1f8e611aff7
-      uses: Hs1r1us/Release-AIO@v1.0
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+    - name: Upload Release Asset
+      id: upload-release-asset 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        # The name of the tag
-        tag_name: v1.0.0
-        # The name of the release
-        release_name: BDInfo
-        # Text describing the contents of the tag
-        #body: # optional
-        # Path to file with information about the tag
-        #body_path: # optional
-        # The path to the asset you want to upload
-        asset_files: bdinfo.zip
-        # `true` to create a draft (unpublished) release, `false` to create a published one. Default: `false`
-        draft: false # optional
-        # `true` to identify the release as a prerelease. `false` to identify the release as a full release. Default: `false`
-        prerelease: false# optional
-        # Repository on which to release.  Used only if you want to create the release on another repo
-        #repo: # optional
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: ./bdinfo.zip
+        asset_name: bdinfo.zip
+        asset_content_type: application/zip
