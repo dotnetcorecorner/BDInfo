@@ -1,10 +1,11 @@
 name: .NET
 
 on:
-  push:
-    branches: [ master ]
   pull_request:
     branches: [ master ]
+    
+env:
+  version: v1.0.0
 
 jobs:
   build:
@@ -34,9 +35,23 @@ jobs:
       uses: TheDoctor0/zip-release@0.6.1
       with:
         # Filename for archive
-        filename: bdinfo.zip
+        filename: bdinfo_${{ env.version }}.zip
         # Base path for archive files
         path: BDInfo.Core/BDInfo/bin/Release/netcoreapp3.1/linux-x64/publish
+        # Working directory before zipping
+        directory: .
+        # List of excluded files / directories
+        #exclusions: # optional, default is 
+        # Tool to use for archiving
+        type: zip
+        
+    - name: BDExtractor ZIP release
+      uses: TheDoctor0/zip-release@0.6.1
+      with:
+        # Filename for archive
+        filename: bdextractor_${{ env.version }}.zip
+        # Base path for archive files
+        path: BDInfo.Core/BDExtractor/bin/Release/netcoreapp3.1/linux-x64/publish/
         # Working directory before zipping
         directory: .
         # List of excluded files / directories
@@ -50,17 +65,29 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        tag_name: ${{ env.version }}
+        release_name: Release ${{ env.version }}
         draft: false
         prerelease: false
-    - name: Upload Release Asset
-      id: upload-release-asset 
+        
+    - name: Upload BDInfo
+      id: upload-release-asset-bdinfo
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./bdinfo.zip
-        asset_name: bdinfo.zip
+        asset_path: ./bdinfo_${{ env.version }}.zip
+        asset_name: bdinfo_${{ env.version }}.zip
+        asset_content_type: application/zip
+        
+    - name: Upload BDExtractor
+      id: upload-release-asset-bdextractor
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: ./bdextractor_${{ env.version }}.zip
+        asset_name: bdextractor_${{ env.version }}.zip
         asset_content_type: application/zip
