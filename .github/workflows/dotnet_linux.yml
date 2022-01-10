@@ -3,6 +3,9 @@ name: .NET
 on:
   pull_request:
     branches: [ master ]
+  push:
+    tags:
+    - 'v*'
     
 env:
   version: v1.0.0
