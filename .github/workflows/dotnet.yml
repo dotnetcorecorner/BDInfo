@@ -43,7 +43,7 @@ jobs:
         # Base path for archive files
         path: BDInfo.Core/BDInfo/bin/Release/netcoreapp3.1/linux-x64/publish
         # Working directory before zipping
-        directory: ./BDInfo.Core/BDInfo/bin/Release/netcoreapp3.1/linux-x64/publish
+        directory: /home/runner/work/BDInfo/BDInfo/BDInfo.Core/BDInfo/bin/Release/netcoreapp3.1/linux-x64/publish/
         # List of excluded files / directories
         #exclusions: # optional, default is 
         # Tool to use for archiving
@@ -57,7 +57,7 @@ jobs:
         # Base path for archive files
         path: BDInfo.Core/BDExtractor/bin/Release/netcoreapp3.1/linux-x64/publish/
         # Working directory before zipping
-        directory: ./BDInfo.Core/BDExtractor/bin/Release/netcoreapp3.1/linux-x64/publish/
+        directory: /home/runner/work/BDInfo/BDInfo/BDInfo.Core/BDExtractor/bin/Release/netcoreapp3.1/linux-x64/publish/
         # List of excluded files / directories
         #exclusions: # optional, default is 
         # Tool to use for archiving
@@ -126,9 +126,9 @@ jobs:
         # Filename for archive
         filename: bdinfo_win_v${{ env.version }}.zip
         # Base path for archive files
-        path: BDInfo.Core/BDInfo/bin/Release/netcoreapp3.1/win-x64/publish
+        path: BDInfo.Core/BDInfo/bin/Release/netcoreapp3.1/win-x64/publish/
         # Working directory before zipping
-        directory: ./BDInfo.Core/BDInfo/bin/Release/netcoreapp3.1/win-x64/publish
+        directory: /home/runner/work/BDInfo/BDInfo/BDInfo.Core/BDInfo/bin/Release/netcoreapp3.1/win-x64/publish/
         # List of excluded files / directories
         #exclusions: # optional, default is 
         # Tool to use for archiving
@@ -142,7 +142,7 @@ jobs:
         # Base path for archive files
         path: BDInfo.Core/BDExtractor/bin/Release/netcoreapp3.1/win-x64/publish/
         # Working directory before zipping
-        directory: ./BDInfo.Core/BDExtractor/bin/Release/netcoreapp3.1/win-x64/publish/
+        directory: /home/runner/work/BDInfo/BDInfo/BDInfo.Core/BDExtractor/bin/Release/netcoreapp3.1/win-x64/publish/
         # List of excluded files / directories
         #exclusions: # optional, default is 
         # Tool to use for archiving
