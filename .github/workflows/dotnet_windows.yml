@@ -39,7 +39,7 @@ jobs:
       uses: TheDoctor0/zip-release@0.6.1
       with:
         # Filename for archive
-        filename: bdinfo_${{ env.version }}.zip
+        filename: bdinfo_win_${{ env.version }}.zip
         # Base path for archive files
         path: BDInfo.Core/BDInfo/bin/Release/netcoreapp3.1/win-x64/publish
         # Working directory before zipping
@@ -53,7 +53,7 @@ jobs:
       uses: TheDoctor0/zip-release@0.6.1
       with:
         # Filename for archive
-        filename: bdextractor_${{ env.version }}.zip
+        filename: bdextractor_win_${{ env.version }}.zip
         # Base path for archive files
         path: BDInfo.Core/BDExtractor/bin/Release/netcoreapp3.1/win-x64/publish/
         # Working directory before zipping
