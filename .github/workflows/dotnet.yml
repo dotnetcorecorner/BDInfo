@@ -69,8 +69,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ env.version }}
-        release_name: Release ${{ env.version }}
+        tag_name: linux-${{ env.version }}
+        release_name: Release Linux x64 ${{ env.version }}
         draft: false
         prerelease: false
         
@@ -148,16 +148,16 @@ jobs:
         # Tool to use for archiving
         type: zip
         
-    #- name: Create Release
-    #  id: create_release
-    #  uses: actions/create-release@v1
-    #  env:
-    #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #  with:
-    #    tag_name: ${{ env.version }}
-    #    release_name: Release ${{ env.version }}
-    #    draft: false
-    #    prerelease: false
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: win-${{ env.version }}
+        release_name: Release Windows x64 ${{ env.version }}
+        draft: false
+        prerelease: false
         
     - name: Upload BDInfo
       id: upload-release-asset-bdinfo
