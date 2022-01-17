@@ -39,11 +39,11 @@ jobs:
       uses: TheDoctor0/zip-release@0.6.1
       with:
         # Filename for archive
-        filename: bdinfo_linux_${{ env.version }}.zip
+        filename: bdinfo_linux_v${{ env.version }}.zip
         # Base path for archive files
         path: BDInfo.Core/BDInfo/bin/Release/netcoreapp3.1/linux-x64/publish
         # Working directory before zipping
-        directory: .
+        directory: ./BDInfo.Core/BDInfo/bin/Release/netcoreapp3.1/linux-x64/publish
         # List of excluded files / directories
         #exclusions: # optional, default is 
         # Tool to use for archiving
@@ -53,11 +53,11 @@ jobs:
       uses: TheDoctor0/zip-release@0.6.1
       with:
         # Filename for archive
-        filename: bdextractor_linux_${{ env.version }}.zip
+        filename: bdextractor_linux_v${{ env.version }}.zip
         # Base path for archive files
         path: BDInfo.Core/BDExtractor/bin/Release/netcoreapp3.1/linux-x64/publish/
         # Working directory before zipping
-        directory: .
+        directory: ./BDInfo.Core/BDExtractor/bin/Release/netcoreapp3.1/linux-x64/publish/
         # List of excluded files / directories
         #exclusions: # optional, default is 
         # Tool to use for archiving
@@ -81,8 +81,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./bdinfo_linux_${{ env.version }}.zip
-        asset_name: bdinfo_linux_${{ env.version }}.zip
+        asset_path: ./bdinfo_linux_v${{ env.version }}.zip
+        asset_name: bdinfo_linux_v${{ env.version }}.zip
         asset_content_type: application/zip
         
     - name: Upload BDExtractor
@@ -92,8 +92,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./bdextractor_linux_${{ env.version }}.zip
-        asset_name: bdextractor_linux_${{ env.version }}.zip
+        asset_path: ./bdextractor_linux_v${{ env.version }}.zip
+        asset_name: bdextractor_linux_v${{ env.version }}.zip
         asset_content_type: application/zip
 
 
@@ -124,11 +124,11 @@ jobs:
       uses: TheDoctor0/zip-release@0.6.1
       with:
         # Filename for archive
-        filename: bdinfo_win_${{ env.version }}.zip
+        filename: bdinfo_win_v${{ env.version }}.zip
         # Base path for archive files
         path: BDInfo.Core/BDInfo/bin/Release/netcoreapp3.1/win-x64/publish
         # Working directory before zipping
-        directory: .
+        directory: ./BDInfo.Core/BDInfo/bin/Release/netcoreapp3.1/win-x64/publish
         # List of excluded files / directories
         #exclusions: # optional, default is 
         # Tool to use for archiving
@@ -138,11 +138,11 @@ jobs:
       uses: TheDoctor0/zip-release@0.6.1
       with:
         # Filename for archive
-        filename: bdextractor_win_${{ env.version }}.zip
+        filename: bdextractor_win_v${{ env.version }}.zip
         # Base path for archive files
         path: BDInfo.Core/BDExtractor/bin/Release/netcoreapp3.1/win-x64/publish/
         # Working directory before zipping
-        directory: .
+        directory: ./BDInfo.Core/BDExtractor/bin/Release/netcoreapp3.1/win-x64/publish/
         # List of excluded files / directories
         #exclusions: # optional, default is 
         # Tool to use for archiving
@@ -166,8 +166,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./bdinfo_win_${{ env.version }}.zip
-        asset_name: bdinfo_win_${{ env.version }}.zip
+        asset_path: ./bdinfo_win_v${{ env.version }}.zip
+        asset_name: bdinfo_win_v${{ env.version }}.zip
         asset_content_type: application/zip
         
     - name: Upload BDExtractor
@@ -177,6 +177,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./bdextractor_win_${{ env.version }}.zip
-        asset_name: bdextractor_win_${{ env.version }}.zip
+        asset_path: ./bdextractor_win_v${{ env.version }}.zip
+        asset_name: bdextractor_win_v${{ env.version }}.zip
         asset_content_type: application/zip
