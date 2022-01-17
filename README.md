@@ -26,6 +26,9 @@
 | _`-j`_ | _`--groupbytime`_ | Group by time |  | False |
 | _`-d`_ | _`--isexecutedasscript`_ | Check if is executed as script |  | False |
 
+
+For linux, make `BDInfo` as executable (yes, that one without extension) using `chmod +x BDInfo`
+
 # BDExtractor
 
 ## Command arguments
@@ -35,10 +38,10 @@
 | _`-p`_ | _`--path`_ | The path to iso file | x |
 | _`-o`_ | _`--output`_ | The output folder | x |
 
+For linux, make `BDExtractor` as executable (yes, that one without extension) using `chmod +x BDExtractor`
+
 # Known issue
 
 https://github.com/DiscUtils/DiscUtils/issues/199
 
-[![Linux x64](https://github.com/dotnetcorecorner/BDInfo/actions/workflows/dotnet_linux.yml/badge.svg?branch=master)](https://github.com/dotnetcorecorner/BDInfo/actions/workflows/dotnet_linux.yml)
-
-[![Windows x64](https://github.com/dotnetcorecorner/BDInfo/actions/workflows/dotnet_windows.yml/badge.svg?branch=master)](https://github.com/dotnetcorecorner/BDInfo/actions/workflows/dotnet_windows.yml)
+[![Build x64](https://github.com/dotnetcorecorner/BDInfo/actions/workflows/dotnet.yml/badge.svg)](https://github.com/dotnetcorecorner/BDInfo/actions/workflows/dotnet.yml)
