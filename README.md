@@ -40,3 +40,5 @@
 https://github.com/DiscUtils/DiscUtils/issues/199
 
 [![.NET](https://github.com/dotnetcorecorner/BDInfo/actions/workflows/dotnet_linux.yml/badge.svg?branch=master)](https://github.com/dotnetcorecorner/BDInfo/actions/workflows/dotnet_linux.yml)
+
+[![Windows x64](https://github.com/dotnetcorecorner/BDInfo/actions/workflows/dotnet_windows.yml/badge.svg?branch=master)](https://github.com/dotnetcorecorner/BDInfo/actions/workflows/dotnet_windows.yml)
