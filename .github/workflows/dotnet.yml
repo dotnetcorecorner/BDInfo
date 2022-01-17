@@ -9,7 +9,7 @@ on:
     - 'v*'
     
 env:
-  version: 1.0.0
+  version: 1.0.${{ github.run_id }}
 
 jobs:
   build_linux:
