@@ -100,15 +100,15 @@ jobs:
   build_windows:
 
     runs-on: windows-latest
-
+    needs: [build_linux]
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.x
-    - name: Add organization git
-      run: dotnet nuget add source --username Sonic3R --password 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 --store-password-in-clear-text --name github "https://nuget.pkg.github.com/dotnetcorecorner/index.json"
+    #- name: Add organization git
+    #  run: dotnet nuget add source --username Sonic3R --password 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 --store-password-in-clear-text --name github "https://nuget.pkg.github.com/dotnetcorecorner/index.json"
     - name: Restore dependencies
       run: dotnet restore BDInfo.Core/BDInfo.Core.sln
     - name: Build against errors
