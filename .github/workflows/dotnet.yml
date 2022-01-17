@@ -11,17 +11,23 @@ env:
   gitpass: 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
 
 jobs:
-  build_linux:
+  add_source:
+    runs-on: ubuntu-latest
+    steps:
+    - name: add source
+      run: dotnet nuget add source --username Sonic3R --password ${{ env.gitpass }} --store-password-in-clear-text --name github-linux "https://nuget.pkg.github.com/dotnetcorecorner/index.json"
 
+  build_linux:
+    needs: [add_source]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Setup .NET 1.0.${{ github.run_id }}
+    - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.x
-    - name: Add organization git
-      run: dotnet nuget add source --username Sonic3R --password ${{ env.gitpass }} --store-password-in-clear-text --name github-linux "https://nuget.pkg.github.com/dotnetcorecorner/index.json"
+    #- name: Add organization git
+    #  run: dotnet nuget add source --username Sonic3R --password ${{ env.gitpass }} --store-password-in-clear-text --name github-linux "https://nuget.pkg.github.com/dotnetcorecorner/index.json"
     - name: Restore dependencies
       run: dotnet restore BDInfo.Core/BDInfo.Core.sln
     - name: Build against errors
@@ -98,15 +104,15 @@ jobs:
   build_windows:
 
     runs-on: windows-latest
-    needs: [build_linux]
+    needs: [add_source,build_linux]
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.x
-    - name: Add organization git
-      run: dotnet nuget add source --username Sonic3R --password ${{ env.gitpass }} --store-password-in-clear-text --name github-win "https://nuget.pkg.github.com/dotnetcorecorner/index.json"
+    #- name: Add organization git
+    #  run: dotnet nuget add source --username Sonic3R --password ${{ env.gitpass }} --store-password-in-clear-text --name github-win "https://nuget.pkg.github.com/dotnetcorecorner/index.json"
     - name: Restore dependencies
       run: dotnet restore BDInfo.Core/BDInfo.Core.sln
     - name: Build against errors
