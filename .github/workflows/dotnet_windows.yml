@@ -69,8 +69,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ env.version }}
-        release_name: Release ${{ env.version }}
+        tag_name: windows-${{ env.version }}
+        release_name: Release windows-${{ env.version }}
         draft: false
         prerelease: false
         
@@ -81,8 +81,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./bdinfo_${{ env.version }}.zip
-        asset_name: bdinfo_${{ env.version }}.zip
+        asset_path: ./bdinfo_win_${{ env.version }}.zip
+        asset_name: bdinfo_win_${{ env.version }}.zip
         asset_content_type: application/zip
         
     - name: Upload BDExtractor
@@ -92,6 +92,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./bdextractor_${{ env.version }}.zip
-        asset_name: bdextractor_${{ env.version }}.zip
+        asset_path: ./bdextractor_win_${{ env.version }}.zip
+        asset_name: bdextractor_win_${{ env.version }}.zip
         asset_content_type: application/zip
