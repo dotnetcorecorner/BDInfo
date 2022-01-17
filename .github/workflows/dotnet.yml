@@ -8,10 +8,10 @@ on:
     
 env:
   version: 1.0.0
-  gitpass: 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
 
 jobs:
   build_linux:
+
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -20,7 +20,7 @@ jobs:
       with:
         dotnet-version: 5.x
     - name: Add organization git
-      run: dotnet nuget add source --username Sonic3R --password ${{ env.gitpass }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/dotnetcorecorner/index.json"
+      run: dotnet nuget add source --username Sonic3R --password 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 --store-password-in-clear-text --name github "https://nuget.pkg.github.com/dotnetcorecorner/index.json"
     - name: Restore dependencies
       run: dotnet restore BDInfo.Core/BDInfo.Core.sln
     - name: Build against errors
@@ -93,11 +93,6 @@ jobs:
         asset_name: bdextractor_linux_v${{ env.version }}.zip
         asset_content_type: application/zip
 
-    - name: Cleanup
-      if: always()
-      continue-on-error: true
-      run: |
-        dotnet nuget remove source github
 
   build_windows:
 
@@ -109,8 +104,8 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.x
-    - name: Add organization git
-      run: dotnet nuget add source --username Sonic3R --password ${{ env.gitpass }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/dotnetcorecorner/index.json"
+    #- name: Add organization git
+    #  run: dotnet nuget add source --username Sonic3R --password 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 --store-password-in-clear-text --name github "https://nuget.pkg.github.com/dotnetcorecorner/index.json"
     - name: Restore dependencies
       run: dotnet restore BDInfo.Core/BDInfo.Core.sln
     - name: Build against errors
