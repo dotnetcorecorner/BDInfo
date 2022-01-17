@@ -6,13 +6,15 @@ on:
     tags:
     - 'v*'
     
-env:
-  version: 1.0.${{ github.run_id }}
+#env:
+#  version: 1.0.${{ github.run_id }}
 
 jobs:
   build_linux:
 
     runs-on: ubuntu-latest
+    env:
+      version: 1.0.${{ github.run_id }}
 
     steps:
     - uses: actions/checkout@v2
@@ -98,6 +100,9 @@ jobs:
   build_windows:
 
     runs-on: windows-latest
+    env:
+      version: 1.0.${{ github.run_id }}
+
     needs: [build_linux]
     steps:
     - uses: actions/checkout@v2
