@@ -1,97 +1,97 @@
-name: Windows x64
+#name: Windows x64
 
-on:
-  pull_request:
-    branches: [ master ]
-  push:
-    branches: [ master ]
-    tags:
-    - 'v*'
+#on:
+#  pull_request:
+#    branches: [ master ]
+#  push:
+#    branches: [ master ]
+#    tags:
+#    - 'v*'
     
-env:
-  version: 1.0.0
+#env:
+#  version: 1.0.0
 
-jobs:
-  build:
+#jobs:
+#  build:
 
-    runs-on: ubuntu-latest
+#    runs-on: windows-latest
 
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 5.x
-    - name: Add organization git
-      run: dotnet nuget add source --username Sonic3R --password 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 --store-password-in-clear-text --name github "https://nuget.pkg.github.com/dotnetcorecorner/index.json"
-    - name: Restore dependencies
-      run: dotnet restore BDInfo.Core/BDInfo.Core.sln
-    - name: Build against errors
-      run: dotnet build BDInfo.Core/BDInfo.Core.sln --no-restore     
-    - name: Create self-contained binary for BDInfo
-      run: dotnet publish BDInfo.Core/BDInfo/BDInfo.csproj -c Release -r win-x64 --self-contained
-    - name: Create self-contained binary for BDExtractor
-      run: dotnet publish BDInfo.Core/BDExtractor/BDExtractor.csproj -c Release -r win-x64 --self-contained
+#    steps:
+#    - uses: actions/checkout@v2
+#    - name: Setup .NET
+#      uses: actions/setup-dotnet@v1
+#      with:
+#        dotnet-version: 5.x
+#    - name: Add organization git
+#      run: dotnet nuget add source --username Sonic3R --password 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 --store-password-in-clear-text --name github "https://nuget.pkg.github.com/dotnetcorecorner/index.json"
+#    - name: Restore dependencies
+#      run: dotnet restore BDInfo.Core/BDInfo.Core.sln
+#    - name: Build against errors
+#      run: dotnet build BDInfo.Core/BDInfo.Core.sln --no-restore     
+#    - name: Create self-contained binary for BDInfo
+#      run: dotnet publish BDInfo.Core/BDInfo/BDInfo.csproj -c Release -r win-x64 --self-contained
+#    - name: Create self-contained binary for BDExtractor
+#      run: dotnet publish BDInfo.Core/BDExtractor/BDExtractor.csproj -c Release -r win-x64 --self-contained
       
-    - name: BDInfo Zip Release
-      # You may pin to the exact commit or the version.
-      # uses: TheDoctor0/zip-release@591e9b128012d3328db6043d0d0266c3ac27f9b5
-      uses: TheDoctor0/zip-release@0.6.1
-      with:
-        # Filename for archive
-        filename: bdinfo_win_${{ env.version }}.zip
-        # Base path for archive files
-        path: BDInfo.Core/BDInfo/bin/Release/netcoreapp3.1/win-x64/publish
-        # Working directory before zipping
-        directory: .
-        # List of excluded files / directories
-        #exclusions: # optional, default is 
-        # Tool to use for archiving
-        type: zip
+#    - name: BDInfo Zip Release
+#      # You may pin to the exact commit or the version.
+#      # uses: TheDoctor0/zip-release@591e9b128012d3328db6043d0d0266c3ac27f9b5
+#      uses: TheDoctor0/zip-release@0.6.1
+#      with:
+#        # Filename for archive
+#        filename: bdinfo_win_${{ env.version }}.zip
+#        # Base path for archive files
+#        path: BDInfo.Core/BDInfo/bin/Release/netcoreapp3.1/win-x64/publish
+#        # Working directory before zipping
+#        directory: .
+#        # List of excluded files / directories
+#        #exclusions: # optional, default is 
+#        # Tool to use for archiving
+#        type: zip
         
-    - name: BDExtractor ZIP release
-      uses: TheDoctor0/zip-release@0.6.1
-      with:
-        # Filename for archive
-        filename: bdextractor_win_${{ env.version }}.zip
-        # Base path for archive files
-        path: BDInfo.Core/BDExtractor/bin/Release/netcoreapp3.1/win-x64/publish/
-        # Working directory before zipping
-        directory: .
-        # List of excluded files / directories
-        #exclusions: # optional, default is 
-        # Tool to use for archiving
-        type: zip
+#    - name: BDExtractor ZIP release
+#      uses: TheDoctor0/zip-release@0.6.1
+#      with:
+#        # Filename for archive
+#        filename: bdextractor_win_${{ env.version }}.zip
+#        # Base path for archive files
+#        path: BDInfo.Core/BDExtractor/bin/Release/netcoreapp3.1/win-x64/publish/
+#        # Working directory before zipping
+#        directory: .
+#        # List of excluded files / directories
+#        #exclusions: # optional, default is 
+#        # Tool to use for archiving
+#        type: zip
         
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ env.version }}
-        release_name: Release ${{ env.version }}
-        draft: false
-        prerelease: false
+#    - name: Create Release
+#      id: create_release
+#      uses: actions/create-release@v1
+#      env:
+#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      with:
+#        tag_name: ${{ env.version }}
+#        release_name: Release ${{ env.version }}
+#        draft: false
+#        prerelease: false
         
-    - name: Upload BDInfo
-      id: upload-release-asset-bdinfo
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./bdinfo_win_${{ env.version }}.zip
-        asset_name: bdinfo_win_${{ env.version }}.zip
-        asset_content_type: application/zip
+#    - name: Upload BDInfo
+#      id: upload-release-asset-bdinfo
+#      uses: actions/upload-release-asset@v1
+#      env:
+#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      with:
+#        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+#        asset_path: ./bdinfo_win_${{ env.version }}.zip
+#        asset_name: bdinfo_win_${{ env.version }}.zip
+#        asset_content_type: application/zip
         
-    - name: Upload BDExtractor
-      id: upload-release-asset-bdextractor
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./bdextractor_win_${{ env.version }}.zip
-        asset_name: bdextractor_win_${{ env.version }}.zip
-        asset_content_type: application/zip
+#    - name: Upload BDExtractor
+#      id: upload-release-asset-bdextractor
+#      uses: actions/upload-release-asset@v1
+#      env:
+#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      with:
+#        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+#        asset_path: ./bdextractor_win_${{ env.version }}.zip
+#        asset_name: bdextractor_win_${{ env.version }}.zip
+#        asset_content_type: application/zip
