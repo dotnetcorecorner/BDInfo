@@ -48,5 +48,4 @@ https://github.com/DiscUtils/DiscUtils/issues/199
 
 # Statistics
 
-https://img.shields.io/github/downloads/dotnetcorecorner/bdinfo/win-1.0.0/total?style=flat-square
-https://img.shields.io/github/downloads/dotnetcorecorner/bdinfo/linux-1.0.0/total?style=flat-square
+![GitHub release (by tag)](https://img.shields.io/github/downloads/dotnetcorecorner/bdinfo/win-1.0.0/total?style=flat-square)  ![GitHub release (by tag)](https://img.shields.io/github/downloads/dotnetcorecorner/bdinfo/linux-1.0.0/total?style=flat-square)
