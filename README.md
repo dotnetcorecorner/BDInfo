@@ -45,3 +45,8 @@ For linux, make `BDExtractor` as executable (yes, that one without extension) us
 https://github.com/DiscUtils/DiscUtils/issues/199
 
 [![Build x64](https://github.com/dotnetcorecorner/BDInfo/actions/workflows/dotnet.yml/badge.svg)](https://github.com/dotnetcorecorner/BDInfo/actions/workflows/dotnet.yml)
+
+# Statistics
+
+https://img.shields.io/github/downloads/dotnetcorecorner/bdinfo/win-1.0.0/total?style=flat-square
+https://img.shields.io/github/downloads/dotnetcorecorner/bdinfo/linux-1.0.0/total?style=flat-square
