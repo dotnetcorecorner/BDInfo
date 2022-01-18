@@ -1,5 +1,7 @@
 # BDInfo
 
+It scans bluray disc (full hd, ultra hd and 3D) on various operating systems. The binaries provided are portable so no need to install any framework.
+
 ## Command arguments
 
 | Short argument | Long argument | Meaning | Required | Default |
@@ -40,6 +42,8 @@ For linux, make `BDInfo` as executable (yes, that one without extension) using `
 `./BDInfo -p PATH_TO_ISO_FILE -r FOLDER_WHERE_REPORT_WILL_BE_SAVED -o REPORTNAME.EXTENSION`
 
 # BDExtractor
+
+It extract bluray disc iso file on various operating systems without neeed to mount it (except non-EEF iso). The binaries provided are portable so no need to install any framework.
 
 ## Command arguments
 
