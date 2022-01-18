@@ -29,6 +29,16 @@
 
 For linux, make `BDInfo` as executable (yes, that one without extension) using `chmod +x BDInfo`
 
+## How to use 
+
+### Windows
+`BDInfo.exe -p PATH_TO_DISC_FOLDER -r FOLDER_WHERE_REPORT_WILL_BE_SAVED -o REPORTNAME.EXTENSION`  
+`BDInfo.exe -p PATH_TO_ISO_FILE -r FOLDER_WHERE_REPORT_WILL_BE_SAVED -o REPORTNAME.EXTENSION`  
+
+### Linux  
+`./BDInfo -p PATH_TO_DISC_FOLDER -r FOLDER_WHERE_REPORT_WILL_BE_SAVED -o REPORTNAME.EXTENSION`  
+`./BDInfo -p PATH_TO_ISO_FILE -r FOLDER_WHERE_REPORT_WILL_BE_SAVED -o REPORTNAME.EXTENSION`
+
 # BDExtractor
 
 ## Command arguments
@@ -39,6 +49,14 @@ For linux, make `BDInfo` as executable (yes, that one without extension) using `
 | _`-o`_ | _`--output`_ | The output folder | x |
 
 For linux, make `BDExtractor` as executable (yes, that one without extension) using `chmod +x BDExtractor`
+
+## How to use
+
+### Windows
+`BDExtractor.exe -p PATH_TO_ISO_FILE -o FOLDER_OUTPUT`  
+
+### Linux:  
+`./BDExtractor -p PATH_TO_ISO_FILE -o FOLDER_OUTPUT`
 
 # Known issue
 
