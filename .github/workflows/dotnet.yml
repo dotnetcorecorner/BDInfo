@@ -19,8 +19,6 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.x
-    - name: Add organization git
-      run: dotnet nuget add source --username Sonic3R --password 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 --store-password-in-clear-text --name github "https://nuget.pkg.github.com/dotnetcorecorner/index.json"
     - name: Restore dependencies
       run: dotnet restore BDInfo.Core/BDInfo.Core.sln
     - name: Build against errors
