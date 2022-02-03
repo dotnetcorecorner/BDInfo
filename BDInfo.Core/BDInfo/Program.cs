@@ -58,8 +58,11 @@ namespace BDInfo
 
 					if (!subItems.Any())
 					{
-						subItems = Directory.GetFiles(opts.Path, "*.iso", SearchOption.AllDirectories);
-						isIsoLevel = subItems.Any();
+						var di = new DirectoryInfo(opts.Path);
+						var files = di.GetFiles("*.*", SearchOption.AllDirectories);
+						subItems = files.Where(s => s.FullName.EndsWith(".iso", StringComparison.OrdinalIgnoreCase)).Select(s => s.FullName).ToArray();
+						//subItems = Directory.GetFiles(opts.Path, "*.iso", SearchOption.AllDirectories);
+						isIsoLevel = subItems.LongLength > 0;
 					}
 
 					if (subItems.Any())
