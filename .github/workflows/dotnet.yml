@@ -20,7 +20,7 @@ jobs:
       with:
         dotnet-version: 5.x
     - name: Add organization git
-      run: dotnet nuget add source --username Sonic3R --password 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 --store-password-in-clear-text --name github "https://nuget.pkg.github.com/dotnetcorecorner/index.json"
+      run: dotnet nuget add source --username Sonic3R --password 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 --store-password-in-clear-text --name github "https://nuget.pkg.github.com/dotnetcorecorner/index.json"
     - name: Restore dependencies
       run: dotnet restore BDInfo.Core/BDInfo.Core.sln
     - name: Build against errors
