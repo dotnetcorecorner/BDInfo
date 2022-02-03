@@ -8,6 +8,7 @@ on:
     
 env:
   version: 1.0.1
+  token: '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'
 
 jobs:
   build_linux:
@@ -19,6 +20,8 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.x
+    - name: Add git source
+      run: dotnet sources add -name "github" -source 'https://nuget.pkg.github.com/dotnetcorecorner/index.json' -username 'Sonic3R' -password ${{ env.token }} -StorePasswordInClearText
     - name: Restore dependencies
       run: dotnet restore BDInfo.Core/BDInfo.Core.sln
     - name: Build against errors
