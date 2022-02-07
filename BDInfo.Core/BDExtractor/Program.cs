@@ -8,116 +8,124 @@ using System.IO;
 
 namespace BDExtractor
 {
-  class Program
-  {
-    static void Main(string[] args)
-    {
-      Parser.Default.ParseArguments<CmdOptions>(args)
-        .WithParsed(opts => Exec(opts))
-        .WithNotParsed((errs) => HandleParseError(errs));
-    }
+	class Program
+	{
+		private static string _log;
 
-    static void Exec(CmdOptions opts)
-    {
-      if (!Directory.Exists(opts.Output))
-      {
-        Directory.CreateDirectory(opts.Output);
-      }
+		static void Main(string[] args)
+		{
 
-      try
-      {
-        using (FileStream isoStream = File.Open(opts.Path, FileMode.Open))
-        {
-          UdfReader cd = new UdfReader(isoStream);
-          var dirs = cd.Root.GetDirectories();
-          var files = cd.Root.GetFiles();
+			Parser.Default.ParseArguments<CmdOptions>(args)
+				.WithParsed(opts => Exec(opts))
+				.WithNotParsed((errs) => HandleParseError(errs));
+		}
 
-          foreach (var dir in dirs)
-          {
-            CopyDir(dir, opts.Output);
-          }
+		static void Exec(CmdOptions opts)
+		{
+			_log = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"log_{Path.GetFileName(opts.Path)}.log");
 
-          foreach (var file in files)
-          {
-            var path = FolderUtility.Combine(opts.Output, file.Name);
-            CopyFile(file, path);
-          }
-        }
-      }
-      catch (Exception ex)
-      {
-        var cl = Console.ForegroundColor;
+			if (!Directory.Exists(opts.Output))
+			{
+				Directory.CreateDirectory(opts.Output);
+			}
 
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.Error.WriteLine(ex.Message);
+			try
+			{
+				using (FileStream isoStream = File.Open(opts.Path, FileMode.Open))
+				{
+					UdfReader cd = new UdfReader(isoStream);
+					var dirs = cd.Root.GetDirectories();
+					var files = cd.Root.GetFiles();
 
-        Console.ForegroundColor = cl;
+					foreach (var dir in dirs)
+					{
+						CopyDir(dir, opts.Output);
+					}
 
-        Environment.Exit(-1);
-      }
-    }
+					foreach (var file in files)
+					{
+						File.AppendAllText(_log, $"Exec::: {file.FullName + Environment.NewLine}");
+						File.AppendAllText(_log, $"Exec::: {file.Name + Environment.NewLine}");
 
-    static void HandleParseError(IEnumerable<Error> errs) { }
+						var path = FolderUtility.Combine(opts.Output, file.Name);
+						File.AppendAllText(_log, $"Exec::: {path + Environment.NewLine}");
 
-    static void CopyDir(DiscDirectoryInfo ddi, string outpath)
-    {
-      string path = FolderUtility.Combine(outpath, ddi.FullName);
-      if (!Directory.Exists(path))
-      {
-        Console.WriteLine($"Creating directory {path}");
-        Directory.CreateDirectory(path);
-      }
+						CopyFile(file, path);
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				var cl = Console.ForegroundColor;
 
-      var files = ddi.GetFiles();
-      if (files.Length > 0)
-      {
-        foreach (DiscFileInfo file in files)
-        {
-          var filePath = FolderUtility.Combine(outpath, file.FullName);
+				Console.ForegroundColor = ConsoleColor.Red;
+				Console.Error.WriteLine(ex.Message);
 
-          if (File.Exists(filePath))
-          {
-            File.Delete(filePath);
-          }
+				Console.ForegroundColor = cl;
 
-          CopyFile(file, filePath);
-        }
-      }
+				Environment.Exit(-1);
+			}
+		}
 
-      var dirs = ddi.GetDirectories();
-      if (dirs.Length > 0)
-      {
-        foreach (DiscDirectoryInfo dir in dirs)
-        {
-          CopyDir(dir, outpath);
-        }
-      }
-    }
+		static void HandleParseError(IEnumerable<Error> errs) { }
 
-    static void CopyFile(DiscFileInfo file, string filePath)
-    {
-      var fc = new FileCopier(file.FullName, filePath, 4096 * 1024);
-      Console.WriteLine($"Creating file {filePath} ( {SizeConverter.SizeToText(file.Length)} ) { string.Join(' ', 10) }");
+		static void CopyDir(DiscDirectoryInfo ddi, string outpath)
+		{
+			File.AppendAllText(_log, $"CopyDir::: {ddi.FullName + Environment.NewLine}");
+			File.AppendAllText(_log, $"CopyDir::: {ddi.Name + Environment.NewLine}");
 
-      fc.OnProgressChanged += (percentage) =>
-      {
-        Console.Write($"\rPercent: {percentage} %{new string(' ', 10)}");
-      };
+			string path = FolderUtility.Combine(outpath, ddi.FullName);
+			if (!Directory.Exists(path))
+			{
+				Console.WriteLine($"Creating directory {path}");
+				Directory.CreateDirectory(path);
+			}
 
-      fc.OnComplete += () =>
-      {
-        Console.WriteLine();
-      };
+			var files = ddi.GetFiles();
+			if (files.Length > 0)
+			{
+				foreach (DiscFileInfo file in files)
+				{
+					File.AppendAllText(_log, $"CopyDir::: {file.FullName + Environment.NewLine}");
+					File.AppendAllText(_log, $"CopyDir::: {file.Name + Environment.NewLine}");
 
-      fc.Copy();
+					var filePath = FolderUtility.Combine(outpath, file.FullName);
 
-      //using (FileStream fs = File.Create(filePath))
-      //{
-      //  using (var fileStream = file.Open(FileMode.Open))
-      //  {
-      //    fileStream.CopyTo(fs);
-      //  }
-      //}
-    }
-  }
+					if (File.Exists(filePath))
+					{
+						File.Delete(filePath);
+					}
+
+					CopyFile(file, filePath);
+				}
+			}
+
+			var dirs = ddi.GetDirectories();
+			if (dirs.Length > 0)
+			{
+				foreach (DiscDirectoryInfo dir in dirs)
+				{
+					CopyDir(dir, outpath);
+				}
+			}
+		}
+
+		static void CopyFile(DiscFileInfo file, string filePath)
+		{
+			var fc = new FileCopier(file.FullName, filePath, 4096 * 1024);
+			Console.WriteLine($"Creating file {filePath} ( {SizeConverter.SizeToText(file.Length)} ) { string.Join(' ', 10) }");
+
+			fc.OnProgressChanged += (percentage) =>
+			{
+				Console.Write($"\rPercent: {percentage} %{new string(' ', 10)}");
+			};
+
+			fc.OnComplete += () =>
+			{
+				Console.WriteLine();
+			};
+
+			fc.Copy();
+		}
+	}
 }
