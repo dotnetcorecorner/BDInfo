@@ -11,6 +11,7 @@ namespace BDExtractor
 	class Program
 	{
 		private static string _log;
+		private static string _space = new string(' ', 20);
 
 		static void Main(string[] args)
 		{
@@ -121,12 +122,12 @@ namespace BDExtractor
 
 		static void CopyFile(DiscFileInfo file, string destFilePath)
 		{
-			var fc = new FileCopier(file, destFilePath, 4096 * 1024);
-			Console.WriteLine($"Creating file {destFilePath} ( {SizeConverter.SizeToText(file.Length)} ) { new string(' ', 10) }");
+			var fc = new FileCopier(file, destFilePath, 4096 * 1024); // 4MB
+			Console.WriteLine($"Creating file {destFilePath} ( {SizeConverter.SizeToText(file.Length)} ) { _space }");
 
 			fc.OnProgressChanged += (percentage) =>
 			{
-				Console.Write($"\rPercent: {percentage} %{new string(' ', 10)}");
+				Console.Write($"\rPercent: {percentage:0.00} %{_space}");
 			};
 
 			fc.OnComplete += () =>
