@@ -20,8 +20,8 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.x
-    - name: echo
-      run: echo '${{ secrets.NUGET_REPO_SECRET }}'
+    - name: Remove organization git
+      run: dotnet nuget remove source "https://nuget.pkg.github.com/dotnetcorecorner/index.json"
     - name: Add organization git
       env: 
         NUGET_REPO_SECRET: ${{ secrets.NUGET_REPO_SECRET }}
