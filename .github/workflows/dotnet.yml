@@ -7,13 +7,13 @@ on:
     - 'v*'
     
 env:
-  version: 1.0.4
+  version: 1.0.3
   
 
 jobs:
   build_linux:
 
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET
