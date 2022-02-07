@@ -13,7 +13,7 @@ env:
 jobs:
   build_linux:
 
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET
@@ -22,7 +22,7 @@ jobs:
         dotnet-version: 5.x
     - name: Add organization git
       #run: dotnet nuget add source --username Sonic3R --password ${{ secrets.NUGET_REPO_SECRET }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/dotnetcorecorner/index.json"
-      run: dotnet nuget add source privaterepo --configfile Nuget.config # "https://nuget.pkg.github.com/dotnetcorecorner/index.json" --name github --username Sonic3R --password ${{ secrets.NUGET_REPO_SECRET }}
+      run: dotnet nuget add source "https://nuget.pkg.github.com/dotnetcorecorner/index.json" --name github --username Sonic3R --password ${{ secrets.NUGET_REPO_SECRET }}
     - name: Restore dependencies
       run: dotnet restore BDInfo.Core/BDInfo.Core.sln
     - name: Build against errors
