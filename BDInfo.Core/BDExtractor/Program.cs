@@ -14,7 +14,6 @@ namespace BDExtractor
 
 		static void Main(string[] args)
 		{
-
 			Parser.Default.ParseArguments<CmdOptions>(args)
 				.WithParsed(opts => Exec(opts))
 				.WithNotParsed((errs) => HandleParseError(errs));
@@ -31,6 +30,11 @@ namespace BDExtractor
 
 			try
 			{
+				DiscUtils.Complete.SetupHelper.SetupComplete(); 
+				DiscUtils.Containers.SetupHelper.SetupContainers();
+				DiscUtils.FileSystems.SetupHelper.SetupFileSystems();
+				DiscUtils.Transports.SetupHelper.SetupTransports();
+
 				using (FileStream isoStream = File.Open(opts.Path, FileMode.Open))
 				{
 					UdfReader cd = new UdfReader(isoStream);

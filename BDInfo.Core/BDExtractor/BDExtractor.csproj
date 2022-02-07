@@ -9,7 +9,37 @@
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.8.0" />
     <PackageReference Include="CommonStuff" Version="2.0.0" />
-    <PackageReference Include="Quamotion.DiscUtils" Version="1.0.3" />
+    <PackageReference Include="DiscUtils" Version="0.16.13" />
+    <PackageReference Include="DiscUtils.BootConfig" Version="0.16.13" />
+    <PackageReference Include="DiscUtils.Btrfs" Version="0.16.13" />
+    <PackageReference Include="DiscUtils.Containers" Version="0.16.13" />
+    <PackageReference Include="DiscUtils.Core" Version="0.16.13" />
+    <PackageReference Include="DiscUtils.Dmg" Version="0.16.13" />
+    <PackageReference Include="DiscUtils.Ext" Version="0.16.13" />
+    <PackageReference Include="DiscUtils.Fat" Version="0.16.13" />
+    <PackageReference Include="DiscUtils.FileSystems" Version="0.16.13" />
+    <PackageReference Include="DiscUtils.HfsPlus" Version="0.16.13" />
+    <PackageReference Include="DiscUtils.Iscsi" Version="0.16.13" />
+    <PackageReference Include="DiscUtils.Iso9660" Version="0.16.13" />
+    <PackageReference Include="DiscUtils.Lvm" Version="0.16.13" />
+    <PackageReference Include="DiscUtils.Nfs" Version="0.16.13" />
+    <PackageReference Include="DiscUtils.Ntfs" Version="0.16.13" />
+    <PackageReference Include="DiscUtils.OpticalDiscSharing" Version="0.16.13" />
+    <PackageReference Include="DiscUtils.OpticalDisk" Version="0.16.13" />
+    <PackageReference Include="DiscUtils.Registry" Version="0.16.13" />
+    <PackageReference Include="DiscUtils.Sdi" Version="0.16.13" />
+    <PackageReference Include="DiscUtils.SquashFs" Version="0.16.13" />
+    <PackageReference Include="DiscUtils.Streams" Version="0.16.13" />
+    <PackageReference Include="DiscUtils.Swap" Version="0.16.13" />
+    <PackageReference Include="DiscUtils.Transports" Version="0.16.13" />
+    <PackageReference Include="DiscUtils.Udf" Version="0.16.13" />
+    <PackageReference Include="DiscUtils.Vdi" Version="0.16.13" />
+    <PackageReference Include="DiscUtils.Vhd" Version="0.16.13" />
+    <PackageReference Include="DiscUtils.Vhdx" Version="0.16.13" />
+    <PackageReference Include="DiscUtils.Vmdk" Version="0.16.13" />
+    <PackageReference Include="DiscUtils.Wim" Version="0.16.13" />
+    <PackageReference Include="DiscUtils.Xfs" Version="0.16.13" />
+    <PackageReference Include="DiscUtils.Xva" Version="0.16.13" />
   </ItemGroup>
 
 </Project>
