@@ -22,6 +22,7 @@ jobs:
         dotnet-version: 5.x
     - name: Remove organization git
       run: dotnet nuget remove source "https://nuget.pkg.github.com/dotnetcorecorner/index.json"
+      continue-on-error: true
     - name: Add organization git
       env: 
         NUGET_REPO_SECRET: ${{ secrets.NUGET_REPO_SECRET }}
