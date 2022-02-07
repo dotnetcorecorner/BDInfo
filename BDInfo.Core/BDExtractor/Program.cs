@@ -114,20 +114,22 @@ namespace BDExtractor
 
 		static void CopyFile(DiscFileInfo file, string filePath)
 		{
-			var fc = new FileCopier(file.FullName, filePath, 4096 * 1024);
+			//var fc = new FileCopier(file.FullName, filePath, 4096 * 1024);
 			Console.WriteLine($"Creating file {filePath} ( {SizeConverter.SizeToText(file.Length)} ) { string.Join(' ', 10) }");
 
-			fc.OnProgressChanged += (percentage) =>
-			{
-				Console.Write($"\rPercent: {percentage} %{new string(' ', 10)}");
-			};
+			file.CopyTo(filePath, true);
 
-			fc.OnComplete += () =>
-			{
-				Console.WriteLine();
-			};
+			//fc.OnProgressChanged += (percentage) =>
+			//{
+			//	Console.Write($"\rPercent: {percentage} %{new string(' ', 10)}");
+			//};
 
-			fc.Copy();
+			//fc.OnComplete += () =>
+			//{
+			//	Console.WriteLine();
+			//};
+
+			//fc.Copy();
 		}
 	}
 }
