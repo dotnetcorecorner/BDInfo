@@ -30,7 +30,7 @@ namespace BDExtractor
 
 			try
 			{
-				DiscUtils.Complete.SetupHelper.SetupComplete(); 
+				DiscUtils.Complete.SetupHelper.SetupComplete();
 				DiscUtils.Containers.SetupHelper.SetupContainers();
 				DiscUtils.FileSystems.SetupHelper.SetupFileSystems();
 				DiscUtils.Transports.SetupHelper.SetupTransports();
@@ -38,6 +38,9 @@ namespace BDExtractor
 				using (FileStream isoStream = File.Open(opts.Path, FileMode.Open))
 				{
 					UdfReader cd = new UdfReader(isoStream);
+					File.AppendAllText(_log, $"Exec cd root full::: {cd.Root.FullName + Environment.NewLine}");
+					File.AppendAllText(_log, $"Exec cd root name::: {cd.Root.Name + Environment.NewLine}");
+
 					var dirs = cd.Root.GetDirectories();
 					var files = cd.Root.GetFiles();
 
@@ -51,7 +54,7 @@ namespace BDExtractor
 						File.AppendAllText(_log, $"Exec file fullname::: {file.FullName + Environment.NewLine}");
 						File.AppendAllText(_log, $"Exec file name::: {file.Name + Environment.NewLine}");
 
-						var path = FolderUtility.Combine(opts.Output, file.FullName).Replace("//", "/");
+						var path = Path.Combine(opts.Output, file.FullName);
 						File.AppendAllText(_log, $"Exec file combined path::: {path + Environment.NewLine}");
 
 						CopyFile(file, path);
@@ -78,7 +81,7 @@ namespace BDExtractor
 			File.AppendAllText(_log, $"CopyDir dir fullname::: {ddi.FullName + Environment.NewLine}");
 			File.AppendAllText(_log, $"CopyDir dir name::: {ddi.Name + Environment.NewLine}");
 
-			string path = FolderUtility.Combine(outpath, ddi.FullName).Replace("//", "/");
+			string path = Path.Combine(outpath, ddi.FullName);
 			File.AppendAllText(_log, $"CopyDir combined dir path::: {path + Environment.NewLine}");
 			if (!Directory.Exists(path))
 			{
@@ -94,7 +97,7 @@ namespace BDExtractor
 					File.AppendAllText(_log, $"CopyDir fullname::: {file.FullName + Environment.NewLine}");
 					File.AppendAllText(_log, $"CopyDir name::: {file.Name + Environment.NewLine}");
 
-					var filePath = FolderUtility.Combine(outpath, file.FullName).Replace("//", "/");
+					var filePath = Path.Combine(outpath, file.FullName);
 					File.AppendAllText(_log, $"CopyDir combined file path::: {filePath + Environment.NewLine}");
 
 					if (File.Exists(filePath))
@@ -116,10 +119,10 @@ namespace BDExtractor
 			}
 		}
 
-		static void CopyFile(DiscFileInfo file, string filePath)
+		static void CopyFile(DiscFileInfo file, string destFilePath)
 		{
-			var fc = new FileCopier(file.FullName, filePath, 4096 * 1024);
-			Console.WriteLine($"Creating file {filePath} ( {SizeConverter.SizeToText(file.Length)} ) { string.Join(' ', 10) }");
+			var fc = new FileCopier(file, destFilePath, 4096 * 1024);
+			Console.WriteLine($"Creating file {destFilePath} ( {SizeConverter.SizeToText(file.Length)} ) { new string(' ', 10) }");
 
 			fc.OnProgressChanged += (percentage) =>
 			{
@@ -132,6 +135,15 @@ namespace BDExtractor
 			};
 
 			fc.Copy();
+
+			//using (FileStream fs = File.Create(filePath))
+			//{
+			//	using (var fileStream = file.Open(FileMode.Open))
+			//	{
+			//		Console.WriteLine($"Creating file {filePath} ( {SizeConverter.SizeToText(file.Length)} ) { new string(' ', 10) }");
+			//		fileStream.CopyTo(fs);
+			//	}
+			//}
 		}
 	}
 }
