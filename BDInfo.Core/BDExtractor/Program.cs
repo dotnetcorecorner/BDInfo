@@ -44,11 +44,11 @@ namespace BDExtractor
 
 					foreach (var file in files)
 					{
-						File.AppendAllText(_log, $"Exec::: {file.FullName + Environment.NewLine}");
-						File.AppendAllText(_log, $"Exec::: {file.Name + Environment.NewLine}");
+						File.AppendAllText(_log, $"Exec file fullname::: {file.FullName + Environment.NewLine}");
+						File.AppendAllText(_log, $"Exec file name::: {file.Name + Environment.NewLine}");
 
-						var path = FolderUtility.Combine(opts.Output, file.Name);
-						File.AppendAllText(_log, $"Exec::: {path + Environment.NewLine}");
+						var path = FolderUtility.Combine(opts.Output, file.FullName);
+						File.AppendAllText(_log, $"Exec file combined path::: {path + Environment.NewLine}");
 
 						CopyFile(file, path);
 					}
@@ -71,10 +71,11 @@ namespace BDExtractor
 
 		static void CopyDir(DiscDirectoryInfo ddi, string outpath)
 		{
-			File.AppendAllText(_log, $"CopyDir::: {ddi.FullName + Environment.NewLine}");
-			File.AppendAllText(_log, $"CopyDir::: {ddi.Name + Environment.NewLine}");
+			File.AppendAllText(_log, $"CopyDir dir fullname::: {ddi.FullName + Environment.NewLine}");
+			File.AppendAllText(_log, $"CopyDir dir name::: {ddi.Name + Environment.NewLine}");
 
 			string path = FolderUtility.Combine(outpath, ddi.FullName);
+			File.AppendAllText(_log, $"CopyDir combined dir path::: {path + Environment.NewLine}");
 			if (!Directory.Exists(path))
 			{
 				Console.WriteLine($"Creating directory {path}");
@@ -86,10 +87,11 @@ namespace BDExtractor
 			{
 				foreach (DiscFileInfo file in files)
 				{
-					File.AppendAllText(_log, $"CopyDir::: {file.FullName + Environment.NewLine}");
-					File.AppendAllText(_log, $"CopyDir::: {file.Name + Environment.NewLine}");
+					File.AppendAllText(_log, $"CopyDir fullname::: {file.FullName + Environment.NewLine}");
+					File.AppendAllText(_log, $"CopyDir name::: {file.Name + Environment.NewLine}");
 
 					var filePath = FolderUtility.Combine(outpath, file.FullName);
+					File.AppendAllText(_log, $"CopyDir combined file path::: {filePath + Environment.NewLine}");
 
 					if (File.Exists(filePath))
 					{
