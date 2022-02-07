@@ -1,4 +1,4 @@
-﻿using CommandLine;
+using CommandLine;
 using CommonStuff.Core;
 using DiscUtils;
 using DiscUtils.Udf;
