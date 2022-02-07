@@ -47,7 +47,7 @@ namespace BDExtractor
 						File.AppendAllText(_log, $"Exec file fullname::: {file.FullName + Environment.NewLine}");
 						File.AppendAllText(_log, $"Exec file name::: {file.Name + Environment.NewLine}");
 
-						var path = FolderUtility.Combine(opts.Output, file.FullName);
+						var path = FolderUtility.Combine(opts.Output, file.FullName).Replace("//", "/");
 						File.AppendAllText(_log, $"Exec file combined path::: {path + Environment.NewLine}");
 
 						CopyFile(file, path);
@@ -74,7 +74,7 @@ namespace BDExtractor
 			File.AppendAllText(_log, $"CopyDir dir fullname::: {ddi.FullName + Environment.NewLine}");
 			File.AppendAllText(_log, $"CopyDir dir name::: {ddi.Name + Environment.NewLine}");
 
-			string path = FolderUtility.Combine(outpath, ddi.FullName);
+			string path = FolderUtility.Combine(outpath, ddi.FullName).Replace("//", "/");
 			File.AppendAllText(_log, $"CopyDir combined dir path::: {path + Environment.NewLine}");
 			if (!Directory.Exists(path))
 			{
@@ -90,7 +90,7 @@ namespace BDExtractor
 					File.AppendAllText(_log, $"CopyDir fullname::: {file.FullName + Environment.NewLine}");
 					File.AppendAllText(_log, $"CopyDir name::: {file.Name + Environment.NewLine}");
 
-					var filePath = FolderUtility.Combine(outpath, file.FullName);
+					var filePath = FolderUtility.Combine(outpath, file.FullName).Replace("//", "/");
 					File.AppendAllText(_log, $"CopyDir combined file path::: {filePath + Environment.NewLine}");
 
 					if (File.Exists(filePath))
