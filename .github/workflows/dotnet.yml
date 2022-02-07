@@ -20,9 +20,13 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.x
+    - name: echo
+      run: echo $ {{ secrets.NUGET_REPO_SECRET }}
     - name: Add organization git
+      env: 
+        NUGET_REPO_SECRET: $ {{ secrets.NUGET_REPO_SECRET }}
       #run: dotnet nuget add source --username Sonic3R --password ${{ secrets.NUGET_REPO_SECRET }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/dotnetcorecorner/index.json"
-      run: dotnet nuget add source "https://nuget.pkg.github.com/dotnetcorecorner/index.json" --name github --username Sonic3R --password ${{ secrets.NUGET_REPO_SECRET }}
+      run: dotnet nuget add source "https://nuget.pkg.github.com/dotnetcorecorner/index.json" --name github --username Sonic3R --password ${{ env.NUGET_REPO_SECRET }}
     - name: Restore dependencies
       run: dotnet restore BDInfo.Core/BDInfo.Core.sln
     - name: Build against errors
