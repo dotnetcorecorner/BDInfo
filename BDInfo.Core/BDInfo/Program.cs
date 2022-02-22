@@ -32,7 +32,7 @@ namespace BDInfo
 		private static void Main(string[] args)
 		{
 			Parser.Default.ParseArguments<CmdOptions>(args)
-				.WithParsed(opts => Exec(opts);
+				.WithParsed(opts => Exec(opts));
 		}
 
 		private static void Exec(CmdOptions opts)
@@ -113,7 +113,10 @@ namespace BDInfo
 				{
 					File.AppendAllText(_error, $"{ex}{Environment.NewLine}{Environment.NewLine}");
 				}
-				catch { }
+				catch
+				{
+					// kills error
+				}
 
 				Environment.Exit(1);
 			}
