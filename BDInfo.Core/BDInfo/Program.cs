@@ -31,15 +31,8 @@ namespace BDInfo
 
 		private static void Main(string[] args)
 		{
-			if (args.Length == 0)
-			{
-				ConsoleWriteLine("No path specified !");
-				return;
-			}
-
 			Parser.Default.ParseArguments<CmdOptions>(args)
-				.WithParsed(opts => Exec(opts))
-				.WithNotParsed((errs) => HandleParseError(errs));
+				.WithParsed(opts => Exec(opts);
 		}
 
 		private static void Exec(CmdOptions opts)
@@ -61,7 +54,6 @@ namespace BDInfo
 						var di = new DirectoryInfo(opts.Path);
 						var files = di.GetFiles("*.*", SearchOption.AllDirectories);
 						subItems = files.Where(s => s.FullName.EndsWith(".iso", StringComparison.OrdinalIgnoreCase)).Select(s => s.FullName).ToArray();
-						//subItems = Directory.GetFiles(opts.Path, "*.iso", SearchOption.AllDirectories);
 						isIsoLevel = subItems.LongLength > 0;
 					}
 
@@ -141,9 +133,6 @@ namespace BDInfo
 			progressBarScan = new ListElement(currentPos + 12);
 			nextRow = currentPos + 12;
 		}
-
-		private static void HandleParseError(IEnumerable<Error> errs)
-		{ }
 
 		private static void InitEvents()
 		{
