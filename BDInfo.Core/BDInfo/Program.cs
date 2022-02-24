@@ -1603,7 +1603,7 @@ namespace BDInfo
 					try
 					{
 						const int chunk = 10000;
-						while (report.Length > 1000)
+						while (report.Length > chunk)
 						{
 							reportFile.Write(report.Substring(0, chunk));
 							report = report.Remove(0, chunk);
