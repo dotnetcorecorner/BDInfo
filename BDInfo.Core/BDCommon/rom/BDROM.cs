@@ -685,8 +685,8 @@ namespace BDCommon
         uint serialNumber = 0;
         uint maxLength = 0;
         uint volumeFlags = new uint();
-        StringBuilder volumeLabel = new StringBuilder(256);
-        StringBuilder fileSystemName = new StringBuilder(256);
+        StringBuilder volumeLabel = new StringBuilder(512);
+        StringBuilder fileSystemName = new StringBuilder(512);
 
         try
         {

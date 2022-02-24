@@ -1600,7 +1600,17 @@ namespace BDInfo
 			{
 				using (StreamWriter reportFile = File.CreateText(Path.Combine(_bdinfoSettings.ReportPath, reportName)))
 				{
-					try { reportFile.Write(report); }
+					try
+					{
+						const int chunk = 10000;
+						while (report.Length > 1000)
+						{
+							reportFile.Write(report.Substring(0, chunk));
+							report = report.Remove(0, chunk);
+						}
+
+						reportFile.Write(report);
+					}
 					catch (Exception ex)
 					{
 						File.AppendAllText(_error, $"{ex}{Environment.NewLine}{Environment.NewLine}");
