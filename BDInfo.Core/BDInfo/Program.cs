@@ -1603,13 +1603,15 @@ namespace BDInfo
 					try
 					{
 						const int chunk = 10000;
-						while (report.Length > chunk)
+						string txt = textBoxReport.Text;
+
+						while (txt.Length > chunk)
 						{
-							reportFile.Write(report.Substring(0, chunk));
-							report = report.Remove(0, chunk);
+							reportFile.Write(txt.Substring(0, chunk));
+							txt = txt.Remove(0, chunk);
 						}
 
-						reportFile.Write(report);
+						reportFile.Write(txt);
 					}
 					catch (Exception ex)
 					{
@@ -1618,7 +1620,6 @@ namespace BDInfo
 				}
 			}
 
-			textBoxReport.Text += report;
 			return textBoxReport.Text;
 		}
 
