@@ -48,9 +48,6 @@ namespace BDInfo
     [Option('m', "generatetextsummary", Required = false, Default = false, HelpText = "Generate summary")]
     public bool GenerateTextSummary { get; set; }
 
-    [Option('r', "reportpath", Required = false, Default = null, HelpText = "The folder where report will be saved. If none provided then will be in same location with application")]
-    public string ReportPath { get; set; }
-
     [Option('o', "reportfilename", Required = false, Default = null, HelpText = "The report filename with extension. If no extension provided then will append .txt at end of filename")]
     public string ReportFileName { get; set; }
 

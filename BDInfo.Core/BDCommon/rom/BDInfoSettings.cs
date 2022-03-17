@@ -47,8 +47,6 @@ namespace BDCommon
 
     public abstract bool GenerateTextSummary { get; }
 
-    public abstract string ReportPath { get; }
-
     public abstract string ReportFileName { get; }
 
     public abstract bool IncludeVersionAndNotes { get; }

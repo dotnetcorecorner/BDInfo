@@ -20,7 +20,6 @@ It scans bluray disc (full hd, ultra hd and 3D) on various operating systems. Th
 | _`-x`_ | _`--useimageprefixvalue`_ | Image prefix |  | video- |
 | _`-k`_ | _`--keepstreamorder`_ | Keep stream order |  | False |
 | _`-m`_ | _`--generatetextsummary`_ | Generate summary |  | False |
-| _`-r`_ | _`--reportpath`_ | The folder where report will be saved. If none provided then will be in same location with application |  |  |
 | _`-o`_ | _`--reportfilename`_ | The report filename with extension. If no extension provided then will append .txt at end of filename |  |  |
 | _`-q`_ | _`--includeversionandnotes`_ | Include version and notes inside report |  | False |
 | _`-z`_ | _`--printonlybigplaylist`_ | Print report with only biggest playlist |  | False |
@@ -34,12 +33,12 @@ For linux, make `BDInfo` as executable (yes, that one without extension) using `
 ## How to use 
 
 ### Windows
-`BDInfo.exe -p PATH_TO_DISC_FOLDER -r FOLDER_WHERE_REPORT_WILL_BE_SAVED -o REPORTNAME.EXTENSION`  
-`BDInfo.exe -p PATH_TO_ISO_FILE -r FOLDER_WHERE_REPORT_WILL_BE_SAVED -o REPORTNAME.EXTENSION`  
+`BDInfo.exe -p PATH_TO_DISC_FOLDER -o PATH_TO_FILE.EXTENSION`  
+`BDInfo.exe -p PATH_TO_ISO_FILE -o PATH_TO_FILE.EXTENSION`  
 
 ### Linux  
-`./BDInfo -p PATH_TO_DISC_FOLDER -r FOLDER_WHERE_REPORT_WILL_BE_SAVED -o REPORTNAME.EXTENSION`  
-`./BDInfo -p PATH_TO_ISO_FILE -r FOLDER_WHERE_REPORT_WILL_BE_SAVED -o REPORTNAME.EXTENSION`
+`./BDInfo -p PATH_TO_DISC_FOLDER -o PATH_TO_FILE.EXTENSION`  
+`./BDInfo -p PATH_TO_ISO_FILE -o PATH_TO_FILE.EXTENSION`
 
 # BDExtractor
 

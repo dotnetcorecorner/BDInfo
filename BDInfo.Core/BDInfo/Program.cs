@@ -61,7 +61,6 @@ namespace BDInfo
 						var di = new DirectoryInfo(opts.Path);
 						var files = di.GetFiles("*.*", SearchOption.AllDirectories);
 						subItems = files.Where(s => s.FullName.EndsWith(".iso", StringComparison.OrdinalIgnoreCase)).Select(s => s.FullName).ToArray();
-						//subItems = Directory.GetFiles(opts.Path, "*.iso", SearchOption.AllDirectories);
 						isIsoLevel = subItems.LongLength > 0;
 					}
 
@@ -73,10 +72,11 @@ namespace BDInfo
 						foreach (var subDir in subItems.OrderBy(s => s))
 						{
 							opts.Path = isIsoLevel ? subDir : Path.GetDirectoryName(subDir);
-							if (!string.IsNullOrWhiteSpace(opts.ReportFileName) && !string.IsNullOrWhiteSpace(opts.ReportPath))
+							if (!string.IsNullOrWhiteSpace(opts.ReportFileName))
 							{
-								opts.ReportFileName = (isIsoLevel ? Path.GetFileNameWithoutExtension(opts.Path) : Path.GetFileName(opts.Path)) + "." + Path.GetExtension(opts.ReportFileName).TrimStart('.');
-								reports.Add(Path.Combine(opts.ReportPath, opts.ReportFileName));
+								var parent = Path.GetDirectoryName(opts.Path);
+								opts.ReportFileName = isIsoLevel ? Path.Combine(parent, Path.GetFileNameWithoutExtension(opts.Path)) : Path.Combine(parent, Path.GetFileName(opts.Path)) + "." + Path.GetExtension(opts.ReportFileName).TrimStart('.');
+								reports.Add(opts.ReportFileName);
 							}
 
 							InitBDROM(opts.Path);
@@ -85,7 +85,7 @@ namespace BDInfo
 
 						if (reports.Count > 0)
 						{
-							var bigReport = Path.Combine(oldOpt.ReportPath, oldOpt.ReportFileName);
+							var bigReport = oldOpt.ReportFileName;
 							if (reports.Count == 1)
 							{
 								File.Move(reports[0], bigReport);
@@ -1598,7 +1598,7 @@ namespace BDInfo
 
 			if (_bdinfoSettings.AutosaveReport)
 			{
-				using (StreamWriter reportFile = File.CreateText(Path.Combine(_bdinfoSettings.ReportPath, reportName)))
+				using (StreamWriter reportFile = File.CreateText(_bdinfoSettings.ReportFileName))
 				{
 					try
 					{
