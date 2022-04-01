@@ -1593,7 +1593,6 @@ namespace BDInfo
 					report += "\r\n";
 				}
 
-
 				File.AppendAllText(tmp, report + Environment.NewLine);
 
 				//textBoxReport.Text += report;
@@ -1602,26 +1601,28 @@ namespace BDInfo
 
 			if (_bdinfoSettings.AutosaveReport)
 			{
-				using (StreamWriter reportFile = File.CreateText(_bdinfoSettings.ReportFileName))
-				{
-					try
-					{
-						const int chunk = 10000;
-						string txt = File.ReadAllText(tmp); // textBoxReport.Text;
+				File.Move(tmp, _bdinfoSettings.ReportFileName);
 
-						while (txt.Length > chunk)
-						{
-							reportFile.Write(txt.Substring(0, chunk));
-							txt = txt.Remove(0, chunk);
-						}
+				//using (StreamWriter reportFile = File.CreateText(_bdinfoSettings.ReportFileName))
+				//{
+				//	try
+				//	{
+				//		const int chunk = 10000;
+				//		string txt = File.ReadAllText(tmp); // textBoxReport.Text;
 
-						reportFile.Write(txt);
-					}
-					catch (Exception ex)
-					{
-						File.AppendAllText(_error, $"{ex}{Environment.NewLine}{Environment.NewLine}");
-					}
-				}
+				//		while (txt.Length > chunk)
+				//		{
+				//			reportFile.Write(txt.Substring(0, chunk));
+				//			txt = txt.Remove(0, chunk);
+				//		}
+
+				//		reportFile.Write(txt);
+				//	}
+				//	catch (Exception ex)
+				//	{
+				//		File.AppendAllText(_error, $"{ex}{Environment.NewLine}{Environment.NewLine}");
+				//	}
+				//}
 			}
 
 			if (File.Exists(tmp))
