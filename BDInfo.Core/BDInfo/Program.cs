@@ -651,6 +651,7 @@ namespace BDInfo
 			}
 
 			string separator = new string('#', 10);
+			var tmp = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"tmp_{Guid.NewGuid()}.txt");
 
 			foreach (TSPlaylistFile playlist in playlists)
 			{
@@ -1592,7 +1593,10 @@ namespace BDInfo
 					report += "\r\n";
 				}
 
-				textBoxReport.Text += report;
+
+				File.AppendAllText(tmp, report + Environment.NewLine);
+
+				//textBoxReport.Text += report;
 				GC.Collect();
 			}
 
@@ -1603,7 +1607,7 @@ namespace BDInfo
 					try
 					{
 						const int chunk = 10000;
-						string txt = textBoxReport.Text;
+						string txt = File.ReadAllText(tmp); // textBoxReport.Text;
 
 						while (txt.Length > chunk)
 						{
@@ -1618,6 +1622,11 @@ namespace BDInfo
 						File.AppendAllText(_error, $"{ex}{Environment.NewLine}{Environment.NewLine}");
 					}
 				}
+			}
+
+			if (File.Exists(tmp))
+			{
+				File.Delete(tmp);
 			}
 
 			return textBoxReport.Text;
