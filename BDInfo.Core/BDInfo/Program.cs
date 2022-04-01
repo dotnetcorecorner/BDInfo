@@ -1594,35 +1594,32 @@ namespace BDInfo
 				}
 
 				File.AppendAllText(tmp, report + Environment.NewLine);
-
-				//textBoxReport.Text += report;
 				GC.Collect();
 			}
 
 			if (_bdinfoSettings.AutosaveReport)
 			{
-				File.Move(tmp, _bdinfoSettings.ReportFileName);
+				textBoxReport.Text = $"Saving bdinfo to {_bdinfoSettings.ReportFileName}";
 
-				//using (StreamWriter reportFile = File.CreateText(_bdinfoSettings.ReportFileName))
-				//{
-				//	try
-				//	{
-				//		const int chunk = 10000;
-				//		string txt = File.ReadAllText(tmp); // textBoxReport.Text;
+				if (!_bdinfoSettings.PrintReportToConsole)
+				{
+					File.Move(tmp, _bdinfoSettings.ReportFileName);
+				}
+				else
+				{
+					File.Copy(tmp, _bdinfoSettings.ReportFileName);
+				}
+			}
 
-				//		while (txt.Length > chunk)
-				//		{
-				//			reportFile.Write(txt.Substring(0, chunk));
-				//			txt = txt.Remove(0, chunk);
-				//		}
+			if (_bdinfoSettings.PrintReportToConsole)
+			{
+				var len = new FileInfo(tmp).Length;
+				var mb = len / (1024 * 1024);
 
-				//		reportFile.Write(txt);
-				//	}
-				//	catch (Exception ex)
-				//	{
-				//		File.AppendAllText(_error, $"{ex}{Environment.NewLine}{Environment.NewLine}");
-				//	}
-				//}
+				if (len >= 10 * mb)
+				{
+					Console.WriteLine("Text to big to print to console ! Please use autosave set on true to save file on disk");
+				}
 			}
 
 			if (File.Exists(tmp))
