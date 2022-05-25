@@ -502,7 +502,7 @@ namespace BDInfo
 			}
 			else
 			{
-				ConsoleWriteLine("Done !");
+				ConsoleWriteLine($"{Environment.NewLine}{Environment.NewLine}Done !");
 			}
 
 			IEnumerable<TSPlaylistFile> playlists = BDROM.PlaylistFiles.OrderByDescending(s => s.Value.FileSize).Select(s => s.Value);
@@ -551,7 +551,7 @@ namespace BDInfo
 			textBoxReport.Text = "";
 
 			string report = "";
-			string protection = (BDROM.IsBDPlus ? "BD+" : BDROM.IsUHD ? "AACS2" : "AACS");
+			string protection = BDROM.IsBDPlus ? "BD+" : (BDROM.IsUHD ? "AACS2" : "AACS");
 
 			if (!string.IsNullOrEmpty(BDROM.DiscTitle))
 				report += string.Format(CultureInfo.InvariantCulture,
