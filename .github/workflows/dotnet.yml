@@ -23,11 +23,11 @@ jobs:
     - name: Remove organization git
       run: dotnet nuget remove source github
       continue-on-error: true
-    - name: Add organization git
-      env: 
-        NUGET_REPO_SECRET: ${{ secrets.NUGET_REPO_SECRET }}
-      #run: dotnet nuget add source --username Sonic3R --password ${{ secrets.NUGET_REPO_SECRET }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/dotnetcorecorner/index.json"
-      run: dotnet nuget add source "https://nuget.pkg.github.com/dotnetcorecorner/index.json" --name github --username Sonic3R --password ${{ env.NUGET_REPO_SECRET }} --store-password-in-clear-text
+    #- name: Add organization git
+    #  env: 
+    #    NUGET_REPO_SECRET: ${{ secrets.NUGET_REPO_SECRET }}
+    #  #run: dotnet nuget add source --username Sonic3R --password ${{ secrets.NUGET_REPO_SECRET }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/dotnetcorecorner/index.json"
+    #  run: dotnet nuget add source "https://nuget.pkg.github.com/dotnetcorecorner/index.json" --name github --username Sonic3R --password ${{ env.NUGET_REPO_SECRET }} --store-password-in-clear-text
     - name: Restore dependencies
       run: dotnet restore BDInfo.Core/BDInfo.Core.sln
     - name: Build against errors
@@ -114,10 +114,10 @@ jobs:
     - name: Remove organization git
       run: dotnet nuget remove source github
       continue-on-error: true
-    - name: Add organization git
-      env: 
-        NUGET_REPO_SECRET: ${{ secrets.NUGET_REPO_SECRET }}
-      run: dotnet nuget add source "https://nuget.pkg.github.com/dotnetcorecorner/index.json" --name github --username Sonic3R --password ${{ env.NUGET_REPO_SECRET }} --store-password-in-clear-text
+    #- name: Add organization git
+    #  env: 
+    #    NUGET_REPO_SECRET: ${{ secrets.NUGET_REPO_SECRET }}
+    #  run: dotnet nuget add source "https://nuget.pkg.github.com/dotnetcorecorner/index.json" --name github --username Sonic3R --password ${{ env.NUGET_REPO_SECRET }} --store-password-in-clear-text
     - name: Restore dependencies
       run: dotnet restore BDInfo.Core/BDInfo.Core.sln
     - name: Build against errors
