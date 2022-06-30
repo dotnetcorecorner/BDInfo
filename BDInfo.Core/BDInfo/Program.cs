@@ -31,15 +31,8 @@ namespace BDInfo
 
 		private static void Main(string[] args)
 		{
-			if (args.Length == 0)
-			{
-				ConsoleWriteLine("No path specified !");
-				return;
-			}
-
 			Parser.Default.ParseArguments<CmdOptions>(args)
-				.WithParsed(opts => Exec(opts))
-				.WithNotParsed((errs) => HandleParseError(errs));
+				.WithParsed(opts => Exec(opts));
 		}
 
 		private static void Exec(CmdOptions opts)
@@ -121,7 +114,10 @@ namespace BDInfo
 				{
 					File.AppendAllText(_error, $"{ex}{Environment.NewLine}{Environment.NewLine}");
 				}
-				catch { }
+				catch
+				{
+					// kills error
+				}
 
 				Environment.Exit(1);
 			}
@@ -141,9 +137,6 @@ namespace BDInfo
 			progressBarScan = new ListElement(currentPos + 12);
 			nextRow = currentPos + 12;
 		}
-
-		private static void HandleParseError(IEnumerable<Error> errs)
-		{ }
 
 		private static void InitEvents()
 		{
@@ -510,7 +503,7 @@ namespace BDInfo
 			}
 			else
 			{
-				ConsoleWriteLine("Done !");
+				ConsoleWriteLine($"{Environment.NewLine}{Environment.NewLine}Done !");
 			}
 
 			IEnumerable<TSPlaylistFile> playlists = BDROM.PlaylistFiles.OrderByDescending(s => s.Value.FileSize).Select(s => s.Value);
@@ -559,7 +552,7 @@ namespace BDInfo
 			textBoxReport.Text = "";
 
 			string report = "";
-			string protection = (BDROM.IsBDPlus ? "BD+" : BDROM.IsUHD ? "AACS2" : "AACS");
+			string protection = BDROM.IsBDPlus ? "BD+" : (BDROM.IsUHD ? "AACS2" : "AACS");
 
 			if (!string.IsNullOrEmpty(BDROM.DiscTitle))
 				report += string.Format(CultureInfo.InvariantCulture,
