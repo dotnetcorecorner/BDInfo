@@ -1,14 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
 		<RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.9.1" />
-    <PackageReference Include="CommonStuff" Version="2.0.0" />
     <PackageReference Include="DiscUtils" Version="0.16.13" />
     <PackageReference Include="DiscUtils.BootConfig" Version="0.16.13" />
     <PackageReference Include="DiscUtils.Btrfs" Version="0.16.13" />
@@ -41,5 +40,5 @@
     <PackageReference Include="DiscUtils.Xfs" Version="0.16.13" />
     <PackageReference Include="DiscUtils.Xva" Version="0.16.13" />
   </ItemGroup>
-
+	
 </Project>
