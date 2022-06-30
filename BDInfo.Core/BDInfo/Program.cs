@@ -546,7 +546,7 @@ namespace BDInfo
 
 			if (!Regex.IsMatch(reportName, @"\.(\w+)$", RegexOptions.IgnoreCase))
 			{
-				reportName = $"{reportName}.txt";
+				reportName = $"{reportName}.bdinfo";
 			}
 
 			textBoxReport.Text = "";
@@ -644,9 +644,9 @@ namespace BDInfo
 			}
 
 			string separator = new string('#', 10);
-			var tmp = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"tmp_{Guid.NewGuid()}.txt");
+			var tmp = reportName;
 
-			foreach (TSPlaylistFile playlist in playlists)
+			foreach (TSPlaylistFile playlist in playlists.Where(pl => !_bdinfoSettings.FilterLoopingPlaylists || pl.IsValid))
 			{
 				string summary = "";
 				string title = playlist.Name;
@@ -1594,13 +1594,16 @@ namespace BDInfo
 			{
 				textBoxReport.Text = $"Saving bdinfo to {_bdinfoSettings.ReportFileName}";
 
-				if (!_bdinfoSettings.PrintReportToConsole)
+				if (!tmp.Equals(_bdinfoSettings.ReportFileName))
 				{
-					File.Move(tmp, _bdinfoSettings.ReportFileName);
-				}
-				else
-				{
-					File.Copy(tmp, _bdinfoSettings.ReportFileName);
+					if (!_bdinfoSettings.PrintReportToConsole)
+					{
+						File.Move(tmp, _bdinfoSettings.ReportFileName);
+					}
+					else
+					{
+						File.Copy(tmp, _bdinfoSettings.ReportFileName);
+					}
 				}
 			}
 
@@ -1615,7 +1618,7 @@ namespace BDInfo
 				}
 			}
 
-			if (File.Exists(tmp))
+			if (!tmp.Equals(_bdinfoSettings.ReportFileName) && File.Exists(tmp))
 			{
 				File.Delete(tmp);
 			}

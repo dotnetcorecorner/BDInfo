@@ -39,7 +39,7 @@ namespace BDInfo
 
 		public override bool GenerateTextSummary => _opts?.GenerateTextSummary ?? true;
 
-		public override string ReportFileName => _opts?.ReportFileName ?? Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "report_{0}.txt");
+		public override string ReportFileName => string.IsNullOrWhiteSpace(_opts?.ReportFileName) ? Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "BDInfo_{0}.bdinfo") : _opts.ReportFileName;
 
 		public override bool IncludeVersionAndNotes => _opts?.IncludeVersionAndNotes ?? false;
 
