@@ -8,7 +8,7 @@ namespace BDExtractor
     public static string SizeToText(double size)
     {
       var units = new string[] { "B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" };
-      const uint divide = 1000;
+      const ushort divide = 1000;
 
       int power = size > 0 ? (int)Math.Floor(Math.Log(size, divide)) : 0;
 
