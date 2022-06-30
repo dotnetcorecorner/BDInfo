@@ -7,7 +7,7 @@ on:
     - 'v*'
     
 env:
-  version: 1.0.6
+  version: 1.0.7
   
 
 jobs:
@@ -19,7 +19,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.x
+        dotnet-version: 6.x
     - name: Remove organization git
       run: dotnet nuget remove source github
       continue-on-error: true
@@ -110,7 +110,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.x
+        dotnet-version: 6.x
     - name: Remove organization git
       run: dotnet nuget remove source github
       continue-on-error: true
