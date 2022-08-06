@@ -13,17 +13,9 @@ namespace BDInfo
 	internal class Program
 	{
 		private static BDROM BDROM = null;
-		private static ListElement textBoxDetails = null;
-		private static ListElement textBoxSource = null;
 		private static ScanBDROMResult ScanResult = null;
-		private static ListElement labelProgress = null;
-		private static ListElement labelTimeElapsed = null;
-		private static ListElement labelTimeRemaining = null;
-		private static ListElement textBoxReport = null;
 
 		private static readonly string ProductVersion = "0.7.5.6";
-		private static ListElement progressBarScan = null;
-		private static int nextRow = 0;
 		private static BDSettings _bdinfoSettings;
 		private static readonly string BDMV = "BDMV";
 
@@ -41,8 +33,6 @@ namespace BDInfo
 			{
 				_error = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"error_{Path.GetFileName(opts.Path)}.log");
 				_bdinfoSettings = new BDSettings(opts);
-				InitObjects();
-				InitEvents();
 
 				if (!opts.Path.EndsWith(".iso", StringComparison.OrdinalIgnoreCase))
 				{
@@ -123,47 +113,6 @@ namespace BDInfo
 			}
 		}
 
-		private static void InitObjects()
-		{
-			int currentPos = IsNotExecutedAsScript() ? Console.CursorTop : 0;
-			textBoxDetails = new ListElement(currentPos);
-			textBoxSource = new ListElement(currentPos + 1);
-			ScanResult = new ScanBDROMResult();
-			labelProgress = new ListElement(currentPos + 8);
-			labelTimeElapsed = new ListElement(currentPos + 9);
-			labelTimeRemaining = new ListElement(currentPos + 10);
-			textBoxReport = new ListElement(currentPos + 11);
-
-			progressBarScan = new ListElement(currentPos + 12);
-			nextRow = currentPos + 12;
-		}
-
-		private static void InitEvents()
-		{
-			textBoxDetails.OnTextChanged += OnTextChanged;
-			textBoxSource.OnTextChanged += OnTextChanged;
-			labelProgress.OnTextChanged += OnTextChanged;
-			labelTimeElapsed.OnTextChanged += OnTextChanged;
-			labelTimeRemaining.OnTextChanged += OnTextChanged;
-
-			if (_bdinfoSettings.PrintReportToConsole)
-			{
-				textBoxReport.OnTextChanged += OnTextChanged;
-			}
-
-			progressBarScan.OnProgressChanged += (val, pos) =>
-			{
-				SetCursorPosition(0, pos);
-				Console.Write(string.Format(CultureInfo.InvariantCulture, "Progress: {0:N2} %  ", val));
-			};
-		}
-
-		private static void OnTextChanged(string obj, int position)
-		{
-			SetCursorPosition(0, position);
-			Console.Write($"{obj}");
-		}
-
 		private static void InitBDROM(string path)
 		{
 			if (BDROM != null && BDROM.IsImage && BDROM.CdReader != null)
@@ -194,23 +143,27 @@ namespace BDInfo
 
 		private static bool BDROM_StreamClipFileScanError(TSStreamClipFile streamClipFile, Exception ex)
 		{
-			ConsoleWriteLine(string.Format(CultureInfo.InvariantCulture,
-					"An error occurred while scanning the stream clip file {0}.\n\nThe disc may be copy-protected or damaged.\n\nWill continue scanning the stream clip files", streamClipFile.Name));
+			Console.WriteLine($"An error occurred while scanning the stream clip file {streamClipFile.Name}.");
+			Console.WriteLine("The disc may be copy-protected or damaged.");
+			Console.WriteLine("Will continue scanning the stream clip files.");
+
 			return true;
 		}
 
 		private static bool BDROM_StreamFileScanError(TSStreamFile streamFile, Exception ex)
 		{
-			ConsoleWriteLine(string.Format(CultureInfo.InvariantCulture,
-					"An error occurred while scanning the stream file {0}.\n\nThe disc may be copy-protected or damaged.\n\nWill continue scanning the stream files", streamFile.Name));
+			Console.WriteLine($"An error occurred while scanning the stream file {streamFile.Name}.");
+			Console.WriteLine("The disc may be copy-protected or damaged.");
+			Console.WriteLine("Will continue scanning the stream files.");
 
 			return true;
 		}
 
 		private static bool BDROM_PlaylistFileScanError(TSPlaylistFile playlistFile, Exception ex)
 		{
-			ConsoleWriteLine(string.Format(CultureInfo.InvariantCulture,
-					"An error occurred while scanning the playlist file {0}.\n\nThe disc may be copy-protected or damaged.\n\nWill continue scanning the playlist files", playlistFile.Name));
+			Console.WriteLine($"An error occurred while scanning the playlist file {playlistFile.Name}.");
+			Console.WriteLine("The disc may be copy-protected or damaged.");
+			Console.WriteLine("Will continue scanning the playlist files.");
 
 			return true;
 		}
@@ -219,34 +172,23 @@ namespace BDInfo
 		{
 			if (result != null)
 			{
-				string msg = string.Format(CultureInfo.InvariantCulture, "{0}", ((Exception)result).Message);
+				Console.WriteLine(((Exception)result).Message);
 
-				ConsoleWriteLine(msg);
 				return;
 			}
 
-			textBoxDetails.Text += string.Format(CultureInfo.InvariantCulture,
-																					"Disc Title: {0}{1}",
-																					BDROM.DiscTitle,
-																					Environment.NewLine);
-
-			if (!BDROM.IsImage)
+			if (BDROM.IsImage)
 			{
-				textBoxSource.Text = BDROM.DirectoryRoot.FullName;
-				textBoxDetails.Text += string.Format(CultureInfo.InvariantCulture,
-																						"Detected BDMV Folder: {0} (Disc Label: {1}){2}",
-																						BDROM.DirectoryBDMV.FullName,
-																						BDROM.VolumeLabel,
-																						Environment.NewLine);
+				Console.WriteLine($"Detected BDMV Folder: {BDROM.DiscDirectoryBDMV.FullName}");
+				Console.WriteLine($"Disc Title: {BDROM.DiscTitle}");
+				Console.WriteLine($"Disc Label: {BDROM.VolumeLabel}");
+				Console.WriteLine($"ISO Image: {BDROM.DiscTitle}");
 			}
 			else
 			{
-				textBoxDetails.Text += string.Format(CultureInfo.InvariantCulture,
-																						"Detected BDMV Folder: {0} (Disc Label: {1}){3}ISO Image: {2}{3}",
-																						BDROM.DiscDirectoryBDMV.FullName,
-																						BDROM.VolumeLabel,
-																						textBoxSource.Text ?? BDROM.DiscTitle,
-																						Environment.NewLine);
+				Console.WriteLine($"Detected BDMV Folder: {BDROM.DirectoryBDMV.FullName}");
+				Console.WriteLine($"Disc Title: {BDROM.DiscTitle}");
+				Console.WriteLine($"Disc Label: {BDROM.VolumeLabel}");
 			}
 
 			List<string> features = new List<string>();
@@ -280,14 +222,11 @@ namespace BDInfo
 			}
 			if (features.Count > 0)
 			{
-				textBoxDetails.Text += "Detected Features: " + string.Join(", ", features.ToArray()) + Environment.NewLine;
+				Console.WriteLine($"Detected Features: {string.Join(", ", features.ToArray())}");
 			}
 
-			textBoxDetails.Text += string.Format(CultureInfo.InvariantCulture,
-																					"Disc Size: {0:N0} bytes ({1}){2}",
-																					BDROM.Size,
-																					ToolBox.FormatFileSize(BDROM.Size),
-																					Environment.NewLine);
+			Console.WriteLine($"Disc Size: {BDROM.Size:N0} bytes ({ToolBox.FormatFileSize(BDROM.Size)})");
+			Console.WriteLine();
 		}
 
 		private static void ScanBDROM()
@@ -392,11 +331,12 @@ namespace BDInfo
 		{
 			try
 			{
-				if (scanState.StreamFile != null)
+				if (scanState.StreamFile == null)
 				{
-					labelProgress.Text = string.Format(CultureInfo.InvariantCulture,
-							"Scanning {0}...\r\n",
-							scanState.StreamFile.DisplayName);
+					Console.Write("\rStarting Scan");
+				}
+				else {
+					Console.Write($"\rScanning {scanState.StreamFile.DisplayName}");
 				}
 
 				long finishedBytes = scanState.FinishedBytes;
@@ -406,10 +346,7 @@ namespace BDInfo
 				}
 
 				double progress = ((double)finishedBytes / scanState.TotalBytes);
-				double progressValue = Math.Round(progress * 100, 2);
-				if (progressValue < 0) progressValue = 0;
-				if (progressValue > 100) progressValue = 100;
-				progressBarScan.Value = progressValue;
+				double progressValue = Math.Clamp(100 * progress, 0, 100);
 
 				TimeSpan elapsedTime = DateTime.Now.Subtract(scanState.TimeStarted);
 				TimeSpan remainingTime;
@@ -423,17 +360,9 @@ namespace BDInfo
 					remainingTime = new TimeSpan(0);
 				}
 
-				labelTimeElapsed.Text = string.Format(CultureInfo.InvariantCulture,
-						"Elapsed: {0:D2}:{1:D2}:{2:D2}",
-						elapsedTime.Hours,
-						elapsedTime.Minutes,
-						elapsedTime.Seconds);
-
-				labelTimeRemaining.Text = string.Format(CultureInfo.InvariantCulture,
-						"Remaining: {0:D2}:{1:D2}:{2:D2}",
-						remainingTime.Hours,
-						remainingTime.Minutes,
-						remainingTime.Seconds);
+				Console.Write($" | Progress: {progressValue,6:F2}%");
+				Console.Write($" | Elapsed: {elapsedTime.Hours:D2}:{elapsedTime.Minutes:D2}:{elapsedTime.Seconds:D2}");
+				Console.Write($" | Remaining: {remainingTime.Hours:D2}:{remainingTime.Minutes:D2}:{remainingTime.Seconds:D2}");
 			}
 			catch (Exception ex)
 			{
@@ -443,31 +372,28 @@ namespace BDInfo
 
 		private static void ScanBDROMCompleted()
 		{
-			labelProgress.Text = $"Scan complete.{new string(' ', 100)}";
-			progressBarScan.Value = 100;
-			labelTimeRemaining.Text = "Remaining: 00:00:00";
+			Console.WriteLine();
 
 			if (ScanResult.ScanException != null)
 			{
-				string msg = string.Format(CultureInfo.InvariantCulture,
-						"{0}", ScanResult.ScanException.Message);
-
-				ConsoleWriteLine(msg);
+				Console.WriteLine("Scan complete.");
+				Console.WriteLine($"{ScanResult.ScanException.Message}");
 				File.AppendAllText(_error, $"{ScanResult.ScanException}{Environment.NewLine}{Environment.NewLine}");
 			}
 			else
 			{
 				if (_bdinfoSettings.AutosaveReport)
 				{
+					Console.WriteLine("Scan complete.");
 					GenerateReport();
 				}
 				else if (ScanResult.FileExceptions.Count > 0)
 				{
-					ConsoleWriteLine("Scan completed with errors (see report).");
+					Console.WriteLine("Scan completed with errors (see report).");
 				}
 				else
 				{
-					ConsoleWriteLine("Scan completed successfully.");
+					Console.WriteLine("Scan completed successfully.");
 				}
 			}
 		}
@@ -495,15 +421,13 @@ namespace BDInfo
 
 		private static void GenerateReport()
 		{
-			SetCursorPosition(0, nextRow);
-
 			if (_bdinfoSettings.PrintReportToConsole)
 			{
-				ConsoleWriteLine("Please wait while we generate the report...");
+				Console.WriteLine("Please wait while we generate the report...");
 			}
 			else
 			{
-				ConsoleWriteLine($"{Environment.NewLine}{Environment.NewLine}Done !");
+				Console.WriteLine("Done !");
 			}
 
 			IEnumerable<TSPlaylistFile> playlists = BDROM.PlaylistFiles.OrderByDescending(s => s.Value.FileSize).Select(s => s.Value);
@@ -513,32 +437,18 @@ namespace BDInfo
 				playlists = playlists.Take(2);
 			}
 
-			GenerateReportCompleted(GenerateReportWork(playlists));
-		}
-
-		private static object GenerateReportWork(IEnumerable<TSPlaylistFile> playlists)
-		{
 			try
 			{
-				return Generate(BDROM, playlists, ScanResult);
+				Generate(BDROM, playlists, ScanResult);
 			}
 			catch (Exception ex)
 			{
 				File.AppendAllText(_error, $"{ex}{Environment.NewLine}{Environment.NewLine}");
-				return ex;
+				Console.WriteLine(ex.Message);
 			}
 		}
 
-		private static void GenerateReportCompleted(object e)
-		{
-			if (e != null && e is Exception)
-			{
-				string msg = string.Format("{0}", ((Exception)e).Message);
-				ConsoleWriteLine(msg);
-			}
-		}
-
-		private static string Generate(BDROM BDROM, IEnumerable<TSPlaylistFile> playlists, ScanBDROMResult scanResult)
+		private static void Generate(BDROM BDROM, IEnumerable<TSPlaylistFile> playlists, ScanBDROMResult scanResult)
 		{
 			string reportName = Regex.IsMatch(_bdinfoSettings.ReportFileName, @"\{\d+\}", RegexOptions.IgnoreCase) ?
 				string.Format(_bdinfoSettings.ReportFileName, BDROM.VolumeLabel) :
@@ -548,8 +458,6 @@ namespace BDInfo
 			{
 				reportName = $"{reportName}.bdinfo";
 			}
-
-			textBoxReport.Text = "";
 
 			string report = "";
 			string protection = BDROM.IsBDPlus ? "BD+" : (BDROM.IsUHD ? "AACS2" : "AACS");
@@ -1592,7 +1500,7 @@ namespace BDInfo
 
 			if (_bdinfoSettings.AutosaveReport)
 			{
-				textBoxReport.Text = $"Saving bdinfo to {_bdinfoSettings.ReportFileName}";
+				Console.WriteLine($"Saving bdinfo to {_bdinfoSettings.ReportFileName}");
 
 				if (!tmp.Equals(_bdinfoSettings.ReportFileName))
 				{
@@ -1621,26 +1529,6 @@ namespace BDInfo
 			if (!tmp.Equals(_bdinfoSettings.ReportFileName) && File.Exists(tmp))
 			{
 				File.Delete(tmp);
-			}
-
-			return textBoxReport.Text;
-		}
-
-		private static void ConsoleWriteLine(string text)
-		{
-			Console.WriteLine(text);
-		}
-
-		private static bool IsNotExecutedAsScript()
-		{
-			return _bdinfoSettings != null && !_bdinfoSettings.IsExecutedAsScript;
-		}
-
-		private static void SetCursorPosition(int left, int top)
-		{
-			if (IsNotExecutedAsScript())
-			{
-				Console.SetCursorPosition(left, top);
 			}
 		}
 	}
