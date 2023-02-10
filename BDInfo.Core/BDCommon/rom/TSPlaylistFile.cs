@@ -22,6 +22,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime;
 using System.Text;
 using DiscUtils;
 using DiscUtils.Udf;
@@ -43,11 +44,11 @@ namespace BDCommon
         public bool HasLoops = false;
         public bool IsCustom = false;
 
-         public bool MVCBaseViewR = false;
+        public bool MVCBaseViewR = false;
 
         public List<double> Chapters = new List<double>();
 
-        public Dictionary<ushort, TSStream> Streams = 
+        public Dictionary<ushort, TSStream> Streams =
             new Dictionary<ushort, TSStream>();
         public Dictionary<ushort, TSStream> PlaylistStreams =
             new Dictionary<ushort, TSStream>();
@@ -55,19 +56,19 @@ namespace BDCommon
             new List<TSStreamClip>();
         public List<Dictionary<ushort, TSStream>> AngleStreams =
             new List<Dictionary<ushort, TSStream>>();
-        public List<Dictionary<double, TSStreamClip>> AngleClips = 
+        public List<Dictionary<double, TSStreamClip>> AngleClips =
             new List<Dictionary<double, TSStreamClip>>();
         public int AngleCount = 0;
 
-        public List<TSStream> SortedStreams = 
+        public List<TSStream> SortedStreams =
             new List<TSStream>();
-        public List<TSVideoStream> VideoStreams = 
+        public List<TSVideoStream> VideoStreams =
             new List<TSVideoStream>();
-        public List<TSAudioStream> AudioStreams = 
+        public List<TSAudioStream> AudioStreams =
             new List<TSAudioStream>();
-        public List<TSTextStream> TextStreams = 
+        public List<TSTextStream> TextStreams =
             new List<TSTextStream>();
-        public List<TSGraphicsStream> GraphicsStreams = 
+        public List<TSGraphicsStream> GraphicsStreams =
             new List<TSGraphicsStream>();
 
         public TSPlaylistFile(
@@ -98,15 +99,17 @@ namespace BDCommon
         public TSPlaylistFile(
             BDROM bdrom,
             string name,
-            List<TSStreamClip> clips)
+            List<TSStreamClip> clips, BDInfoSettings settings)
         {
             BDROM = bdrom;
             Name = name;
             IsCustom = true;
+            _settings = settings;
+
             foreach (TSStreamClip clip in clips)
             {
                 TSStreamClip newClip = new TSStreamClip(
-                    clip.StreamFile, clip.StreamClipFile, _settings);
+                    clip.StreamFile, clip.StreamClipFile, settings);
 
                 newClip.Name = clip.Name;
                 newClip.TimeIn = clip.TimeIn;
@@ -301,7 +304,7 @@ namespace BDCommon
                 // misc flags
                 pos = 0x38;
                 byte miscFlags = ReadByte(data, ref pos);
-                
+
                 // MVC_Base_view_R_flag is stored in 4th bit
                 MVCBaseViewR = (miscFlags & 0x10) != 0;
 
@@ -523,7 +526,7 @@ namespace BDCommon
                     chapterIndex < chapterCount;
                     chapterIndex++)
                 {
-                    int chapterType = data[pos+1];
+                    int chapterType = data[pos + 1];
 
                     if (chapterType == 1)
                     {
@@ -897,11 +900,11 @@ namespace BDCommon
                         {
                             ((TSVideoStream)stream).EncodingProfile =
                                 ((TSVideoStream)clipStream).EncodingProfile;
-                            ((TSVideoStream) stream).ExtendedData = 
-                                ((TSVideoStream) clipStream).ExtendedData;
+                            ((TSVideoStream)stream).ExtendedData =
+                                ((TSVideoStream)clipStream).ExtendedData;
                         }
                         else if (stream.IsAudioStream &&
-                            clipStream.IsAudioStream)
+                                clipStream.IsAudioStream)
                         {
                             TSAudioStream audioStream = (TSAudioStream)stream;
                             TSAudioStream clipAudioStream = (TSAudioStream)clipStream;
@@ -944,6 +947,18 @@ namespace BDCommon
                                 audioStream.CoreStream = (TSAudioStream)
                                     clipAudioStream.CoreStream.Clone();
                             }
+                        }
+                        else if (stream.IsGraphicsStream &&
+                                clipStream.IsGraphicsStream)
+                        {
+                            TSGraphicsStream graphicsStream = (TSGraphicsStream)stream;
+                            TSGraphicsStream clipGraphicsStream = (TSGraphicsStream)clipStream;
+
+                            graphicsStream.Captions = clipGraphicsStream.Captions;
+                            graphicsStream.ForcedCaptions = clipGraphicsStream.ForcedCaptions;
+                            graphicsStream.Width = clipGraphicsStream.Width;
+                            graphicsStream.Height = clipGraphicsStream.Height;
+                            graphicsStream.CaptionIDs = clipGraphicsStream.CaptionIDs;
                         }
                     }
                 }
@@ -1054,7 +1069,7 @@ namespace BDCommon
         }
 
         public static int CompareVideoStreams(
-            TSVideoStream x, 
+            TSVideoStream x,
             TSVideoStream y)
         {
             if (x == null && y == null)
@@ -1095,7 +1110,7 @@ namespace BDCommon
         }
 
         public static int CompareAudioStreams(
-            TSAudioStream x, 
+            TSAudioStream x,
             TSAudioStream y)
         {
             if (x == y)

@@ -23,8 +23,7 @@ using System.IO;
 using DiscUtils;
 using DiscUtils.Udf;
 using System.Numerics;
-using BDCommon;
-using System.Runtime;
+using System.Diagnostics;
 
 namespace BDCommon
 {
@@ -71,7 +70,7 @@ namespace BDCommon
 
         public byte PESHeaderLength = 0;
         public byte PESHeaderFlags = 0;
-#if DEBUG
+#if DEBUG && !BETA
         public byte PESHeaderIndex = 0;
         public byte[] PESHeader = new byte[256 + 9];
 #endif
@@ -230,7 +229,8 @@ namespace BDCommon
         private bool ScanStream(
             TSStream stream,
             TSStreamState streamState,
-            TSStreamBuffer buffer)
+            TSStreamBuffer buffer,
+            bool isFullScan)
         {
             streamState.StreamTag = null;
 
@@ -272,7 +272,7 @@ namespace BDCommon
 
                 case TSStreamType.HEVC_VIDEO:
                     TSCodecHEVC.Scan(
-                        (TSVideoStream)stream, buffer, ref streamState.StreamTag, _settings);
+                        (TSVideoStream)stream, buffer, _settings, ref streamState.StreamTag);
                     break;
 
                 case TSStreamType.VC1_VIDEO:
@@ -323,6 +323,14 @@ namespace BDCommon
                 case TSStreamType.DTS_HD_SECONDARY_AUDIO:
                     TSCodecDTSHD.Scan(
                         (TSAudioStream)stream, buffer, bitrate, ref streamState.StreamTag);
+                    break;
+
+                case TSStreamType.PRESENTATION_GRAPHICS:
+                    if (isFullScan)
+                        TSCodecPGS.Scan(
+                            (TSGraphicsStream)stream, buffer, ref streamState.StreamTag);
+                    else
+                        stream.IsInitialized = true;
                     break;
 
                 default:
@@ -501,12 +509,12 @@ namespace BDCommon
             }
 
             Playlists = playlists;
-            int dataSize = isFullScan ? 262144 : 16384;
+            int dataSize = 5242880;
             Stream fileStream = null;
             try
             {                
                 string fileName;
-#if DEBUG
+#if DEBUG && !BETA
                 string logFileName;
 #endif
                 if (_settings.EnableSSIF &&
@@ -515,31 +523,31 @@ namespace BDCommon
                     if (InterleavedFile.FileInfo != null)
                     { 
                         fileName = InterleavedFile.FileInfo.FullName;
-#if DEBUG
+#if DEBUG && !BETA
                         logFileName = InterleavedFile.FileInfo.Name;
 #endif
                     }
                     else
                     {
                         fileName = InterleavedFile.DFileInfo.FullName;
-#if DEBUG
+#if DEBUG && !BETA
                         logFileName = InterleavedFile.DFileInfo.Name;
 #endif
-                    } 
+                    }
                 }
                 else
                 {
                     if (FileInfo != null)
                     {
                         fileName = FileInfo.FullName;
-#if DEBUG
+#if DEBUG && !BETA
                         logFileName = FileInfo.Name;
 #endif
                     }
                     else
                     {
                         fileName = DFileInfo.FullName;
-#if DEBUG
+#if DEBUG && !BETA
                         logFileName = DFileInfo.Name;
 #endif
                     }
@@ -593,7 +601,6 @@ namespace BDCommon
                 logTextWriter = new StreamWriter(logFile);
                 logTextWriter.WriteLine(String.Format("{0,6}\t{1,16}\t{2,16}\t{3,16}\t{4,16}\t{5,16}\t{6,16}\t{7,16}", "PID", "Active Bitrate", "Window Bytes", "Payload Bytes", "Window Packets", "Packet Count", "Packet Seconds", "Stream Interval"));
 #endif
-
                 while ((bufferLength =
                 fileStream.Read(buffer, 0, buffer.Length)) > 0)
                 {
@@ -706,7 +713,8 @@ namespace BDCommon
                                             bool isFinished = ScanStream(
                                                 parser.Stream, 
                                                 parser.StreamState, 
-                                                parser.StreamState.StreamBuffer);
+                                                parser.StreamState.StreamBuffer,
+                                                isFullScan);
 
                                             if (!isFullScan && isFinished)
                                             {
@@ -1160,7 +1168,8 @@ namespace BDCommon
                                 streamState.TransferLength = offset;
 
                                 if (!stream.IsInitialized ||
-                                    stream.IsVideoStream)
+                                    stream.IsVideoStream ||
+                                    stream.IsGraphicsStream)
                                 {
                                     streamState.StreamBuffer.Add(
                                         buffer, i, offset);
@@ -1190,7 +1199,8 @@ namespace BDCommon
                                     bool isFinished = ScanStream(
                                         stream,
                                         streamState,
-                                        streamState.StreamBuffer);
+                                        streamState.StreamBuffer,
+                                        isFullScan);
 
                                     if (!isFullScan && isFinished)
                                     {
@@ -1246,7 +1256,7 @@ namespace BDCommon
                                 if (headerFound)
                                 {
                                     streamState.PacketLengthParse = 2;
-#if DEBUG
+#if DEBUG && !BETA
                                     streamState.PESHeaderIndex = 0;
                                     streamState.PESHeader[streamState.PESHeaderIndex++] =
                                         (byte)((streamState.Parse >> 24) & 0xFF);
@@ -1264,7 +1274,7 @@ namespace BDCommon
                                     switch (streamState.PacketLengthParse)
                                     {
                                         case 1:
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] =
                                                 (byte)(streamState.Parse & 0xFF);
 #endif
@@ -1281,7 +1291,7 @@ namespace BDCommon
                                                 
                                             
                                             streamState.PacketParse = 3;
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] =
                                                 (byte)(streamState.Parse & 0xFF);
 #endif
@@ -1296,7 +1306,7 @@ namespace BDCommon
                                     switch (streamState.PacketParse)
                                     {
                                         case 2:
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] =
                                                 (byte)(streamState.Parse & 0xFF);
 #endif
@@ -1305,7 +1315,7 @@ namespace BDCommon
                                         case 1:
                                             streamState.PESHeaderFlags = 
                                                 (byte)(streamState.Parse & 0xFF);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] =
                                                 (byte)(streamState.Parse & 0xFF);
 #endif
@@ -1314,7 +1324,7 @@ namespace BDCommon
                                         case 0:
                                             streamState.PESHeaderLength = 
                                                 (byte)(streamState.Parse & 0xFF);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] =
                                                 (byte)(streamState.Parse & 0xFF);
 #endif
@@ -1344,7 +1354,7 @@ namespace BDCommon
                                         case 4:
                                             streamState.PTSTemp = 
                                                 ((streamState.Parse & 0xE) << 29);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xff);
 #endif
@@ -1353,7 +1363,7 @@ namespace BDCommon
                                         case 3:
                                             streamState.PTSTemp |= 
                                                 ((streamState.Parse & 0xFF) << 22);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xFF);
 #endif
@@ -1362,7 +1372,7 @@ namespace BDCommon
                                         case 2:
                                             streamState.PTSTemp |= 
                                                 ((streamState.Parse & 0xFE) << 14);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xFF);
 #endif
@@ -1371,7 +1381,7 @@ namespace BDCommon
                                         case 1:
                                             streamState.PTSTemp |= 
                                                 ((streamState.Parse & 0xFF) << 7);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xFF);
 #endif
@@ -1380,7 +1390,7 @@ namespace BDCommon
                                         case 0:
                                             streamState.PTSTemp |= 
                                                 ((streamState.Parse & 0xFE) >> 1);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xff);
 #endif
@@ -1433,7 +1443,7 @@ namespace BDCommon
                                         case 9:
                                             streamState.PTSTemp = 
                                                 ((streamState.Parse & 0xE) << 29);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xFF);
 #endif
@@ -1442,7 +1452,7 @@ namespace BDCommon
                                         case 8:
                                             streamState.PTSTemp |= 
                                                 ((streamState.Parse & 0xFF) << 22);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xFF);
 #endif
@@ -1451,7 +1461,7 @@ namespace BDCommon
                                         case 7:
                                             streamState.PTSTemp |= 
                                                 ((streamState.Parse & 0xFE) << 14);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xff);
 #endif
@@ -1460,7 +1470,7 @@ namespace BDCommon
                                         case 6:
                                             streamState.PTSTemp |= 
                                                 ((streamState.Parse & 0xFF) << 7);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xFF);
 #endif
@@ -1469,7 +1479,7 @@ namespace BDCommon
                                         case 5:
                                             streamState.PTSTemp |= 
                                                 ((streamState.Parse & 0xFE) >> 1);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xff);
 #endif
@@ -1483,7 +1493,7 @@ namespace BDCommon
                                         case 4:
                                             streamState.DTSTemp = 
                                                 ((streamState.Parse & 0xE) << 29);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xff);
 #endif
@@ -1492,7 +1502,7 @@ namespace BDCommon
                                         case 3:
                                             streamState.DTSTemp |= 
                                                 ((streamState.Parse & 0xFF) << 22);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xff);
 #endif
@@ -1501,7 +1511,7 @@ namespace BDCommon
                                         case 2:
                                             streamState.DTSTemp |= 
                                                 ((streamState.Parse & 0xFE) << 14);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xff);
 #endif
@@ -1510,7 +1520,7 @@ namespace BDCommon
                                         case 1:
                                             streamState.DTSTemp |= 
                                                 ((streamState.Parse & 0xFF) << 7);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xFF);
 #endif
@@ -1519,7 +1529,7 @@ namespace BDCommon
                                         case 0:
                                             streamState.DTSTemp |= 
                                                 ((streamState.Parse & 0xFE) >> 1);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xff);
 #endif
@@ -1554,7 +1564,7 @@ namespace BDCommon
                                 {
                                     --streamState.PacketLength;
                                     --streamState.PESHeaderLength;
-#if DEBUG
+#if DEBUG && !BETA
                                     streamState.PESHeader[streamState.PESHeaderIndex++] =
                                         (byte)(streamState.Parse & 0xFF);
 #endif

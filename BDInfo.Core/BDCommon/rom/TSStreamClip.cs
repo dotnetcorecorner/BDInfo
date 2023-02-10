@@ -48,7 +48,8 @@ namespace BDCommon
 
         public TSStreamClip(
             TSStreamFile streamFile,
-            TSStreamClipFile streamClipFile, BDInfoSettings settings)
+            TSStreamClipFile streamClipFile,
+            BDInfoSettings settings)
         {
             if (streamFile != null)
             {

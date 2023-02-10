@@ -94,10 +94,10 @@ namespace BDCommon
 
         public event OnPlaylistFileScanError PlaylistFileScanError;
 
-        public BDROM(
-            string path, BDInfoSettings settings)
+        public BDROM(string path, BDInfoSettings settings)
         {
             _settings = settings;
+
             //
             // Locate BDMV directories.
             //
