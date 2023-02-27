@@ -17,20 +17,19 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //=============================================================================
 
-// TODO: Do more interesting things here...
+using System.IO;
 
-using BDCommon.IO;
+namespace BDCommon.IO;
 
-namespace BDCommon;
-
-public class TSInterleavedFile
+public interface IFileInfo
 {
-    public IFileInfo FileInfo;
-    public string Name;
+    string Name { get; }
+    string FullName { get; }
+    string Extension { get; }
+    long Length { get; }
+    bool IsDir { get; }
+    bool IsImage { get; }
 
-    public TSInterleavedFile(IFileInfo fileInfo)
-    {
-        FileInfo = fileInfo;
-        Name = fileInfo.Name.ToUpper();
-    }
+    Stream OpenRead();
+    StreamReader OpenText();
 }

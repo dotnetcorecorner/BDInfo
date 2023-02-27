@@ -15,10 +15,11 @@ namespace BDInfo
 		private static BDROM BDROM = null;
 		private static ScanBDROMResult ScanResult = null;
 
-		private static readonly string ProductVersion = "0.7.5.6";
+		private static readonly string ProductVersion = "0.8.0.0";
 		private static BDSettings _bdinfoSettings;
 		private static readonly string BDMV = "BDMV";
 
+		private static bool _isImage = false;
 		private static string _error;
 
 		private static void Main(string[] args)
@@ -33,6 +34,7 @@ namespace BDInfo
 			{
 				_error = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"error_{Path.GetFileName(opts.Path)}.log");
 				_bdinfoSettings = new BDSettings(opts);
+				_isImage = false;
 
 				if (!opts.Path.EndsWith(".iso", StringComparison.OrdinalIgnoreCase))
 				{
@@ -87,6 +89,10 @@ namespace BDInfo
 						return;
 					}
 				}
+				else
+				{
+					_isImage = true;
+				}
 
 				InitBDROM(opts.Path);
 				ScanBDROM();
@@ -115,11 +121,6 @@ namespace BDInfo
 
 		private static void InitBDROM(string path)
 		{
-			if (BDROM != null && BDROM.IsImage && BDROM.CdReader != null)
-			{
-				BDROM.CloseDiscImage();
-			}
-
 			InitBDROMCompleted(InitBDROMWork(path));
 		}
 
@@ -177,19 +178,23 @@ namespace BDInfo
 				return;
 			}
 
-			if (BDROM.IsImage)
-			{
-				Console.WriteLine($"Detected BDMV Folder: {BDROM.DiscDirectoryBDMV.FullName}");
-				Console.WriteLine($"Disc Title: {BDROM.DiscTitle}");
-				Console.WriteLine($"Disc Label: {BDROM.VolumeLabel}");
-				Console.WriteLine($"ISO Image: {BDROM.DiscTitle}");
-			}
-			else
-			{
-				Console.WriteLine($"Detected BDMV Folder: {BDROM.DirectoryBDMV.FullName}");
-				Console.WriteLine($"Disc Title: {BDROM.DiscTitle}");
-				Console.WriteLine($"Disc Label: {BDROM.VolumeLabel}");
-			}
+            Console.WriteLine($"Detected BDMV Folder: {BDROM.DirectoryBDMV.FullName}");
+            Console.WriteLine($"Disc Title: {BDROM.DiscTitle}");
+            Console.WriteLine($"Disc Label: {BDROM.VolumeLabel}");
+
+   //         if (_isImage)
+			//{
+			//	Console.WriteLine($"Detected BDMV Folder: {BDROM.DirectoryBDMV.FullName}");
+			//	Console.WriteLine($"Disc Title: {BDROM.DiscTitle}");
+			//	Console.WriteLine($"Disc Label: {BDROM.VolumeLabel}");
+			//	Console.WriteLine($"ISO Image: {BDROM.DiscTitle}");
+			//}
+			//else
+			//{
+			//	Console.WriteLine($"Detected BDMV Folder: {BDROM.DirectoryBDMV.FullName}");
+			//	Console.WriteLine($"Disc Title: {BDROM.DiscTitle}");
+			//	Console.WriteLine($"Disc Label: {BDROM.VolumeLabel}");
+			//}
 
 			List<string> features = new List<string>();
 			if (BDROM.IsUHD)
@@ -225,7 +230,7 @@ namespace BDInfo
 				Console.WriteLine($"Detected Features: {string.Join(", ", features.ToArray())}");
 			}
 
-			Console.WriteLine($"Disc Size: {BDROM.Size:N0} bytes ({ToolBox.FormatFileSize(BDROM.Size)})");
+			Console.WriteLine($"Disc Size: {BDROM.Size:N0} bytes ({ToolBox.FormatFileSize(BDROM.Size, true)})");
 			Console.WriteLine();
 		}
 
@@ -260,14 +265,14 @@ namespace BDInfo
 						if (streamFile.InterleavedFile.FileInfo != null)
 							scanState.TotalBytes += streamFile.InterleavedFile.FileInfo.Length;
 						else
-							scanState.TotalBytes += streamFile.InterleavedFile.DFileInfo.Length;
+							scanState.TotalBytes += streamFile.InterleavedFile.FileInfo.Length;
 					}
 					else
 					{
 						if (streamFile.FileInfo != null)
 							scanState.TotalBytes += streamFile.FileInfo.Length;
 						else
-							scanState.TotalBytes += streamFile.DFileInfo.Length;
+							scanState.TotalBytes += streamFile.FileInfo.Length;
 					}
 
 					if (!scanState.PlaylistMap.ContainsKey(streamFile.Name))
@@ -308,7 +313,7 @@ namespace BDInfo
 					if (streamFile.FileInfo != null)
 						scanState.FinishedBytes += streamFile.FileInfo.Length;
 					else
-						scanState.FinishedBytes += streamFile.DFileInfo.Length;
+						scanState.FinishedBytes += streamFile.FileInfo.Length;
 					if (scanState.Exception != null)
 					{
 						ScanResult.FileExceptions[streamFile.Name] = scanState.Exception;

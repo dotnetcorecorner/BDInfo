@@ -17,1383 +17,1156 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //=============================================================================
 
-#undef DEBUG
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime;
-using System.Text;
-using DiscUtils;
-using DiscUtils.Udf;
+using System.Linq;
+using BDCommon.IO;
 
-namespace BDCommon
+// ReSharper disable UnusedVariable
+// ReSharper disable UnusedMember.Global
+
+namespace BDCommon;
+
+public class TSPlaylistFile
 {
-    public class TSPlaylistFile
+    private readonly IFileInfo _fileInfo;
+    public string FileType;
+    public bool IsInitialized;
+    public string Name;
+    private readonly BDInfoSettings _settings;
+    public BDROM BDROM;
+    public bool HasHiddenTracks;
+    public bool HasLoops;
+    public bool IsCustom;
+
+    public bool MVCBaseViewR;
+
+    public List<double> Chapters = new();
+
+    public Dictionary<ushort, TSStream> Streams = new();
+    public Dictionary<ushort, TSStream> PlaylistStreams = new();
+    public List<TSStreamClip> StreamClips = new();
+    public List<Dictionary<ushort, TSStream>> AngleStreams = new();
+    public List<Dictionary<double, TSStreamClip>> AngleClips = new();
+    public int AngleCount;
+
+    public List<TSStream> SortedStreams = new();
+    public List<TSVideoStream> VideoStreams = new();
+    public List<TSAudioStream> AudioStreams = new();
+    public List<TSTextStream> TextStreams = new();
+    public List<TSGraphicsStream> GraphicsStreams = new();
+
+    public TSPlaylistFile(BDROM bdrom, IFileInfo fileInfo, BDInfoSettings settings)
     {
-        private DiscFileInfo DFileInfo = null;
-        private UdfReader CdReader = null;
+        _settings = settings;
+        BDROM = bdrom;
+        _fileInfo = fileInfo;
+        Name = fileInfo.Name.ToUpper();
+    }
 
-        private FileInfo FileInfo = null;
-        public string FileType = null;
-        public bool IsInitialized = false;
-        public string Name = null;
-        private readonly BDInfoSettings _settings;
-        public BDROM BDROM = null;
-        public bool HasHiddenTracks = false;
-        public bool HasLoops = false;
-        public bool IsCustom = false;
-
-        public bool MVCBaseViewR = false;
-
-        public List<double> Chapters = new List<double>();
-
-        public Dictionary<ushort, TSStream> Streams =
-            new Dictionary<ushort, TSStream>();
-        public Dictionary<ushort, TSStream> PlaylistStreams =
-            new Dictionary<ushort, TSStream>();
-        public List<TSStreamClip> StreamClips =
-            new List<TSStreamClip>();
-        public List<Dictionary<ushort, TSStream>> AngleStreams =
-            new List<Dictionary<ushort, TSStream>>();
-        public List<Dictionary<double, TSStreamClip>> AngleClips =
-            new List<Dictionary<double, TSStreamClip>>();
-        public int AngleCount = 0;
-
-        public List<TSStream> SortedStreams =
-            new List<TSStream>();
-        public List<TSVideoStream> VideoStreams =
-            new List<TSVideoStream>();
-        public List<TSAudioStream> AudioStreams =
-            new List<TSAudioStream>();
-        public List<TSTextStream> TextStreams =
-            new List<TSTextStream>();
-        public List<TSGraphicsStream> GraphicsStreams =
-            new List<TSGraphicsStream>();
-
-        public TSPlaylistFile(
-            BDROM bdrom,
-            FileInfo fileInfo, BDInfoSettings settings)
+    public TSPlaylistFile(BDROM bdrom, string name, List<TSStreamClip> clips, BDInfoSettings settings)
+    {
+        _settings = settings;
+        BDROM = bdrom;
+        Name = name;
+        IsCustom = true;
+        foreach (var clip in clips)
         {
-            BDROM = bdrom;
-            FileInfo = fileInfo;
-            DFileInfo = null;
-            CdReader = null;
-            Name = fileInfo.Name.ToUpper();
-            _settings = settings;
-        }
-
-        public TSPlaylistFile(
-            BDROM bdrom,
-            DiscFileInfo fileInfo,
-            UdfReader reader, BDInfoSettings settings)
-        {
-            BDROM = bdrom;
-            DFileInfo = fileInfo;
-            FileInfo = null;
-            CdReader = reader;
-            Name = fileInfo.Name.ToUpper();
-            _settings = settings;
-        }
-
-        public TSPlaylistFile(
-            BDROM bdrom,
-            string name,
-            List<TSStreamClip> clips, BDInfoSettings settings)
-        {
-            BDROM = bdrom;
-            Name = name;
-            IsCustom = true;
-            _settings = settings;
-
-            foreach (TSStreamClip clip in clips)
+            var newClip = new TSStreamClip(clip.StreamFile, clip.StreamClipFile, settings)
             {
-                TSStreamClip newClip = new TSStreamClip(
-                    clip.StreamFile, clip.StreamClipFile, settings);
+                Name = clip.Name,
+                TimeIn = clip.TimeIn,
+                TimeOut = clip.TimeOut
+            };
 
-                newClip.Name = clip.Name;
-                newClip.TimeIn = clip.TimeIn;
-                newClip.TimeOut = clip.TimeOut;
-                newClip.Length = newClip.TimeOut - newClip.TimeIn;
-                newClip.RelativeTimeIn = TotalLength;
-                newClip.RelativeTimeOut = newClip.RelativeTimeIn + newClip.Length;
-                newClip.AngleIndex = clip.AngleIndex;
-                newClip.Chapters.Add(clip.TimeIn);
-                StreamClips.Add(newClip);
+            newClip.Length = newClip.TimeOut - newClip.TimeIn;
+            newClip.RelativeTimeIn = TotalLength;
+            newClip.RelativeTimeOut = newClip.RelativeTimeIn + newClip.Length;
+            newClip.AngleIndex = clip.AngleIndex;
+            newClip.Chapters.Add(clip.TimeIn);
+            StreamClips.Add(newClip);
 
-                if (newClip.AngleIndex > AngleCount)
-                {
-                    AngleCount = newClip.AngleIndex;
-                }
-                if (newClip.AngleIndex == 0)
-                {
-                    Chapters.Add(newClip.RelativeTimeIn);
-                }
+            if (newClip.AngleIndex > AngleCount)
+            {
+                AngleCount = newClip.AngleIndex;
             }
-            LoadStreamClips();
-            IsInitialized = true;
-        }
-
-        public override string ToString()
-        {
-            return Name;
-        }
-
-        public ulong InterleavedFileSize
-        {
-            get
+            if (newClip.AngleIndex == 0)
             {
-                ulong size = 0;
-                foreach (TSStreamClip clip in StreamClips)
-                {
-                    size += clip.InterleavedFileSize;
-                }
-                return size;
+                Chapters.Add(newClip.RelativeTimeIn);
             }
         }
-        public ulong FileSize
+        LoadStreamClips();
+        IsInitialized = true;
+    }
+
+    public override string ToString()
+    {
+        return Name;
+    }
+
+    public ulong InterleavedFileSize
+    {
+        get
         {
-            get
-            {
-                ulong size = 0;
-                foreach (TSStreamClip clip in StreamClips)
-                {
-                    size += clip.FileSize;
-                }
-                return size;
-            }
+            return StreamClips.Aggregate<TSStreamClip, ulong>(0, (current, clip) => current + clip.InterleavedFileSize);
         }
-        public double TotalLength
+    }
+    public ulong FileSize
+    {
+        get
         {
-            get
+            return StreamClips.Aggregate<TSStreamClip, ulong>(0, (current, clip) => current + clip.FileSize);
+        }
+    }
+    public double TotalLength
+    {
+        get
+        {
+            return StreamClips.Where(clip => clip.AngleIndex == 0).Sum(clip => clip.Length);
+        }
+    }
+
+    public double TotalAngleLength
+    {
+        get
+        {
+            return StreamClips.Sum(clip => clip.Length);
+        }
+    }
+
+    public ulong TotalSize
+    {
+        get
+        {
+            return StreamClips.Where(clip => clip.AngleIndex == 0).Aggregate<TSStreamClip, ulong>(0, (current, clip) => current + clip.PacketSize);
+        }
+    }
+
+    public ulong TotalAngleSize
+    {
+        get
+        {
+            return StreamClips.Aggregate<TSStreamClip, ulong>(0, (current, clip) => current + clip.PacketSize);
+        }
+    }
+
+    public ulong TotalBitRate
+    {
+        get
+        {
+            if (TotalLength > 0)
             {
-                double length = 0;
-                foreach (TSStreamClip clip in StreamClips)
+                return (ulong)Math.Round(((TotalSize * 8.0) / TotalLength));
+            }
+            return 0;
+        }
+    }
+
+    public ulong TotalAngleBitRate
+    {
+        get
+        {
+            if (TotalAngleLength > 0)
+            {
+                return (ulong)Math.Round(((TotalAngleSize * 8.0) / TotalAngleLength));
+            }
+            return 0;
+        }
+    }
+
+    public string GetFilePath()
+    {
+        return !string.IsNullOrEmpty(_fileInfo.FullName) ? _fileInfo.FullName : string.Empty;
+    }
+
+    public void Scan(Dictionary<string, TSStreamFile> streamFiles, Dictionary<string, TSStreamClipFile> streamClipFiles)
+    {
+        Stream fileStream = null;
+        BinaryReader fileReader = null;
+
+        try
+        {
+            Streams.Clear();
+            StreamClips.Clear();
+
+            fileStream = _fileInfo.OpenRead();
+            fileReader = new BinaryReader(fileStream!);
+            var streamLength = (ulong)fileStream.Length;
+
+            var data = new byte[streamLength];
+            var dataLength = fileReader.Read(data, 0, data.Length);
+
+            var pos = 0;
+
+            FileType = ToolBox.ReadString(data, 8, ref pos);
+            if (FileType != "MPLS0100" && FileType != "MPLS0200" && FileType != "MPLS0300")
+            {
+                throw new Exception($"Playlist {_fileInfo.Name} has an unknown file type {FileType}.");
+            }
+
+            var playlistOffset = ReadInt32(data, ref pos);
+            var chaptersOffset = ReadInt32(data, ref pos);
+            var extensionsOffset = ReadInt32(data, ref pos);
+
+            // misc flags
+            pos = 0x38;
+            var miscFlags = ReadByte(data, ref pos);
+                
+            // MVC_Base_view_R_flag is stored in 4th bit
+            MVCBaseViewR = (miscFlags & 0x10) != 0;
+
+            pos = playlistOffset;
+
+            var playlistLength = ReadInt32(data, ref pos);
+            var playlistReserved = ReadInt16(data, ref pos);
+            var itemCount = ReadInt16(data, ref pos);
+            var subitemCount = ReadInt16(data, ref pos);
+
+            var chapterClips = new List<TSStreamClip>();
+            for (var itemIndex = 0; itemIndex < itemCount; itemIndex++)
+            {
+                var itemStart = pos;
+                var itemLength = ReadInt16(data, ref pos);
+                var itemName = ToolBox.ReadString(data, 5, ref pos);
+                var itemType = ToolBox.ReadString(data, 4, ref pos);
+
+                TSStreamFile streamFile = null;
+                var streamFileName = $"{itemName}.M2TS";
+                if (streamFiles.ContainsKey(streamFileName))
                 {
-                    if (clip.AngleIndex == 0)
+                    streamFile = streamFiles[streamFileName];
+                }
+                if (streamFile == null)
+                {
+                    Debug.WriteLine($"Playlist {_fileInfo.Name} referenced missing file {streamFileName}.");
+                }
+
+                TSStreamClipFile streamClipFile = null;
+                var streamClipFileName = $"{itemName}.CLPI";
+                if (streamClipFiles.ContainsKey(streamClipFileName))
+                {
+                    streamClipFile = streamClipFiles[streamClipFileName];
+                }
+                if (streamClipFile == null)
+                {
+                    throw new Exception($"Playlist {_fileInfo.Name} referenced missing file {streamFileName}.");
+                }
+
+                pos += 1;
+                var multiangle = (data[pos] >> 4) & 0x01;
+                var condition = data[pos] & 0x0F;
+                pos += 2;
+
+                var inTime = ReadInt32(data, ref pos);
+                if (inTime < 0) inTime &= 0x7FFFFFFF;
+                var timeIn = (double)inTime / 45000;
+
+                var outTime = ReadInt32(data, ref pos);
+                if (outTime < 0) outTime &= 0x7FFFFFFF;
+                var timeOut = (double)outTime / 45000;
+
+                var streamClip = new TSStreamClip(streamFile, streamClipFile, _settings)
+                {
+                    Name = streamFileName, //TODO
+                    TimeIn = timeIn,
+                    TimeOut = timeOut
+                };
+
+                streamClip.Length = streamClip.TimeOut - streamClip.TimeIn;
+                streamClip.RelativeTimeIn = TotalLength;
+                streamClip.RelativeTimeOut = streamClip.RelativeTimeIn + streamClip.Length;
+                streamClip.RelativeLength = streamClip.Length / TotalLength;
+                StreamClips.Add(streamClip);
+                chapterClips.Add(streamClip);
+
+                pos += 12;
+                if (multiangle > 0)
+                {
+                    int angles = data[pos];
+                    pos += 2;
+                    for (var angle = 0; angle < angles - 1; angle++)
                     {
-                        length += clip.Length;
+                        var angleName = ToolBox.ReadString(data, 5, ref pos);
+                        var angleType = ToolBox.ReadString(data, 4, ref pos);
+                        pos += 1;
+
+                        TSStreamFile angleFile = null;
+                        var angleFileName = $"{angleName}.M2TS";
+                        if (streamFiles.ContainsKey(angleFileName))
+                        {
+                            angleFile = streamFiles[angleFileName];
+                        }
+                        if (angleFile == null)
+                        {
+                            throw new Exception($"Playlist {_fileInfo.Name} referenced missing angle file {angleFileName}.");
+                        }
+
+                        TSStreamClipFile angleClipFile = null;
+                        var angleClipFileName = $"{angleName}.CLPI";
+                        if (streamClipFiles.ContainsKey(angleClipFileName))
+                        {
+                            angleClipFile = streamClipFiles[angleClipFileName];
+                        }
+                        if (angleClipFile == null)
+                        {
+                            throw new Exception($"Playlist {_fileInfo.Name} referenced missing angle file {angleClipFileName}.");
+                        }
+
+                        var angleClip = new TSStreamClip(angleFile, angleClipFile, _settings)
+                        {
+                            AngleIndex = angle + 1,
+                            TimeIn = streamClip.TimeIn,
+                            TimeOut = streamClip.TimeOut,
+                            RelativeTimeIn = streamClip.RelativeTimeIn,
+                            RelativeTimeOut = streamClip.RelativeTimeOut,
+                            Length = streamClip.Length
+                        };
+                        StreamClips.Add(angleClip);
                     }
+                    if (angles - 1 > AngleCount) AngleCount = angles - 1;
                 }
-                return length;
-            }
-        }
 
-        public double TotalAngleLength
-        {
-            get
-            {
-                double length = 0;
-                foreach (TSStreamClip clip in StreamClips)
+                var streamInfoLength = ReadInt16(data, ref pos);
+                pos += 2;
+                int streamCountVideo = data[pos++];
+                int streamCountAudio = data[pos++];
+                int streamCountPg = data[pos++];
+                int streamCountIg = data[pos++];
+                int streamCountSecondaryAudio = data[pos++];
+                int streamCountSecondaryVideo = data[pos++];
+                int streamCountPip = data[pos++];
+                pos += 5;
+
+#if DEBUG
+                Debug.WriteLine(
+                    $"{Name} : {streamFileName} -> V:{streamCountVideo} A:{streamCountAudio} PG:{streamCountPg} IG:{streamCountIg} 2A:{streamCountSecondaryAudio} 2V:{streamCountSecondaryVideo} PIP:{streamCountPip}");
+#endif
+
+                for (var i = 0; i < streamCountVideo; i++)
                 {
-                    length += clip.Length;
+                    var stream = CreatePlaylistStream(data, ref pos);
+                    if (stream == null) continue;
+                    if (!PlaylistStreams.ContainsKey(stream.PID) || streamClip.RelativeLength > 0.01)
+                        PlaylistStreams[stream.PID] = stream;
                 }
-                return length;
-            }
-        }
-
-        public ulong TotalSize
-        {
-            get
-            {
-                ulong size = 0;
-                foreach (TSStreamClip clip in StreamClips)
+                for (var i = 0; i < streamCountAudio; i++)
                 {
-                    if (clip.AngleIndex == 0)
+                    var stream = CreatePlaylistStream(data, ref pos);
+                    if (stream == null) continue;
+
+                    if (!PlaylistStreams.ContainsKey(stream.PID) || streamClip.RelativeLength > 0.01)
+                        PlaylistStreams[stream.PID] = stream;
+                }
+                for (var i = 0; i < streamCountPg; i++)
+                {
+                    var stream = CreatePlaylistStream(data, ref pos);
+                    if (stream == null) continue;
+
+                    if (!PlaylistStreams.ContainsKey(stream.PID) || streamClip.RelativeLength > 0.01)
+                        PlaylistStreams[stream.PID] = stream;
+                }
+                for (var i = 0; i < streamCountIg; i++)
+                {
+                    var stream = CreatePlaylistStream(data, ref pos);
+                    if (stream == null) continue;
+
+                    if (!PlaylistStreams.ContainsKey(stream.PID) || streamClip.RelativeLength > 0.01)
+                        PlaylistStreams[stream.PID] = stream;
+                }
+                for (var i = 0; i < streamCountSecondaryAudio; i++)
+                {
+                    var stream = CreatePlaylistStream(data, ref pos);
+                    if (stream != null)
                     {
-                        size += clip.PacketSize;
+                        if (!PlaylistStreams.ContainsKey(stream.PID) || streamClip.RelativeLength > 0.01)
+                            PlaylistStreams[stream.PID] = stream;
                     }
+                    pos += 2;
                 }
-                return size;
-            }
-        }
-
-        public ulong TotalAngleSize
-        {
-            get
-            {
-                ulong size = 0;
-                foreach (TSStreamClip clip in StreamClips)
+                for (var i = 0; i < streamCountSecondaryVideo; i++)
                 {
-                    size += clip.PacketSize;
+                    var stream = CreatePlaylistStream(data, ref pos);
+                    if (stream != null)
+                    {
+                        if (!PlaylistStreams.ContainsKey(stream.PID) || streamClip.RelativeLength > 0.01)
+                            PlaylistStreams[stream.PID] = stream;
+                    }
+
+                    pos += 6;
                 }
-                return size;
-            }
-        }
-
-        public ulong TotalBitRate
-        {
-            get
-            {
-                if (TotalLength > 0)
+                /*
+                 * TODO
+                 * 
+                for (var i = 0; i < streamCountPIP; i++)
                 {
-                    return (ulong)Math.Round(((TotalSize * 8.0) / TotalLength));
+                    var stream = CreatePlaylistStream(data, ref pos);
+                    if (stream != null) PlaylistStreams[stream.PID] = stream;
                 }
-                return 0;
+                */
+
+                pos += itemLength - (pos - itemStart) + 2;
             }
-        }
 
-        public ulong TotalAngleBitRate
-        {
-            get
+            pos = chaptersOffset + 4;
+
+            var chapterCount = ReadInt16(data, ref pos);
+
+            for (var chapterIndex = 0; chapterIndex < chapterCount; chapterIndex++)
             {
-                if (TotalAngleLength > 0)
+                int chapterType = data[pos+1];
+
+                if (chapterType == 1)
                 {
-                    return (ulong)Math.Round(((TotalAngleSize * 8.0) / TotalAngleLength));
-                }
-                return 0;
-            }
-        }
+                    var streamFileIndex = (data[pos + 2] << 8) + data[pos + 3];
 
-        public string GetFilePath()
-        {
-            if (!string.IsNullOrEmpty(FileInfo?.FullName))
-                return FileInfo.FullName;
+                    var chapterTime = ((long)data[pos + 4] << 24) +
+                                      ((long)data[pos + 5] << 16) +
+                                      ((long)data[pos + 6] << 8) +
+                                      data[pos + 7];
 
-            if (!string.IsNullOrEmpty(DFileInfo?.FullName))
-                return DFileInfo.FullName;
+                    var streamClip = chapterClips[streamFileIndex];
 
-            return string.Empty;
-        }
+                    var chapterSeconds = (double)chapterTime / 45000;
 
-        public void Scan(
-            Dictionary<string, TSStreamFile> streamFiles,
-            Dictionary<string, TSStreamClipFile> streamClipFiles)
-        {
-            FileStream fileStream = null;
-            Stream discFileStream = null;
-            BinaryReader fileReader = null;
-            ulong streamLength = 0;
+                    var relativeSeconds = chapterSeconds - streamClip.TimeIn + streamClip.RelativeTimeIn;
 
-            try
-            {
-                Streams.Clear();
-                StreamClips.Clear();
-
-                if (FileInfo != null)
-                {
-                    fileStream = File.OpenRead(FileInfo.FullName);
-                    fileReader = new BinaryReader(fileStream);
-                    streamLength = (ulong)fileStream.Length;
+                    // TODO: Ignore short last chapter?
+                    if (TotalLength - relativeSeconds > 1.0)
+                    {
+                        streamClip.Chapters.Add(chapterSeconds);
+                        this.Chapters.Add(relativeSeconds);
+                    }
                 }
                 else
                 {
-                    CdReader.OpenFile(DFileInfo.FullName, FileMode.Open);
-                    discFileStream = CdReader.GetFileInfo(DFileInfo.FullName).OpenRead();
-                    fileReader = new BinaryReader(discFileStream);
-                    streamLength = (ulong)discFileStream.Length;
+                    // TODO: Handle other chapter types?
+                }
+                pos += 14;
+            }
+        }
+        finally
+        {
+            fileReader?.Close();
+            fileStream?.Close();
+        }
+    }
+
+    public void Initialize()
+    {
+        LoadStreamClips();
+
+        var clipTimes = new Dictionary<string, List<double>>();
+        foreach (var clip in StreamClips.Where(clip => clip!.AngleIndex == 0))
+        {
+            if (clip.Name != null && clipTimes.ContainsKey(clip.Name))
+            {
+                if (clipTimes[clip.Name].Contains(clip.TimeIn))
+                {
+                    HasLoops = true;
+                    break;
                 }
 
-                byte[] data = new byte[streamLength];
-                int dataLength = fileReader.Read(data, 0, data.Length);
+                clipTimes[clip.Name].Add(clip.TimeIn);
+            }
+            else
+            {
+                if (clip.Name != null) 
+                    clipTimes[clip.Name] = new List<double> { clip.TimeIn };
+            }
+        }
+        ClearBitrates();
+        IsInitialized = true;
+    }
 
-                int pos = 0;
+    protected static TSStream CreatePlaylistStream(byte[] data, ref int pos)
+    {
+        TSStream stream = null;
 
-                FileType = ToolBox.ReadString(data, 8, ref pos);
-                if (FileType != "MPLS0100" && FileType != "MPLS0200" && FileType != "MPLS0300")
+        var start = pos;
+
+        int headerLength = data[pos++];
+        var headerPos = pos;
+        int headerType = data[pos++];
+
+        var pid = 0;
+        var subpathid = 0;
+        var subclipid = 0;
+
+        switch (headerType)
+        {
+            case 1:
+                pid = ReadInt16(data, ref pos);
+                break;
+            case 2:
+                subpathid = data[pos++];
+                subclipid = data[pos++];
+                pid = ReadInt16(data, ref pos);
+                break;
+            case 3:
+                subpathid = data[pos++];
+                pid = ReadInt16(data, ref pos);
+                break;
+            case 4:
+                subpathid = data[pos++];
+                subclipid = data[pos++];
+                pid = ReadInt16(data, ref pos);
+                break;
+        }
+
+        pos = headerPos + headerLength;
+
+        int streamLength = data[pos++];
+        var streamPos = pos;
+
+        var streamType = (TSStreamType)data[pos++];
+        switch (streamType)
+        {
+            case TSStreamType.MVC_VIDEO:
+                // TODO
+                break;
+
+            case TSStreamType.HEVC_VIDEO:
+            case TSStreamType.AVC_VIDEO:
+            case TSStreamType.MPEG1_VIDEO:
+            case TSStreamType.MPEG2_VIDEO:
+            case TSStreamType.VC1_VIDEO:
+
+                var videoFormat = (TSVideoFormat)(data[pos] >> 4);
+                var frameRate = (TSFrameRate)(data[pos] & 0xF);
+                var aspectRatio = (TSAspectRatio)(data[pos + 1] >> 4);
+
+                stream = new TSVideoStream
                 {
-                    throw new Exception(string.Format(
-                        "Playlist {0} has an unknown file type {1}.",
-                        FileInfo.Name, FileType));
-                }
-
-                int playlistOffset = ReadInt32(data, ref pos);
-                int chaptersOffset = ReadInt32(data, ref pos);
-                int extensionsOffset = ReadInt32(data, ref pos);
-
-                // misc flags
-                pos = 0x38;
-                byte miscFlags = ReadByte(data, ref pos);
-
-                // MVC_Base_view_R_flag is stored in 4th bit
-                MVCBaseViewR = (miscFlags & 0x10) != 0;
-
-                pos = playlistOffset;
-
-                int playlistLength = ReadInt32(data, ref pos);
-                int playlistReserved = ReadInt16(data, ref pos);
-                int itemCount = ReadInt16(data, ref pos);
-                int subitemCount = ReadInt16(data, ref pos);
-
-                List<TSStreamClip> chapterClips = new List<TSStreamClip>();
-                for (int itemIndex = 0; itemIndex < itemCount; itemIndex++)
-                {
-                    int itemStart = pos;
-                    int itemLength = ReadInt16(data, ref pos);
-                    string itemName = ToolBox.ReadString(data, 5, ref pos);
-                    string itemType = ToolBox.ReadString(data, 4, ref pos);
-
-                    TSStreamFile streamFile = null;
-                    string streamFileName = string.Format(
-                        "{0}.M2TS", itemName);
-                    if (streamFiles.ContainsKey(streamFileName))
-                    {
-                        streamFile = streamFiles[streamFileName];
-                    }
-                    if (streamFile == null)
-                    {
-                        Debug.WriteLine(string.Format(
-                            "Playlist {0} referenced missing file {1}.",
-                            FileInfo.Name, streamFileName));
-                    }
-
-                    TSStreamClipFile streamClipFile = null;
-                    string streamClipFileName = string.Format(
-                        "{0}.CLPI", itemName);
-                    if (streamClipFiles.ContainsKey(streamClipFileName))
-                    {
-                        streamClipFile = streamClipFiles[streamClipFileName];
-                    }
-                    if (streamClipFile == null)
-                    {
-                        throw new Exception(string.Format(
-                            "Playlist {0} referenced missing file {1}.",
-                            FileInfo.Name, streamFileName));
-                    }
-
-                    pos += 1;
-                    int multiangle = (data[pos] >> 4) & 0x01;
-                    int condition = data[pos] & 0x0F;
-                    pos += 2;
-
-                    int inTime = ReadInt32(data, ref pos);
-                    if (inTime < 0) inTime &= 0x7FFFFFFF;
-                    double timeIn = (double)inTime / 45000;
-
-                    int outTime = ReadInt32(data, ref pos);
-                    if (outTime < 0) outTime &= 0x7FFFFFFF;
-                    double timeOut = (double)outTime / 45000;
-
-                    TSStreamClip streamClip = new TSStreamClip(
-                        streamFile, streamClipFile, _settings);
-
-                    streamClip.Name = streamFileName; //TODO
-                    streamClip.TimeIn = timeIn;
-                    streamClip.TimeOut = timeOut;
-                    streamClip.Length = streamClip.TimeOut - streamClip.TimeIn;
-                    streamClip.RelativeTimeIn = TotalLength;
-                    streamClip.RelativeTimeOut = streamClip.RelativeTimeIn + streamClip.Length;
-                    streamClip.RelativeLength = streamClip.Length / TotalLength;
-                    StreamClips.Add(streamClip);
-                    chapterClips.Add(streamClip);
-
-                    pos += 12;
-                    if (multiangle > 0)
-                    {
-                        int angles = data[pos];
-                        pos += 2;
-                        for (int angle = 0; angle < angles - 1; angle++)
-                        {
-                            string angleName = ToolBox.ReadString(data, 5, ref pos);
-                            string angleType = ToolBox.ReadString(data, 4, ref pos);
-                            pos += 1;
-
-                            TSStreamFile angleFile = null;
-                            string angleFileName = string.Format(
-                                "{0}.M2TS", angleName);
-                            if (streamFiles.ContainsKey(angleFileName))
-                            {
-                                angleFile = streamFiles[angleFileName];
-                            }
-                            if (angleFile == null)
-                            {
-                                throw new Exception(string.Format(
-                                    "Playlist {0} referenced missing angle file {1}.",
-                                    FileInfo.Name, angleFileName));
-                            }
-
-                            TSStreamClipFile angleClipFile = null;
-                            string angleClipFileName = string.Format(
-                                "{0}.CLPI", angleName);
-                            if (streamClipFiles.ContainsKey(angleClipFileName))
-                            {
-                                angleClipFile = streamClipFiles[angleClipFileName];
-                            }
-                            if (angleClipFile == null)
-                            {
-                                throw new Exception(string.Format(
-                                    "Playlist {0} referenced missing angle file {1}.",
-                                    FileInfo.Name, angleClipFileName));
-                            }
-
-                            TSStreamClip angleClip =
-                                new TSStreamClip(angleFile, angleClipFile, _settings);
-                            angleClip.AngleIndex = angle + 1;
-                            angleClip.TimeIn = streamClip.TimeIn;
-                            angleClip.TimeOut = streamClip.TimeOut;
-                            angleClip.RelativeTimeIn = streamClip.RelativeTimeIn;
-                            angleClip.RelativeTimeOut = streamClip.RelativeTimeOut;
-                            angleClip.Length = streamClip.Length;
-                            StreamClips.Add(angleClip);
-                        }
-                        if (angles - 1 > AngleCount) AngleCount = angles - 1;
-                    }
-
-                    int streamInfoLength = ReadInt16(data, ref pos);
-                    pos += 2;
-                    int streamCountVideo = data[pos++];
-                    int streamCountAudio = data[pos++];
-                    int streamCountPG = data[pos++];
-                    int streamCountIG = data[pos++];
-                    int streamCountSecondaryAudio = data[pos++];
-                    int streamCountSecondaryVideo = data[pos++];
-                    int streamCountPIP = data[pos++];
-                    pos += 5;
+                    VideoFormat = videoFormat,
+                    AspectRatio = aspectRatio,
+                    FrameRate = frameRate
+                };
 
 #if DEBUG
-                    Debug.WriteLine(string.Format(
-                        "{0} : {1} -> V:{2} A:{3} PG:{4} IG:{5} 2A:{6} 2V:{7} PIP:{8}", 
-                        Name, streamFileName, streamCountVideo, streamCountAudio, streamCountPG, streamCountIG, 
-                        streamCountSecondaryAudio, streamCountSecondaryVideo, streamCountPIP));
+                Debug.WriteLine($"\t{pid} {streamType} {videoFormat} {frameRate} {aspectRatio}");
 #endif
+                break;
 
-                    for (int i = 0; i < streamCountVideo; i++)
-                    {
-                        TSStream stream = CreatePlaylistStream(data, ref pos);
-                        if (stream != null)
-                        {
-                            if (!PlaylistStreams.ContainsKey(stream.PID) || streamClip.RelativeLength > 0.01)
-                                PlaylistStreams[stream.PID] = stream;
-                        }
-                    }
-                    for (int i = 0; i < streamCountAudio; i++)
-                    {
-                        TSStream stream = CreatePlaylistStream(data, ref pos);
-                        if (stream != null)
-                        {
-                            if (!PlaylistStreams.ContainsKey(stream.PID) || streamClip.RelativeLength > 0.01)
-                                PlaylistStreams[stream.PID] = stream;
-                        }
-                    }
-                    for (int i = 0; i < streamCountPG; i++)
-                    {
-                        TSStream stream = CreatePlaylistStream(data, ref pos);
-                        if (stream != null)
-                        {
-                            if (!PlaylistStreams.ContainsKey(stream.PID) || streamClip.RelativeLength > 0.01)
-                                PlaylistStreams[stream.PID] = stream;
-                        }
-                    }
-                    for (int i = 0; i < streamCountIG; i++)
-                    {
-                        TSStream stream = CreatePlaylistStream(data, ref pos);
-                        if (stream != null)
-                        {
-                            if (!PlaylistStreams.ContainsKey(stream.PID) || streamClip.RelativeLength > 0.01)
-                                PlaylistStreams[stream.PID] = stream;
-                        }
-                    }
-                    for (int i = 0; i < streamCountSecondaryAudio; i++)
-                    {
-                        TSStream stream = CreatePlaylistStream(data, ref pos);
-                        if (stream != null)
-                        {
-                            if (!PlaylistStreams.ContainsKey(stream.PID) || streamClip.RelativeLength > 0.01)
-                                PlaylistStreams[stream.PID] = stream;
-                        }
+            case TSStreamType.AC3_AUDIO:
+            case TSStreamType.AC3_PLUS_AUDIO:
+            case TSStreamType.AC3_PLUS_SECONDARY_AUDIO:
+            case TSStreamType.AC3_TRUE_HD_AUDIO:
+            case TSStreamType.DTS_AUDIO:
+            case TSStreamType.DTS_HD_AUDIO:
+            case TSStreamType.DTS_HD_MASTER_AUDIO:
+            case TSStreamType.DTS_HD_SECONDARY_AUDIO:
+            case TSStreamType.LPCM_AUDIO:
+            case TSStreamType.MPEG1_AUDIO:
+            case TSStreamType.MPEG2_AUDIO:
+            case TSStreamType.MPEG2_AAC_AUDIO:
+            case TSStreamType.MPEG4_AAC_AUDIO:
 
-                        pos += 2;
-                    }
-                    for (int i = 0; i < streamCountSecondaryVideo; i++)
-                    {
-                        TSStream stream = CreatePlaylistStream(data, ref pos);
-                        if (stream != null)
-                        {
-                            if (!PlaylistStreams.ContainsKey(stream.PID) || streamClip.RelativeLength > 0.01)
-                                PlaylistStreams[stream.PID] = stream;
-                        }
+                int audioFormat = ReadByte(data, ref pos);
 
-                        pos += 6;
-                    }
-                    /*
-                     * TODO
-                     * 
-                    for (int i = 0; i < streamCountPIP; i++)
-                    {
-                        TSStream stream = CreatePlaylistStream(data, ref pos);
-                        if (stream != null) PlaylistStreams[stream.PID] = stream;
-                    }
-                    */
+                var channelLayout = (TSChannelLayout)(audioFormat >> 4);
+                var sampleRate = (TSSampleRate)(audioFormat & 0xF);
 
-                    pos += itemLength - (pos - itemStart) + 2;
-                }
+                var audioLanguage = ToolBox.ReadString(data, 3, ref pos);
 
-                pos = chaptersOffset + 4;
-
-                int chapterCount = ReadInt16(data, ref pos);
-
-                for (int chapterIndex = 0;
-                    chapterIndex < chapterCount;
-                    chapterIndex++)
+                stream = new TSAudioStream
                 {
-                    int chapterType = data[pos + 1];
+                    ChannelLayout = channelLayout,
+                    SampleRate = TSAudioStream.ConvertSampleRate(sampleRate),
+                    LanguageCode = audioLanguage
+                };
 
-                    if (chapterType == 1)
-                    {
-                        int streamFileIndex =
-                            ((int)data[pos + 2] << 8) + data[pos + 3];
+#if DEBUG
+                Debug.WriteLine($"\t{pid} {streamType} {audioLanguage} {channelLayout} {sampleRate}");
+#endif
+                break;
 
-                        long chapterTime =
-                            ((long)data[pos + 4] << 24) +
-                            ((long)data[pos + 5] << 16) +
-                            ((long)data[pos + 6] << 8) +
-                            ((long)data[pos + 7]);
+            case TSStreamType.INTERACTIVE_GRAPHICS:
+            case TSStreamType.PRESENTATION_GRAPHICS:
 
-                        TSStreamClip streamClip = chapterClips[streamFileIndex];
+                var graphicsLanguage = ToolBox.ReadString(data, 3, ref pos);
 
-                        double chapterSeconds = (double)chapterTime / 45000;
-
-                        double relativeSeconds =
-                            chapterSeconds -
-                            streamClip.TimeIn +
-                            streamClip.RelativeTimeIn;
-
-                        // TODO: Ignore short last chapter?
-                        if (TotalLength - relativeSeconds > 1.0)
-                        {
-                            streamClip.Chapters.Add(chapterSeconds);
-                            this.Chapters.Add(relativeSeconds);
-                        }
-                    }
-                    else
-                    {
-                        // TODO: Handle other chapter types?
-                    }
-                    pos += 14;
-                }
-            }
-            finally
-            {
-                if (fileReader != null)
+                stream = new TSGraphicsStream
                 {
-                    fileReader.Close();
-                }
-                if (fileStream != null)
+                    LanguageCode = graphicsLanguage
+                };
+
+                if (data[pos] != 0)
                 {
-                    fileStream.Close();
-                }
-                if (discFileStream != null)
-                {
-                    discFileStream.Close();
-                }
-            }
-        }
-
-        public void Initialize()
-        {
-            LoadStreamClips();
-
-            Dictionary<string, List<double>> clipTimes = new Dictionary<string, List<double>>();
-            foreach (TSStreamClip clip in StreamClips)
-            {
-                if (clip.AngleIndex == 0)
-                {
-                    if (clipTimes.ContainsKey(clip.Name))
-                    {
-                        if (clipTimes[clip.Name].Contains(clip.TimeIn))
-                        {
-                            HasLoops = true;
-                            break;
-                        }
-                        else
-                        {
-                            clipTimes[clip.Name].Add(clip.TimeIn);
-                        }
-                    }
-                    else
-                    {
-                        clipTimes[clip.Name] = new List<double> { clip.TimeIn };
-                    }
-                }
-            }
-            ClearBitrates();
-            IsInitialized = true;
-        }
-
-        protected TSStream CreatePlaylistStream(byte[] data, ref int pos)
-        {
-            TSStream stream = null;
-
-            int start = pos;
-
-            int headerLength = data[pos++];
-            int headerPos = pos;
-            int headerType = data[pos++];
-
-            int pid = 0;
-            int subpathid = 0;
-            int subclipid = 0;
-
-            switch (headerType)
-            {
-                case 1:
-                    pid = ReadInt16(data, ref pos);
-                    break;
-                case 2:
-                    subpathid = data[pos++];
-                    subclipid = data[pos++];
-                    pid = ReadInt16(data, ref pos);
-                    break;
-                case 3:
-                    subpathid = data[pos++];
-                    pid = ReadInt16(data, ref pos);
-                    break;
-                case 4:
-                    subpathid = data[pos++];
-                    subclipid = data[pos++];
-                    pid = ReadInt16(data, ref pos);
-                    break;
-                default:
-                    break;
-            }
-
-            pos = headerPos + headerLength;
-
-            int streamLength = data[pos++];
-            int streamPos = pos;
-
-            TSStreamType streamType = (TSStreamType)data[pos++];
-            switch (streamType)
-            {
-                case TSStreamType.MVC_VIDEO:
                     // TODO
-                    break;
-
-                case TSStreamType.HEVC_VIDEO:
-                case TSStreamType.AVC_VIDEO:
-                case TSStreamType.MPEG1_VIDEO:
-                case TSStreamType.MPEG2_VIDEO:
-                case TSStreamType.VC1_VIDEO:
-
-                    TSVideoFormat videoFormat = (TSVideoFormat)
-                        (data[pos] >> 4);
-                    TSFrameRate frameRate = (TSFrameRate)
-                        (data[pos] & 0xF);
-                    TSAspectRatio aspectRatio = (TSAspectRatio)
-                        (data[pos + 1] >> 4);
-
-                    stream = new TSVideoStream();
-                    ((TSVideoStream)stream).VideoFormat = videoFormat;
-                    ((TSVideoStream)stream).AspectRatio = aspectRatio;
-                    ((TSVideoStream)stream).FrameRate = frameRate;
+                }
 
 #if DEBUG
-                            Debug.WriteLine(string.Format(
-                                "\t{0} {1} {2} {3} {4}",
-                                pid,
-                                streamType,
-                                videoFormat,
-                                frameRate,
-                                aspectRatio));
+                Debug.WriteLine($"\t{pid} {streamType} {graphicsLanguage}");
 #endif
+                break;
 
-                    break;
+            case TSStreamType.SUBTITLE:
 
-                case TSStreamType.AC3_AUDIO:
-                case TSStreamType.AC3_PLUS_AUDIO:
-                case TSStreamType.AC3_PLUS_SECONDARY_AUDIO:
-                case TSStreamType.AC3_TRUE_HD_AUDIO:
-                case TSStreamType.DTS_AUDIO:
-                case TSStreamType.DTS_HD_AUDIO:
-                case TSStreamType.DTS_HD_MASTER_AUDIO:
-                case TSStreamType.DTS_HD_SECONDARY_AUDIO:
-                case TSStreamType.LPCM_AUDIO:
-                case TSStreamType.MPEG1_AUDIO:
-                case TSStreamType.MPEG2_AUDIO:
-                case TSStreamType.MPEG2_AAC_AUDIO:
-                case TSStreamType.MPEG4_AAC_AUDIO:
+                int code = ReadByte(data, ref pos); // TODO
+                var textLanguage = ToolBox.ReadString(data, 3, ref pos);
 
-                    int audioFormat = ReadByte(data, ref pos);
-
-                    TSChannelLayout channelLayout = (TSChannelLayout)
-                        (audioFormat >> 4);
-                    TSSampleRate sampleRate = (TSSampleRate)
-                        (audioFormat & 0xF);
-
-                    string audioLanguage = ToolBox.ReadString(data, 3, ref pos);
-
-                    stream = new TSAudioStream();
-                    ((TSAudioStream)stream).ChannelLayout = channelLayout;
-                    ((TSAudioStream)stream).SampleRate = TSAudioStream.ConvertSampleRate(sampleRate);
-                    ((TSAudioStream)stream).LanguageCode = audioLanguage;
+                stream = new TSTextStream
+                {
+                    LanguageCode = textLanguage
+                };
 
 #if DEBUG
-                    Debug.WriteLine(string.Format(
-                        "\t{0} {1} {2} {3} {4}",
-                        pid,
-                        streamType,
-                        audioLanguage,
-                        channelLayout,
-                        sampleRate));
+                Debug.WriteLine($"\t{pid} {streamType} {textLanguage}");
 #endif
 
-                    break;
-
-                case TSStreamType.INTERACTIVE_GRAPHICS:
-                case TSStreamType.PRESENTATION_GRAPHICS:
-
-                    string graphicsLanguage = ToolBox.ReadString(data, 3, ref pos);
-
-                    stream = new TSGraphicsStream();
-                    ((TSGraphicsStream)stream).LanguageCode = graphicsLanguage;
-
-                    if (data[pos] != 0)
-                    {
-                    }
-
-#if DEBUG
-                    Debug.WriteLine(string.Format(
-                        "\t{0} {1} {2}",
-                        pid,
-                        streamType,
-                        graphicsLanguage));
-#endif
-
-                    break;
-
-                case TSStreamType.SUBTITLE:
-
-                    int code = ReadByte(data, ref pos); // TODO
-                    string textLanguage = ToolBox.ReadString(data, 3, ref pos);
-
-                    stream = new TSTextStream();
-                    ((TSTextStream)stream).LanguageCode = textLanguage;
-
-#if DEBUG
-                    Debug.WriteLine(string.Format(
-                        "\t{0} {1} {2}",
-                        pid,
-                        streamType,
-                        textLanguage));
-#endif
-
-                    break;
-
-                default:
-                    break;
-            }
-
-            pos = streamPos + streamLength;
-
-            if (stream != null)
-            {
-                stream.PID = (ushort)pid;
-                stream.StreamType = streamType;
-            }
-
-            return stream;
+                break;
         }
 
-        private void LoadStreamClips()
+        pos = streamPos + streamLength;
+
+        if (stream == null) return null;
+
+        stream.PID = (ushort)pid;
+        stream.StreamType = streamType;
+
+        return stream;
+    }
+
+    private void LoadStreamClips()
+    {
+        AngleClips.Clear();
+        if (AngleCount > 0)
         {
-            AngleClips.Clear();
-            if (AngleCount > 0)
+            for (var angleIndex = 0; angleIndex < AngleCount; angleIndex++)
             {
-                for (int angleIndex = 0; angleIndex < AngleCount; angleIndex++)
-                {
-                    AngleClips.Add(new Dictionary<double, TSStreamClip>());
-                }
-            }
-
-            TSStreamClip referenceClip = null;
-            if (StreamClips.Count > 0)
-            {
-                referenceClip = StreamClips[0];
-            }
-            foreach (TSStreamClip clip in StreamClips)
-            {
-                if (referenceClip.StreamFile == null && clip.StreamFile != null)
-                    referenceClip = clip;
-
-                if (clip.StreamClipFile.Streams.Count > referenceClip.StreamClipFile.Streams.Count && clip.RelativeLength > 0.01)
-                {
-                    referenceClip = clip;
-                }
-                else if (clip.Length > referenceClip.Length && clip.StreamFile != null)
-                {
-                    referenceClip = clip;
-                }
-                if (AngleCount > 0)
-                {
-                    if (clip.AngleIndex == 0)
-                    {
-                        for (int angleIndex = 0; angleIndex < AngleCount; angleIndex++)
-                        {
-                            AngleClips[angleIndex][clip.RelativeTimeIn] = clip;
-                        }
-                    }
-                    else
-                    {
-                        AngleClips[clip.AngleIndex - 1][clip.RelativeTimeIn] = clip;
-                    }
-                }
-            }
-
-            if (referenceClip == null) return;
-
-            foreach (TSStream clipStream
-                in referenceClip.StreamClipFile.Streams.Values)
-            {
-                if (!Streams.ContainsKey(clipStream.PID))
-                {
-                    TSStream stream = clipStream.Clone();
-                    Streams[clipStream.PID] = stream;
-
-                    if (!IsCustom && !PlaylistStreams.ContainsKey(stream.PID))
-                    {
-                        stream.IsHidden = true;
-                        HasHiddenTracks = true;
-                    }
-
-                    if (stream.IsVideoStream)
-                    {
-                        VideoStreams.Add((TSVideoStream)stream);
-                    }
-                    else if (stream.IsAudioStream)
-                    {
-                        AudioStreams.Add((TSAudioStream)stream);
-                    }
-                    else if (stream.IsGraphicsStream)
-                    {
-                        GraphicsStreams.Add((TSGraphicsStream)stream);
-                    }
-                    else if (stream.IsTextStream)
-                    {
-                        TextStreams.Add((TSTextStream)stream);
-                    }
-                }
-            }
-
-            if (referenceClip.StreamFile != null)
-            {
-                // TODO: Better way to add this in?
-                if (_settings.EnableSSIF &&
-                    referenceClip.StreamFile.InterleavedFile != null &&
-                    referenceClip.StreamFile.Streams.ContainsKey(4114) &&
-                    !Streams.ContainsKey(4114))
-                {
-                    TSStream stream = referenceClip.StreamFile.Streams[4114].Clone();
-                    Streams[4114] = stream;
-                    if (stream.IsVideoStream)
-                    {
-                        VideoStreams.Add((TSVideoStream)stream);
-                    }
-                }
-
-                foreach (TSStream clipStream
-                    in referenceClip.StreamFile.Streams.Values)
-                {
-                    if (Streams.ContainsKey(clipStream.PID))
-                    {
-                        TSStream stream = Streams[clipStream.PID];
-
-                        if (stream.StreamType != clipStream.StreamType) continue;
-
-                        if (clipStream.BitRate > stream.BitRate)
-                        {
-                            stream.BitRate = clipStream.BitRate;
-                        }
-                        stream.IsVBR = clipStream.IsVBR;
-
-                        if (stream.IsVideoStream &&
-                            clipStream.IsVideoStream)
-                        {
-                            ((TSVideoStream)stream).EncodingProfile =
-                                ((TSVideoStream)clipStream).EncodingProfile;
-                            ((TSVideoStream)stream).ExtendedData =
-                                ((TSVideoStream)clipStream).ExtendedData;
-                        }
-                        else if (stream.IsAudioStream &&
-                                clipStream.IsAudioStream)
-                        {
-                            TSAudioStream audioStream = (TSAudioStream)stream;
-                            TSAudioStream clipAudioStream = (TSAudioStream)clipStream;
-
-                            if (clipAudioStream.ChannelCount > audioStream.ChannelCount)
-                            {
-                                audioStream.ChannelCount = clipAudioStream.ChannelCount;
-                            }
-                            if (clipAudioStream.LFE > audioStream.LFE)
-                            {
-                                audioStream.LFE = clipAudioStream.LFE;
-                            }
-                            if (clipAudioStream.SampleRate > audioStream.SampleRate)
-                            {
-                                audioStream.SampleRate = clipAudioStream.SampleRate;
-                            }
-                            if (clipAudioStream.BitDepth > audioStream.BitDepth)
-                            {
-                                audioStream.BitDepth = clipAudioStream.BitDepth;
-                            }
-                            if (clipAudioStream.DialNorm < audioStream.DialNorm)
-                            {
-                                audioStream.DialNorm = clipAudioStream.DialNorm;
-                            }
-                            if (clipAudioStream.AudioMode != TSAudioMode.Unknown)
-                            {
-                                audioStream.AudioMode = clipAudioStream.AudioMode;
-                            }
-                            if (clipAudioStream.HasExtensions != audioStream.HasExtensions)
-                            {
-                                audioStream.HasExtensions = clipAudioStream.HasExtensions;
-                            }
-                            if (clipAudioStream.ExtendedData != audioStream.ExtendedData)
-                            {
-                                audioStream.ExtendedData = clipAudioStream.ExtendedData;
-                            }
-                            if (clipAudioStream.CoreStream != null &&
-                                audioStream.CoreStream == null)
-                            {
-                                audioStream.CoreStream = (TSAudioStream)
-                                    clipAudioStream.CoreStream.Clone();
-                            }
-                        }
-                        else if (stream.IsGraphicsStream &&
-                                clipStream.IsGraphicsStream)
-                        {
-                            TSGraphicsStream graphicsStream = (TSGraphicsStream)stream;
-                            TSGraphicsStream clipGraphicsStream = (TSGraphicsStream)clipStream;
-
-                            graphicsStream.Captions = clipGraphicsStream.Captions;
-                            graphicsStream.ForcedCaptions = clipGraphicsStream.ForcedCaptions;
-                            graphicsStream.Width = clipGraphicsStream.Width;
-                            graphicsStream.Height = clipGraphicsStream.Height;
-                            graphicsStream.CaptionIDs = clipGraphicsStream.CaptionIDs;
-                        }
-                    }
-                }
-            }
-
-            for (int i = 0; i < AngleCount; i++)
-            {
-                AngleStreams.Add(new Dictionary<ushort, TSStream>());
-            }
-
-            if (!_settings.KeepStreamOrder)
-            {
-                VideoStreams.Sort(CompareVideoStreams);
-            }
-            foreach (TSStream stream in VideoStreams)
-            {
-                SortedStreams.Add(stream);
-                for (int i = 0; i < AngleCount; i++)
-                {
-                    TSStream angleStream = stream.Clone();
-                    angleStream.AngleIndex = i + 1;
-                    AngleStreams[i][angleStream.PID] = angleStream;
-                    SortedStreams.Add(angleStream);
-                }
-            }
-
-            if (!_settings.KeepStreamOrder)
-            {
-                AudioStreams.Sort(CompareAudioStreams);
-            }
-            foreach (TSStream stream in AudioStreams)
-            {
-                SortedStreams.Add(stream);
-            }
-
-            if (!_settings.KeepStreamOrder)
-            {
-                GraphicsStreams.Sort(CompareGraphicsStreams);
-            }
-            foreach (TSStream stream in GraphicsStreams)
-            {
-                SortedStreams.Add(stream);
-            }
-
-            if (!_settings.KeepStreamOrder)
-            {
-                TextStreams.Sort(CompareTextStreams);
-            }
-            foreach (TSStream stream in TextStreams)
-            {
-                SortedStreams.Add(stream);
+                AngleClips.Add(new Dictionary<double, TSStreamClip>());
             }
         }
 
-        public void ClearBitrates()
+        TSStreamClip referenceClip = null;
+        if (StreamClips.Count > 0)
         {
-            foreach (TSStreamClip clip in StreamClips)
+            referenceClip = StreamClips[0];
+        }
+        foreach (var clip in StreamClips)
+        {
+            if (referenceClip?.StreamFile == null && clip.StreamFile != null)
+                referenceClip = clip;
+
+            if (clip.StreamClipFile.Streams.Count > referenceClip?.StreamClipFile.Streams.Count && clip.RelativeLength > 0.01)
             {
-                clip.PayloadBytes = 0;
-                clip.PacketCount = 0;
-                clip.PacketSeconds = 0;
+                referenceClip = clip;
+            }
+            else if (clip.Length > referenceClip?.Length && clip.StreamFile != null)
+            {
+                referenceClip = clip;
+            }
 
-                if (clip.StreamFile != null)
+            if (AngleCount <= 0) continue;
+
+            if (clip.AngleIndex == 0)
+            {
+                for (var angleIndex = 0; angleIndex < AngleCount; angleIndex++)
                 {
-                    foreach (TSStream stream in clip.StreamFile.Streams.Values)
-                    {
-                        stream.PayloadBytes = 0;
-                        stream.PacketCount = 0;
-                        stream.PacketSeconds = 0;
-                    }
+                    AngleClips[angleIndex][clip.RelativeTimeIn] = clip;
+                }
+            }
+            else
+            {
+                AngleClips[clip.AngleIndex - 1][clip.RelativeTimeIn] = clip;
+            }
+        }
 
-                    if (clip.StreamFile != null &&
-                        clip.StreamFile.StreamDiagnostics != null)
-                    {
-                        clip.StreamFile.StreamDiagnostics.Clear();
-                    }
+        if (referenceClip == null) return;
+
+        foreach (var clipStream in referenceClip.StreamClipFile.Streams.Values!)
+        {
+            if (clipStream != null && Streams.ContainsKey(clipStream.PID)) continue;
+
+            var stream = clipStream?.Clone();
+            if (clipStream != null) Streams[clipStream.PID] = stream;
+
+            if (!IsCustom && !PlaylistStreams.ContainsKey(stream.PID))
+            {
+                stream.IsHidden = true;
+                HasHiddenTracks = true;
+            }
+
+            if (stream.IsVideoStream)
+            {
+                VideoStreams.Add((TSVideoStream)stream);
+            }
+            else if (stream.IsAudioStream)
+            {
+                AudioStreams.Add((TSAudioStream)stream);
+            }
+            else if (stream.IsGraphicsStream)
+            {
+                GraphicsStreams.Add((TSGraphicsStream)stream);
+            }
+            else if (stream.IsTextStream)
+            {
+                TextStreams.Add((TSTextStream)stream);
+            }
+        }
+
+        if (referenceClip.StreamFile != null)
+        {
+            // TODO: Better way to add this in?
+            if (_settings.EnableSSIF &&
+                referenceClip.StreamFile.InterleavedFile != null &&
+                referenceClip.StreamFile.Streams.ContainsKey(4114) && 
+                !Streams.ContainsKey(4114))
+            {
+                var stream = referenceClip.StreamFile.Streams[4114].Clone();
+                Streams[4114] = stream;
+                if (stream.IsVideoStream)
+                {
+                    VideoStreams.Add((TSVideoStream)stream);
                 }
             }
 
-            foreach (TSStream stream in SortedStreams)
+            foreach (var clipStream in referenceClip.StreamFile.Streams.Values)
+            {
+                if (!Streams.ContainsKey(clipStream.PID)) continue;
+
+                var stream = Streams[clipStream.PID];
+
+                if (stream.StreamType != clipStream.StreamType) continue;
+
+                if (clipStream.BitRate > stream.BitRate)
+                {
+                    stream.BitRate = clipStream.BitRate;
+                }
+                stream.IsVBR = clipStream.IsVBR;
+
+                if (stream.IsVideoStream &&
+                    clipStream.IsVideoStream)
+                {
+                    ((TSVideoStream)stream).EncodingProfile =
+                        ((TSVideoStream)clipStream).EncodingProfile;
+                    ((TSVideoStream) stream).ExtendedData = 
+                        ((TSVideoStream) clipStream).ExtendedData;
+                }
+                else if (stream.IsAudioStream &&
+                         clipStream.IsAudioStream)
+                {
+                    var audioStream = (TSAudioStream)stream;
+                    var clipAudioStream = (TSAudioStream)clipStream;
+
+                    if (clipAudioStream.ChannelCount > audioStream.ChannelCount)
+                    {
+                        audioStream.ChannelCount = clipAudioStream.ChannelCount;
+                    }
+                    if (clipAudioStream.LFE > audioStream.LFE)
+                    {
+                        audioStream.LFE = clipAudioStream.LFE;
+                    }
+                    if (clipAudioStream.SampleRate > audioStream.SampleRate)
+                    {
+                        audioStream.SampleRate = clipAudioStream.SampleRate;
+                    }
+                    if (clipAudioStream.BitDepth > audioStream.BitDepth)
+                    {
+                        audioStream.BitDepth = clipAudioStream.BitDepth;
+                    }
+                    if (clipAudioStream.DialNorm < audioStream.DialNorm)
+                    {
+                        audioStream.DialNorm = clipAudioStream.DialNorm;
+                    }
+                    if (clipAudioStream.AudioMode != TSAudioMode.Unknown)
+                    {
+                        audioStream.AudioMode = clipAudioStream.AudioMode;
+                    }
+                    if (!clipAudioStream.HasExtensions.Equals(audioStream.HasExtensions))
+                    {
+                        audioStream.HasExtensions = clipAudioStream.HasExtensions;
+                    }
+                    if (!Equals(clipAudioStream.ExtendedData, audioStream.ExtendedData))
+                    {
+                        audioStream.ExtendedData = clipAudioStream.ExtendedData;
+                    }
+                    if (clipAudioStream.CoreStream != null)
+                    {
+                        audioStream.CoreStream = (TSAudioStream)clipAudioStream.CoreStream.Clone();
+                    }
+                }
+                else if (stream.IsGraphicsStream &&
+                         clipStream.IsGraphicsStream)
+                {
+                    var graphicsStream = (TSGraphicsStream)stream;
+                    var clipGraphicsStream = (TSGraphicsStream)clipStream;
+                            
+                    graphicsStream.Captions = clipGraphicsStream.Captions;
+                    graphicsStream.ForcedCaptions = clipGraphicsStream.ForcedCaptions;
+                    graphicsStream.Width = clipGraphicsStream.Width;
+                    graphicsStream.Height = clipGraphicsStream.Height;
+                    graphicsStream.CaptionIDs = clipGraphicsStream.CaptionIDs;
+                }
+            }
+        }
+
+        for (var i = 0; i < AngleCount; i++)
+        {
+            AngleStreams.Add(new Dictionary<ushort, TSStream>());
+        }
+
+        if (!_settings.KeepStreamOrder)
+        {
+            VideoStreams.Sort(CompareVideoStreams);
+        }
+        foreach (var stream in VideoStreams)
+        {
+            SortedStreams.Add(stream);
+            for (var i = 0; i < AngleCount; i++)
+            {
+                var angleStream = stream.Clone();
+                angleStream.AngleIndex = i + 1;
+                AngleStreams[i][angleStream.PID] = angleStream;
+                SortedStreams.Add(angleStream);
+            }
+        }
+
+        if (!_settings.KeepStreamOrder)
+        {
+            AudioStreams.Sort(CompareAudioStreams);
+        }
+        foreach (var stream in AudioStreams)
+        {
+            SortedStreams.Add(stream);
+        }
+
+        if (!_settings.KeepStreamOrder)
+        {
+            GraphicsStreams.Sort(CompareGraphicsStreams);
+        }
+        foreach (var stream in GraphicsStreams)
+        {
+            SortedStreams.Add(stream);
+        }
+
+        if (!_settings.KeepStreamOrder)
+        {
+            TextStreams.Sort(CompareTextStreams);
+        }
+        foreach (var stream in TextStreams)
+        {
+            SortedStreams.Add(stream);
+        }
+    }
+
+    public void ClearBitrates()
+    {
+        foreach (var clip in StreamClips)
+        {
+            clip.PayloadBytes = 0;
+            clip.PacketCount = 0;
+            clip.PacketSeconds = 0;
+
+            if (clip.StreamFile == null) continue;
+
+            foreach (var stream in clip.StreamFile.Streams.Values)
             {
                 stream.PayloadBytes = 0;
                 stream.PacketCount = 0;
                 stream.PacketSeconds = 0;
             }
+
+            clip.StreamFile.StreamDiagnostics.Clear();
         }
 
-        public bool IsValid
+        foreach (var stream in SortedStreams)
         {
-            get
-            {
-                if (!IsInitialized) return false;
-
-                if (_settings.FilterShortPlaylists &&
-                    TotalLength < _settings.FilterShortPlaylistsValue)
-                {
-                    return false;
-                }
-
-                if (HasLoops &&
-                    _settings.FilterLoopingPlaylists)
-                {
-                    return false;
-                }
-
-                return true;
-            }
+            stream.PayloadBytes = 0;
+            stream.PacketCount = 0;
+            stream.PacketSeconds = 0;
         }
+    }
 
-        public static int CompareVideoStreams(
-            TSVideoStream x,
-            TSVideoStream y)
+    public bool IsValid
+    {
+        get
         {
-            if (x == null && y == null)
-            {
-                return 0;
-            }
-            else if (x == null && y != null)
-            {
-                return 1;
-            }
-            else if (x != null && y == null)
-            {
-                return -1;
-            }
-            else
-            {
-                if (x.Height > y.Height)
-                {
-                    return -1;
-                }
-                else if (y.Height > x.Height)
-                {
-                    return 1;
-                }
-                else if (x.PID > y.PID)
-                {
-                    return 1;
-                }
-                else if (y.PID > x.PID)
-                {
-                    return -1;
-                }
-                else
-                {
-                    return 0;
-                }
-            }
-        }
+            if (!IsInitialized) return false;
 
-        public static int CompareAudioStreams(
-            TSAudioStream x,
-            TSAudioStream y)
+            if (_settings.FilterShortPlaylists &&
+                TotalLength < _settings.FilterShortPlaylistsValue)
+            {
+                return false;
+            }
+
+            return !HasLoops || !_settings.FilterLoopingPlaylists;
+        }
+    }
+
+    public static int CompareVideoStreams(TSVideoStream x, TSVideoStream y)
+    {
+        if (x == null && y == null)
         {
-            if (x == y)
-            {
-                return 0;
-            }
-            else if (x == null && y == null)
-            {
-                return 0;
-            }
-            else if (x == null && y != null)
-            {
-                return -1;
-            }
-            else if (x != null && y == null)
-            {
-                return 1;
-            }
-            else
-            {
-                if (x.ChannelCount > y.ChannelCount)
-                {
-                    return -1;
-                }
-                else if (y.ChannelCount > x.ChannelCount)
-                {
-                    return 1;
-                }
-                else
-                {
-                    int sortX = GetStreamTypeSortIndex(x.StreamType);
-                    int sortY = GetStreamTypeSortIndex(y.StreamType);
-
-                    if (sortX > sortY)
-                    {
-                        return -1;
-                    }
-                    else if (sortY > sortX)
-                    {
-                        return 1;
-                    }
-                    else
-                    {
-                        if (x.LanguageCode == "eng")
-                        {
-                            return -1;
-                        }
-                        else if (y.LanguageCode == "eng")
-                        {
-                            return 1;
-                        }
-                        else if (x.LanguageCode != y.LanguageCode)
-                        {
-                            return string.Compare(
-                                x.LanguageName, y.LanguageName);
-                        }
-                        else if (x.PID < y.PID)
-                        {
-                            return -1;
-                        }
-                        else if (y.PID < x.PID)
-                        {
-                            return 1;
-                        }
-                        return 0;
-                    }
-                }
-            }
+            return 0;
         }
 
-        public static int CompareTextStreams(
-            TSTextStream x,
-            TSTextStream y)
+        if (x == null && y != null)
         {
-            if (x == y)
-            {
-                return 0;
-            }
-            else if (x == null && y == null)
-            {
-                return 0;
-            }
-            else if (x == null && y != null)
-            {
-                return -1;
-            }
-            else if (x != null && y == null)
-            {
-                return 1;
-            }
-            else
-            {
-                if (x.LanguageCode == "eng")
-                {
-                    return -1;
-                }
-                else if (y.LanguageCode == "eng")
-                {
-                    return 1;
-                }
-                else
-                {
-                    if (x.LanguageCode == y.LanguageCode)
-                    {
-                        if (x.PID > y.PID)
-                        {
-                            return 1;
-                        }
-                        else if (y.PID > x.PID)
-                        {
-                            return -1;
-                        }
-                        else
-                        {
-                            return 0;
-                        }
-                    }
-                    else
-                    {
-                        return string.Compare(
-                            x.LanguageName, y.LanguageName);
-                    }
-                }
-            }
+            return 1;
         }
 
-        private static int CompareGraphicsStreams(
-            TSGraphicsStream x,
-            TSGraphicsStream y)
+        if (x != null && y == null)
         {
-            if (x == y)
-            {
-                return 0;
-            }
-            else if (x == null && y == null)
-            {
-                return 0;
-            }
-            else if (x == null && y != null)
-            {
-                return -1;
-            }
-            else if (x != null && y == null)
-            {
-                return 1;
-            }
-            else
-            {
-                int sortX = GetStreamTypeSortIndex(x.StreamType);
-                int sortY = GetStreamTypeSortIndex(y.StreamType);
-
-                if (sortX > sortY)
-                {
-                    return -1;
-                }
-                else if (sortY > sortX)
-                {
-                    return 1;
-                }
-                else if (x.LanguageCode == "eng")
-                {
-                    return -1;
-                }
-                else if (y.LanguageCode == "eng")
-                {
-                    return 1;
-                }
-                else
-                {
-                    if (x.LanguageCode == y.LanguageCode)
-                    {
-                        if (x.PID > y.PID)
-                        {
-                            return 1;
-                        }
-                        else if (y.PID > x.PID)
-                        {
-                            return -1;
-                        }
-                        else
-                        {
-                            return 0;
-                        }
-                    }
-                    else
-                    {
-                        return string.Compare(x.LanguageName, y.LanguageName);
-                    }
-                }
-            }
+            return -1;
         }
 
-        private static int GetStreamTypeSortIndex(TSStreamType streamType)
+        if (x.Height > y.Height)
         {
-            switch (streamType)
-            {
-                case TSStreamType.Unknown:
-                    return 0;
-                case TSStreamType.MPEG1_VIDEO:
-                    return 1;
-                case TSStreamType.MPEG2_VIDEO:
-                    return 2;
-                case TSStreamType.AVC_VIDEO:
-                    return 3;
-                case TSStreamType.VC1_VIDEO:
-                    return 4;
-                case TSStreamType.MVC_VIDEO:
-                    return 5;
-                case TSStreamType.HEVC_VIDEO:
-                    return 6;
-
-                case TSStreamType.MPEG1_AUDIO:
-                    return 1;
-                case TSStreamType.MPEG2_AUDIO:
-                    return 2;
-                case TSStreamType.AC3_PLUS_SECONDARY_AUDIO:
-                    return 3;
-                case TSStreamType.DTS_HD_SECONDARY_AUDIO:
-                    return 4;
-                case TSStreamType.AC3_AUDIO:
-                    return 5;
-                case TSStreamType.DTS_AUDIO:
-                    return 6;
-                case TSStreamType.AC3_PLUS_AUDIO:
-                    return 7;
-                case TSStreamType.MPEG2_AAC_AUDIO:
-                    return 8;
-                case TSStreamType.MPEG4_AAC_AUDIO:
-                    return 9;
-                case TSStreamType.DTS_HD_AUDIO:
-                    return 10;
-                case TSStreamType.AC3_TRUE_HD_AUDIO:
-                    return 11;
-                case TSStreamType.DTS_HD_MASTER_AUDIO:
-                    return 12;
-                case TSStreamType.LPCM_AUDIO:
-                    return 13;
-
-                case TSStreamType.SUBTITLE:
-                    return 1;
-                case TSStreamType.INTERACTIVE_GRAPHICS:
-                    return 2;
-                case TSStreamType.PRESENTATION_GRAPHICS:
-                    return 3;
-
-                default:
-                    return 0;
-            }
+            return -1;
         }
 
-        protected int ReadInt32(
-            byte[] data,
-            ref int pos)
+        if (y.Height > x.Height)
         {
-            int val =
-                ((int)data[pos] << 24) +
-                ((int)data[pos + 1] << 16) +
-                ((int)data[pos + 2] << 8) +
-                ((int)data[pos + 3]);
-
-            pos += 4;
-
-            return val;
+            return 1;
         }
 
-        protected int ReadInt16(
-            byte[] data,
-            ref int pos)
+        if (x.PID > y.PID)
         {
-            int val =
-                ((int)data[pos] << 8) +
-                ((int)data[pos + 1]);
-
-            pos += 2;
-
-            return val;
+            return 1;
         }
 
-        protected byte ReadByte(
-            byte[] data,
-            ref int pos)
+        if (y.PID > x.PID)
         {
-            return data[pos++];
+            return -1;
         }
+
+        return 0;
+    }
+
+    public static int CompareAudioStreams(TSAudioStream x, TSAudioStream y)
+    {
+        if (x == y)
+        {
+            return 0;
+        }
+
+        if (x == null && y == null)
+        {
+            return 0;
+        }
+
+        if (x == null && y != null)
+        {
+            return -1;
+        }
+
+        if (x != null && y == null)
+        {
+            return 1;
+        }
+
+        if (x.ChannelCount > y.ChannelCount)
+        {
+            return -1;
+        }
+
+        if (y.ChannelCount > x.ChannelCount)
+        {
+            return 1;
+        }
+
+        var sortX = GetStreamTypeSortIndex(x.StreamType);
+        var sortY = GetStreamTypeSortIndex(y.StreamType);
+
+        if (sortX > sortY)
+        {
+            return -1;
+        }
+
+        if (sortY > sortX)
+        {
+            return 1;
+        }
+
+        if (x.LanguageCode == "eng")
+        {
+            return -1;
+        }
+
+        if (y.LanguageCode == "eng")
+        {
+            return 1;
+        }
+
+        if (x.LanguageCode != y.LanguageCode)
+            return string.CompareOrdinal(x.LanguageName, y.LanguageName);
+            
+        if (x.PID < y.PID)
+        {
+            return -1;
+        }
+
+        return y.PID < x.PID ? 1 : 0;
+    }
+
+    public static int CompareTextStreams(TSTextStream x, TSTextStream y)
+    {
+        if (x == y)
+        {
+            return 0;
+        }
+
+        if (x == null && y == null)
+        {
+            return 0;
+        }
+
+        if (x == null && y != null)
+        {
+            return -1;
+        }
+
+        if (x != null && y == null)
+        {
+            return 1;
+        }
+
+        if (x.LanguageCode == "eng")
+        {
+            return -1;
+        }
+
+        if (y.LanguageCode == "eng")
+        {
+            return 1;
+        }
+
+        if (x.LanguageCode != y.LanguageCode) 
+            return string.CompareOrdinal(x.LanguageName, y.LanguageName);
+
+        if (x.PID > y.PID)
+        {
+            return 1;
+        }
+
+        if (y.PID > x.PID)
+        {
+            return -1;
+        }
+
+        return 0;
+
+    }
+
+    private static int CompareGraphicsStreams(TSGraphicsStream x, TSGraphicsStream y)
+    {
+        if (x == y)
+        {
+            return 0;
+        }
+
+        if (x == null && y == null)
+        {
+            return 0;
+        }
+
+        if (x == null && y != null)
+        {
+            return -1;
+        }
+
+        if (x != null && y == null)
+        {
+            return 1;
+        }
+
+        var sortX = GetStreamTypeSortIndex(x.StreamType);
+        var sortY = GetStreamTypeSortIndex(y.StreamType);
+
+        if (sortX > sortY)
+        {
+            return -1;
+        }
+
+        if (sortY > sortX)
+        {
+            return 1;
+        }
+
+        if (x.LanguageCode == "eng")
+        {
+            return -1;
+        }
+
+        if (y.LanguageCode == "eng")
+        {
+            return 1;
+        }
+
+        if (x.LanguageCode != y.LanguageCode) 
+            return string.CompareOrdinal(x.LanguageName, y.LanguageName);
+
+        if (x.PID > y.PID)
+        {
+            return 1;
+        }
+
+        if (y.PID > x.PID)
+        {
+            return -1;
+        }
+
+        return 0;
+
+    }
+
+    private static int GetStreamTypeSortIndex(TSStreamType? streamType)
+    {
+        return streamType switch
+        {
+            TSStreamType.Unknown => 0,
+            TSStreamType.MPEG1_VIDEO => 1,
+            TSStreamType.MPEG2_VIDEO => 2,
+            TSStreamType.AVC_VIDEO => 3,
+            TSStreamType.VC1_VIDEO => 4,
+            TSStreamType.MVC_VIDEO => 5,
+            TSStreamType.HEVC_VIDEO => 6,
+            TSStreamType.MPEG1_AUDIO => 1,
+            TSStreamType.MPEG2_AUDIO => 2,
+            TSStreamType.AC3_PLUS_SECONDARY_AUDIO => 3,
+            TSStreamType.DTS_HD_SECONDARY_AUDIO => 4,
+            TSStreamType.AC3_AUDIO => 5,
+            TSStreamType.DTS_AUDIO => 6,
+            TSStreamType.AC3_PLUS_AUDIO => 7,
+            TSStreamType.MPEG2_AAC_AUDIO => 8,
+            TSStreamType.MPEG4_AAC_AUDIO => 9,
+            TSStreamType.DTS_HD_AUDIO => 10,
+            TSStreamType.AC3_TRUE_HD_AUDIO => 11,
+            TSStreamType.DTS_HD_MASTER_AUDIO => 12,
+            TSStreamType.LPCM_AUDIO => 13,
+            TSStreamType.SUBTITLE => 1,
+            TSStreamType.INTERACTIVE_GRAPHICS => 2,
+            TSStreamType.PRESENTATION_GRAPHICS => 3,
+            _ => 0
+        };
+    }
+
+    protected static int ReadInt32(byte[] data, ref int pos)
+    {
+        var val = (data[pos] << 24) +
+                  (data[pos + 1] << 16) +
+                  (data[pos + 2] << 8) +
+                  data[pos + 3];
+
+        pos += 4;
+
+        return val;
+    }
+
+    protected static int ReadInt16(byte[] data, ref int pos)
+    {
+        var val = (data[pos] << 8) + data[pos + 1];
+
+        pos += 2;
+
+        return val;
+    }
+
+    protected static byte ReadByte(byte[] data, ref int pos)
+    {
+        return data[pos++];
     }
 }
