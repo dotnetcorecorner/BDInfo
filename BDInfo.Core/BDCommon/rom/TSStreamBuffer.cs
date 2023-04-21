@@ -94,43 +94,23 @@ public class TSStreamBuffer
 
     public byte ReadByte(bool skipH26XEmulationByte)
     {
-#if BETA || DEBUG
-        var streamPos = _stream.Position;
-        var tempByte = _buffer[streamPos];
-
-        if (skipH26XEmulationByte && tempByte == 0x03)
-        {
-            if (streamPos > 2 && _buffer[streamPos - 2] == 0x00 && _buffer[streamPos - 1] == 0x00)
-            {
-                streamPos++;
-                tempByte = _buffer[streamPos];
-                _skippedBytes++;
-            }
-        }
-
-        _stream.Position = streamPos + 1;
-        return tempByte;
-#else
-        byte tempByte = (byte)_stream.ReadByte();
+        var tempByte = (byte)_stream.ReadByte();
         var tempPosition = _stream.Position;
 
-        if (skipH26XEmulationByte && tempByte == 0x03)
+        if (!skipH26XEmulationByte || tempByte != 0x03) return tempByte;
+
+        _stream.Seek(-3, SeekOrigin.Current);
+        if (_stream.ReadByte() == 0x00 && _stream.ReadByte() == 0x00)
         {
-            _stream.Seek(-3, SeekOrigin.Current);
-            if (_stream.ReadByte() == 0x00 && _stream.ReadByte() == 0x00)
-            {
-                _stream.Seek(1, SeekOrigin.Current);
-                tempByte = (byte)_stream.ReadByte();
-                _skippedBytes++;
-            }
-            else
-            {
-                _stream.Seek(tempPosition, SeekOrigin.Begin);
-            }
+            _stream.Seek(1, SeekOrigin.Current);
+            tempByte = (byte)_stream.ReadByte();
+            _skippedBytes++;
+        }
+        else
+        {
+            _stream.Seek(tempPosition, SeekOrigin.Begin);
         }
         return tempByte;
-#endif
-
     }
 
     public byte ReadByte()
@@ -151,11 +131,7 @@ public class TSStreamBuffer
         var value = vector[1 << 8 - _skipBits - 1];
 
         _skipBits += 1;
-#if BETA || DEBUG
-        _stream.Position = pos + (_skipBits >> 3) + _skippedBytes;
-#else
         _stream.Seek(pos + (_skipBits >> 3) + _skippedBytes, SeekOrigin.Begin);
-#endif
         _skipBits %= 8;
 
         return value;
@@ -188,11 +164,7 @@ public class TSStreamBuffer
             value += (ushort)(vector[1 << 16 - i - 1] ? 1 : 0);
         }
         _skipBits += bits;
-#if BETA || DEBUG
-        _stream.Position = pos + (_skipBits >> 3) + _skippedBytes;
-#else
         _stream.Seek(pos + (_skipBits >> 3) + _skippedBytes, SeekOrigin.Begin);
-#endif
         _skipBits %= 8;
 
         return value;
@@ -225,11 +197,7 @@ public class TSStreamBuffer
             value += (uint)(vector[1 << 32 - i - 1] ? 1 : 0);
         }
         _skipBits += bits;
-#if BETA || DEBUG
-        _stream.Position = pos + (_skipBits >> 3) + _skippedBytes;
-#else
         _stream.Seek(pos + (_skipBits >> 3) + _skippedBytes, SeekOrigin.Begin);
-#endif
         _skipBits %= 8;
 
         return value;
@@ -273,11 +241,7 @@ public class TSStreamBuffer
         }
 
         _skipBits += bits;
-#if BETA || DEBUG
-        _stream.Position = pos + (_skipBits >> 3) + _skippedBytes;
-#else
         _stream.Seek(pos + (_skipBits >> 3) + _skippedBytes, SeekOrigin.Begin);
-#endif
         _skipBits %= 8;
 
         return value;
@@ -327,11 +291,7 @@ public class TSStreamBuffer
         else
         {
             var pos = _stream.Position;
-#if BETA || DEBUG
-            _stream.Position = pos + (_skipBits >> 3) + bytes;
-#else
             _stream.Seek(pos + (_skipBits >> 3) + bytes, SeekOrigin.Begin);
-#endif
         }
     }
 
