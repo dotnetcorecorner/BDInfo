@@ -22,10 +22,15 @@ namespace BDExtractor
 		static void Exec(CmdOptions opts)
 		{
 			_log = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"log_{Path.GetFileName(opts.Path)}.log");
-
-			if (!Directory.Exists(opts.Output))
+			var output = opts.Output;
+			if (string.IsNullOrWhiteSpace(output))
 			{
-				Directory.CreateDirectory(opts.Output);
+				output = Path.GetDirectoryName(opts.Path);
+			}
+
+			if (!Directory.Exists(output))
+			{
+				Directory.CreateDirectory(output);
 			}
 
 			try
@@ -46,7 +51,7 @@ namespace BDExtractor
 
 					foreach (var dir in dirs)
 					{
-						CopyDir(dir, opts.Output);
+						CopyDir(dir, output);
 					}
 
 					foreach (var file in files)
@@ -54,7 +59,7 @@ namespace BDExtractor
 						File.AppendAllText(_log, $"Exec file fullname::: {file.FullName + Environment.NewLine}");
 						File.AppendAllText(_log, $"Exec file name::: {file.Name + Environment.NewLine}");
 
-						var path = FolderUtility.Combine(opts.Output, file.FullName);
+						var path = FolderUtility.Combine(output, file.FullName);
 						File.AppendAllText(_log, $"Exec file combined path::: {path + Environment.NewLine}");
 
 						CopyFile(file, path);
