@@ -57,9 +57,11 @@ For linux, make `BDExtractor` as executable (yes, that one without extension) us
 
 ### Windows
 `BDExtractor.exe -p PATH_TO_ISO_FILE -o FOLDER_OUTPUT`  
+`BDExtractor.exe -p PATH_TO_ISO_FILE`  
 
 ### Linux:  
 `./BDExtractor -p PATH_TO_ISO_FILE -o FOLDER_OUTPUT`
+`./BDExtractor -p PATH_TO_ISO_FILE`
 
 # Known issue
 
