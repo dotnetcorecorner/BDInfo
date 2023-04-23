@@ -49,7 +49,7 @@ It extract bluray disc iso file on various operating systems without neeed to mo
 | Short argument | Long argument | Meaning | Required |
 | --- | --- | --- | --- |
 | _`-p`_ | _`--path`_ | The path to iso file | x |
-| _`-o`_ | _`--output`_ | The output folder | x |
+| _`-o`_ | _`--output`_ | The output folder (if not specified then will extract in same location with iso) |  |
 
 For linux, make `BDExtractor` as executable (yes, that one without extension) using `chmod +x BDExtractor`
 
