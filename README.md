@@ -11,7 +11,6 @@ It scans bluray disc (full hd, ultra hd and 3D) on various operating systems. Th
 | _`-e`_ | _`--extendedstreamdiagnostics`_ | Generete the extended stream diagnostics |  | False |
 | _`-b`_ | _`--enablessif`_ | Enable SSIF support |  | False |
 | _`-c`_ | _`--displaychaptercount`_ | Enable chapter count |  | False |
-| _`-a`_ | _`--autosavereport`_ | Auto save report |  | False |
 | _`-f`_ | _`--generateframedatafile`_ | Generate frame data file |  | False |
 | _`-l`_ | _`--filterloopingplaylists`_ | Filter loopig playlist |  | False |
 | _`-y`_ | _`--filtershortplaylist`_ | Filter short playlist |  | False |
