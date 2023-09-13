@@ -29,8 +29,6 @@ namespace BDCommon
 
     public abstract bool DisplayChapterCount { get; }
 
-    public abstract bool AutosaveReport { get; }
-
     public abstract bool GenerateFrameDataFile { get; }
 
     public abstract bool FilterLoopingPlaylists { get; }

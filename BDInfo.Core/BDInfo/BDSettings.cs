@@ -21,8 +21,6 @@ namespace BDInfo
 
 		public override bool DisplayChapterCount => _opts?.DisplayChapterCount ?? false;
 
-		public override bool AutosaveReport => _opts?.AutosaveReport ?? true;
-
 		public override bool GenerateFrameDataFile => _opts?.GenerateFrameDataFile ?? false;
 
 		public override bool FilterLoopingPlaylists => _opts?.FilterLoopingPlaylists ?? true;
