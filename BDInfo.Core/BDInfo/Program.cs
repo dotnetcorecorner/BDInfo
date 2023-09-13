@@ -33,7 +33,6 @@ namespace BDInfo
             {
                 _error = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"error_{Path.GetFileName(opts.Path)}.log");
                 _bdinfoSettings = new BDSettings(opts);
-                _isImage = false;
 
                 if (!opts.Path.EndsWith(".iso", StringComparison.OrdinalIgnoreCase))
                 {
@@ -87,10 +86,6 @@ namespace BDInfo
 
                         return;
                     }
-                }
-                else
-                {
-                    _isImage = true;
                 }
 
                 InitBDROM(opts.Path);
