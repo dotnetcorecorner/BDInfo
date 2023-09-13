@@ -19,7 +19,6 @@ namespace BDInfo
         private static BDSettings _bdinfoSettings;
         private static readonly string BDMV = "BDMV";
 
-        private static bool _isImage = false;
         private static string _error;
 
         private static void Main(string[] args)
