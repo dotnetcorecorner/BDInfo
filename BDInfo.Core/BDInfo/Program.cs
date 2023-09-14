@@ -454,8 +454,6 @@ namespace BDInfo
                 string.Format(_bdinfoSettings.ReportFileName, BDROM.VolumeLabel) :
                 _bdinfoSettings.ReportFileName;
 
-            File.AppendAllLines(_error, new[] { Environment.NewLine, reportName, Environment.NewLine });
-
             if (!Regex.IsMatch(reportName, @"\.(\w+)$", RegexOptions.IgnoreCase))
             {
                 reportName = $"{reportName}.bdinfo";
