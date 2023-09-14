@@ -47,7 +47,7 @@ namespace BDInfo
                         isIsoLevel = subItems.LongLength > 0;
                     }
 
-                    if (subItems.Any())
+                    if (subItems.Any() && (subItems.Length > 1 || isIsoLevel))
                     {
                         var oldOpt = Cloner.Clone(opts);
                         List<string> reports = new List<string>();
@@ -453,6 +453,8 @@ namespace BDInfo
             string reportName = Regex.IsMatch(_bdinfoSettings.ReportFileName, @"\{\d+\}", RegexOptions.IgnoreCase) ?
                 string.Format(_bdinfoSettings.ReportFileName, BDROM.VolumeLabel) :
                 _bdinfoSettings.ReportFileName;
+
+            File.AppendAllLines(_error, new[] { Environment.NewLine, reportName, Environment.NewLine });
 
             if (!Regex.IsMatch(reportName, @"\.(\w+)$", RegexOptions.IgnoreCase))
             {
@@ -1502,15 +1504,15 @@ namespace BDInfo
             {
                 Console.WriteLine($"Saving bdinfo to {_bdinfoSettings.ReportFileName}");
 
-                if (!tmp.Equals(_bdinfoSettings.ReportFileName))
+                if (!_bdinfoSettings.PrintReportToConsole)
                 {
-                    if (!_bdinfoSettings.PrintReportToConsole)
+                    if (!tmp.Equals(_bdinfoSettings.ReportFileName))
                     {
                         File.Move(tmp, _bdinfoSettings.ReportFileName);
                     }
                     else
                     {
-                        File.Copy(tmp, _bdinfoSettings.ReportFileName);
+                        File.Copy(tmp, _bdinfoSettings.ReportFileName, true);
                     }
                 }
             }
