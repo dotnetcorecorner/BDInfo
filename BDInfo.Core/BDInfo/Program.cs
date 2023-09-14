@@ -20,6 +20,7 @@ namespace BDInfo
         private static readonly string BDMV = "BDMV";
 
         private static string _error;
+        private static string _debug;
 
         private static void Main(string[] args)
         {
@@ -32,6 +33,7 @@ namespace BDInfo
             try
             {
                 _error = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"error_{Path.GetFileName(opts.Path)}.log");
+                _debug = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"debug_{Path.GetFileName(opts.Path)}.log");
                 _bdinfoSettings = new BDSettings(opts);
 
                 if (!opts.Path.EndsWith(".iso", StringComparison.OrdinalIgnoreCase))
@@ -71,15 +73,18 @@ namespace BDInfo
                             var bigReport = oldOpt.ReportFileName;
                             if (reports.Count == 1)
                             {
+                                File.AppendAllLines(_debug, new[] { Environment.NewLine, $"move file from {reports[0]} to {bigReport}", Environment.NewLine });
                                 File.Move(reports[0], bigReport);
                                 return;
                             }
 
                             foreach (var report in reports)
                             {
+                                File.AppendAllLines(_debug, new[] { Environment.NewLine, "appending big reports", Environment.NewLine });
                                 File.AppendAllLines(bigReport, File.ReadAllLines(report));
                                 File.AppendAllLines(bigReport, Enumerable.Repeat(Environment.NewLine, 5));
 
+                                File.AppendAllLines(_debug, new[] { Environment.NewLine, "delete report file after appending to big report", Environment.NewLine });
                                 File.Delete(report);
                             }
                         }
@@ -1494,6 +1499,7 @@ namespace BDInfo
                     report += "\r\n";
                 }
 
+                File.AppendAllLines(_debug, new[] { Environment.NewLine, "appending report to tmp", Environment.NewLine });
                 File.AppendAllText(tmp, report + Environment.NewLine);
                 GC.Collect();
             }
@@ -1506,10 +1512,12 @@ namespace BDInfo
                 {
                     if (!tmp.Equals(_bdinfoSettings.ReportFileName))
                     {
+                        File.AppendAllLines(_debug, new[] { Environment.NewLine, "move file", Environment.NewLine });
                         File.Move(tmp, _bdinfoSettings.ReportFileName);
                     }
                     else
                     {
+                        File.AppendAllLines(_debug, new[] { Environment.NewLine, "copy file", Environment.NewLine });
                         File.Copy(tmp, _bdinfoSettings.ReportFileName, true);
                     }
                 }
@@ -1522,12 +1530,13 @@ namespace BDInfo
 
                 if (len >= 10 * mb)
                 {
-                    Console.WriteLine("Text to big to print to console ! Please use autosave set on true to save file on disk");
+                    Console.WriteLine("Text to big to print to console ! Please save to file");
                 }
             }
 
             if (!tmp.Equals(_bdinfoSettings.ReportFileName) && File.Exists(tmp))
             {
+                File.AppendAllLines(_debug, new[] { Environment.NewLine, "delete tmp file", Environment.NewLine });
                 File.Delete(tmp);
             }
         }
