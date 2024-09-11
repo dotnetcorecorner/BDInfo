@@ -1510,15 +1510,10 @@ namespace BDInfo
 
                 if (!_bdinfoSettings.PrintReportToConsole)
                 {
-                    if (!tmp.Equals(_bdinfoSettings.ReportFileName))
+                    if (!tmp.Equals(_bdinfoSettings.ReportFileName, StringComparison.OrdinalIgnoreCase))
                     {
                         File.AppendAllLines(_debug, new[] { Environment.NewLine, "move file", Environment.NewLine });
                         File.Move(tmp, _bdinfoSettings.ReportFileName);
-                    }
-                    else
-                    {
-                        File.AppendAllLines(_debug, new[] { Environment.NewLine, "copy file", Environment.NewLine });
-                        File.Copy(tmp, _bdinfoSettings.ReportFileName, true);
                     }
                 }
             }
@@ -1534,7 +1529,7 @@ namespace BDInfo
                 }
             }
 
-            if (!tmp.Equals(_bdinfoSettings.ReportFileName) && File.Exists(tmp))
+            if (!tmp.Equals(_bdinfoSettings.ReportFileName, StringComparison.OrdinalIgnoreCase) && File.Exists(tmp))
             {
                 File.AppendAllLines(_debug, new[] { Environment.NewLine, "delete tmp file", Environment.NewLine });
                 File.Delete(tmp);
