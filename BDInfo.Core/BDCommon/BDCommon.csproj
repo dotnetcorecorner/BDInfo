@@ -6,7 +6,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Quamotion.DiscUtils" Version="1.0.3" />
+		<PackageReference Include="DiscUtils" Version="0.16.13" />
 	</ItemGroup>
 
 </Project>
