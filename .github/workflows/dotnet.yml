@@ -8,7 +8,7 @@ on:
     
 env:
   version: 1.0.16
-  dotnetfolder: 'net7.0'
+  dotnetfolder: 'net8.0'
   
 
 jobs:
@@ -20,7 +20,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 7.x
+        dotnet-version: 8.x
     - name: Remove organization git
       run: dotnet nuget remove source github
       continue-on-error: true
@@ -111,7 +111,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 7.x
+        dotnet-version: 8.x
     - name: Remove organization git
       run: dotnet nuget remove source github
       continue-on-error: true
