@@ -107,11 +107,11 @@ jobs:
     runs-on: windows-latest
     needs: [build_linux]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Setup .NET
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.x
+        dotnet-version: 9.x
     - name: Remove organization git
       run: dotnet nuget remove source github
       continue-on-error: true
