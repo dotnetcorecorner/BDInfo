@@ -7,8 +7,8 @@ on:
     - 'v*'
     
 env:
-  version: 1.0.17
-  dotnetfolder: 'net8.0'
+  version: 2.0.0
+  dotnetfolder: 'net9.0'
   
 
 jobs:
@@ -16,11 +16,11 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Setup .NET
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.x
+        dotnet-version: 9.x
     - name: Remove organization git
       run: dotnet nuget remove source github
       continue-on-error: true
@@ -34,14 +34,14 @@ jobs:
     - name: Build against errors
       run: dotnet build BDInfo.Core/BDInfo.Core.sln --no-restore     
     - name: Create self-contained binary for BDInfo
-      run: dotnet publish BDInfo.Core/BDInfo/BDInfo.csproj -c Release -r linux-x64 --self-contained
+      run: dotnet publish BDInfo.Core/BDInfo/BDInfo.csproj -c Release -r linux-x64 -p:PublishSingleFile=true --self-contained
     - name: Create self-contained binary for BDExtractor
-      run: dotnet publish BDInfo.Core/BDExtractor/BDExtractor.csproj -c Release -r linux-x64 --self-contained
+      run: dotnet publish BDInfo.Core/BDExtractor/BDExtractor.csproj -c Release -r linux-x64 -p:PublishSingleFile=true --self-contained
       
     - name: BDInfo Zip Release
       # You may pin to the exact commit or the version.
       # uses: TheDoctor0/zip-release@591e9b128012d3328db6043d0d0266c3ac27f9b5
-      uses: TheDoctor0/zip-release@0.6.1
+      uses: TheDoctor0/zip-release@0.7.6
       with:
         # Filename for archive
         filename: bdinfo_linux_v${{ env.version }}.zip
@@ -55,7 +55,7 @@ jobs:
         type: zip
         
     - name: BDExtractor ZIP release
-      uses: TheDoctor0/zip-release@0.6.1
+      uses: TheDoctor0/zip-release@0.7.6
       with:
         # Filename for archive
         filename: bdextractor_linux_v${{ env.version }}.zip
@@ -124,14 +124,14 @@ jobs:
     - name: Build against errors
       run: dotnet build BDInfo.Core/BDInfo.Core.sln --no-restore     
     - name: Create self-contained binary for BDInfo
-      run: dotnet publish BDInfo.Core/BDInfo/BDInfo.csproj -c Release -r win-x64 --self-contained
+      run: dotnet publish BDInfo.Core/BDInfo/BDInfo.csproj -c Release -r win-x64 -p:PublishSingleFile=true --self-contained
     - name: Create self-contained binary for BDExtractor
-      run: dotnet publish BDInfo.Core/BDExtractor/BDExtractor.csproj -c Release -r win-x64 --self-contained
+      run: dotnet publish BDInfo.Core/BDExtractor/BDExtractor.csproj -c Release -r win-x64 -p:PublishSingleFile=true --self-contained
       
     - name: BDInfo Zip Release
       # You may pin to the exact commit or the version.
       # uses: TheDoctor0/zip-release@591e9b128012d3328db6043d0d0266c3ac27f9b5
-      uses: TheDoctor0/zip-release@0.6.1
+      uses: TheDoctor0/zip-release@0.7.6
       with:
         # Filename for archive
         filename: bdinfo_win_v${{ env.version }}.zip
@@ -145,7 +145,7 @@ jobs:
         type: zip
         
     - name: BDExtractor ZIP release
-      uses: TheDoctor0/zip-release@0.6.1
+      uses: TheDoctor0/zip-release@0.7.6
       with:
         # Filename for archive
         filename: bdextractor_win_v${{ env.version }}.zip
