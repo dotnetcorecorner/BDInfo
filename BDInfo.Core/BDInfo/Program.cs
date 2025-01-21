@@ -872,7 +872,7 @@ namespace BDInfo
 
                 if (!string.IsNullOrEmpty(BDROM.DiscTitle))
                     summary.AppendLine(string.Format(CultureInfo.InvariantCulture,
-                                                                    "Disc Title: {0}n", BDROM.DiscTitle));
+                                                                    "Disc Title: {0}", BDROM.DiscTitle));
 
                 summary.AppendLine(string.Format(CultureInfo.InvariantCulture,
                                                                  "Disc Label: {0}", BDROM.VolumeLabel));
