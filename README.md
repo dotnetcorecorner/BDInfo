@@ -21,8 +21,6 @@ It scans bluray disc (full hd, ultra hd and 3D) on various operating systems. Th
 | _`-m`_ | _`--generatetextsummary`_ | Generate summary |  | False |
 | _`-o`_ | _`--reportfilename`_ | The report filename with extension. If no extension provided then will append .txt at end of filename |  |  |
 | _`-q`_ | _`--includeversionandnotes`_ | Include version and notes inside report |  | False |
-| _`-z`_ | _`--printonlybigplaylist`_ | Print report with only biggest playlist |  | False |
-| _`-w`_ | _`--printtoconsole`_ | Print report to console |  | False |
 | _`-j`_ | _`--groupbytime`_ | Group by time |  | False |
 | _`-d`_ | _`--isexecutedasscript`_ | Check if is executed as script |  | False |
 
