@@ -51,12 +51,6 @@ namespace BDInfo
         [Option('q', "includeversionandnotes", Required = false, Default = null, HelpText = "Include version and notes inside report")]
         public bool? IncludeVersionAndNotes { get; set; }
 
-        [Option('z', "printonlybigplaylist", Required = false, Default = null, HelpText = "Print report with only biggest playlist")]
-        public bool? PrintOnlyForBigPlaylist { get; set; }
-
-        [Option('w', "printtoconsole", Required = false, Default = null, HelpText = "Print report to console")]
-        public bool? PrintReportToConsole { get; set; }
-
         [Option('j', "groupbytime", Required = false, Default = null, HelpText = "Group by time")]
         public bool? GroupByTime { get; set; }
 

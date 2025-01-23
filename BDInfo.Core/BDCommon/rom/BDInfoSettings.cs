@@ -19,40 +19,36 @@
 
 namespace BDCommon
 {
-  public abstract class BDInfoSettings
-  {
-    public abstract bool GenerateStreamDiagnostics { get; }
+    public abstract class BDInfoSettings
+    {
+        public abstract bool GenerateStreamDiagnostics { get; }
 
-    public abstract bool ExtendedStreamDiagnostics { get; }
+        public abstract bool ExtendedStreamDiagnostics { get; }
 
-    public abstract bool EnableSSIF { get; }
+        public abstract bool EnableSSIF { get; }
 
-    public abstract bool DisplayChapterCount { get; }
+        public abstract bool DisplayChapterCount { get; }
 
-    public abstract bool GenerateFrameDataFile { get; }
+        public abstract bool GenerateFrameDataFile { get; }
 
-    public abstract bool FilterLoopingPlaylists { get; }
+        public abstract bool FilterLoopingPlaylists { get; }
 
-    public abstract bool FilterShortPlaylists { get; }
+        public abstract bool FilterShortPlaylists { get; }
 
-    public abstract int FilterShortPlaylistsValue { get; }
+        public abstract int FilterShortPlaylistsValue { get; }
 
-    public abstract bool UseImagePrefix { get; }
+        public abstract bool UseImagePrefix { get; }
 
-    public abstract string UseImagePrefixValue { get; }
+        public abstract string UseImagePrefixValue { get; }
 
-    public abstract bool KeepStreamOrder { get; }
+        public abstract bool KeepStreamOrder { get; }
 
-    public abstract bool GenerateTextSummary { get; }
+        public abstract bool GenerateTextSummary { get; }
 
-    public abstract string ReportFileName { get; }
+        public abstract string ReportFileName { get; }
 
-    public abstract bool IncludeVersionAndNotes { get; }
+        public abstract bool IncludeVersionAndNotes { get; }
 
-    public abstract bool PrintOnlyForBigPlaylist { get; }
-
-    public abstract bool PrintReportToConsole { get; }
-
-    public abstract bool GroupByTime { get; }
-  }
+        public abstract bool GroupByTime { get; }
+    }
 }

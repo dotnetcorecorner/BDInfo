@@ -23,7 +23,7 @@ namespace BDInfo
 
         public override bool GenerateFrameDataFile => _opts?.GenerateFrameDataFile ?? false;
 
-        public override bool FilterLoopingPlaylists => _opts?.FilterLoopingPlaylists ?? true;
+        public override bool FilterLoopingPlaylists => _opts?.FilterLoopingPlaylists ?? false;
 
         public override bool FilterShortPlaylists => _opts?.FilterShortPlaylists ?? true;
 
@@ -40,10 +40,6 @@ namespace BDInfo
         public override string ReportFileName => string.IsNullOrWhiteSpace(_opts?.ReportFileName) ? Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "BDInfo_{0}.bdinfo") : _opts.ReportFileName;
 
         public override bool IncludeVersionAndNotes => _opts?.IncludeVersionAndNotes ?? false;
-
-        public override bool PrintOnlyForBigPlaylist => _opts?.PrintOnlyForBigPlaylist ?? true;
-
-        public override bool PrintReportToConsole => _opts?.PrintReportToConsole ?? false;
 
         public override bool GroupByTime => _opts?.GroupByTime ?? false;
 
