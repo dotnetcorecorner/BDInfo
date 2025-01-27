@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29806.167
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35707.178 d17.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BDInfo", "BDInfo\BDInfo.csproj", "{8993A1DB-DB2E-46C8-BA1E-F6C8FE8158F7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BDExtractor", "BDExtractor\BDExtractor.csproj", "{7DB8725D-E6B1-43DF-9546-42C3AD2CA9A0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BDCommon", "BDCommon\BDCommon.csproj", "{6D228997-CA22-42CD-A043-0A2574E09507}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BDInfoDataSubstractor", "BDInfoDataSubstractor\BDInfoDataSubstractor.csproj", "{17428421-CD53-4B16-89E2-27938EB6BA2C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{6D228997-CA22-42CD-A043-0A2574E09507}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D228997-CA22-42CD-A043-0A2574E09507}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D228997-CA22-42CD-A043-0A2574E09507}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17428421-CD53-4B16-89E2-27938EB6BA2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17428421-CD53-4B16-89E2-27938EB6BA2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17428421-CD53-4B16-89E2-27938EB6BA2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17428421-CD53-4B16-89E2-27938EB6BA2C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

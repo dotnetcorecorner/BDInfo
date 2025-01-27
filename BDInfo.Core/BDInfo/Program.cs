@@ -727,7 +727,7 @@ namespace BDInfo
                 }
 
                 sw.WriteLine(Environment.NewLine);
-                sw.WriteLine("********************)");
+                sw.WriteLine("********************");
                 sw.WriteLine("PLAYLIST: " + playlist.Name);
                 sw.WriteLine("********************");
                 sw.WriteLine(Environment.NewLine);
