@@ -7,3 +7,4 @@ bin
 obj
 packages
 *.user
+/BDInfo.Core/BDInfoDataSubstractor/Properties/launchSettings.json
