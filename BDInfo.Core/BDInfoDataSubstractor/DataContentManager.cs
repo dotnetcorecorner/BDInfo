@@ -17,7 +17,7 @@ namespace BDInfoDataSubstractor
             var discInfosSection = ExtractDiscInfo(content);
             discInfosSection = discInfosSection.Where(c => IsValidDiscInfoSection(c)).OrderByDescending(c => GetPlaylistSize(c));
 
-            var summariesSection = ExtractSummaries(content);
+            var summariesSection = ExtractSummaries(content).DistinctBy(c => GetPlaylistName(c));
             summariesSection = [.. summariesSection.Where(c => IsValidDiscInfoSection(c)).OrderByDescending(c => GetPlaylistSize(c))];
 
             var outFile = outputFileBdInfoContent;
@@ -89,6 +89,19 @@ namespace BDInfoDataSubstractor
             }
 
             return 0L;
+        }
+
+        private static string GetPlaylistName(string section)
+        {
+            foreach (var line in section.Split(Environment.NewLine))
+            {
+                if (line.StartsWith("playlist:", StringComparison.OrdinalIgnoreCase))
+                {
+                    return line;
+                }
+            }
+
+            return string.Empty;
         }
 
         private static List<string> ExtractSummaries(string content)
