@@ -27,19 +27,11 @@ namespace BDCommon
 
         public abstract bool EnableSSIF { get; }
 
-        public abstract bool DisplayChapterCount { get; }
-
-        public abstract bool GenerateFrameDataFile { get; }
-
         public abstract bool FilterLoopingPlaylists { get; }
 
         public abstract bool FilterShortPlaylists { get; }
 
         public abstract int FilterShortPlaylistsValue { get; }
-
-        public abstract bool UseImagePrefix { get; }
-
-        public abstract string UseImagePrefixValue { get; }
 
         public abstract bool KeepStreamOrder { get; }
 

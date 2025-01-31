@@ -4,34 +4,21 @@ using System.IO;
 
 namespace BDInfo
 {
-    public sealed class BDSettings : BDInfoSettings
+    public sealed class BDSettings(CmdOptions opts) : BDInfoSettings
     {
-        private readonly CmdOptions _opts;
+        private readonly CmdOptions _opts = opts;
 
-        public BDSettings(CmdOptions opts)
-        {
-            _opts = opts;
-        }
-
-        public override bool GenerateStreamDiagnostics => _opts?.GenerateStreamDiagnostics ?? true;
+        public override bool GenerateStreamDiagnostics => _opts?.GenerateStreamDiagnostics ?? false;
 
         public override bool ExtendedStreamDiagnostics => _opts?.ExtendedStreamDiagnostics ?? false;
 
         public override bool EnableSSIF => _opts?.EnableSSIF ?? true;
-
-        public override bool DisplayChapterCount => _opts?.DisplayChapterCount ?? false;
-
-        public override bool GenerateFrameDataFile => _opts?.GenerateFrameDataFile ?? false;
 
         public override bool FilterLoopingPlaylists => _opts?.FilterLoopingPlaylists ?? false;
 
         public override bool FilterShortPlaylists => _opts?.FilterShortPlaylists ?? true;
 
         public override int FilterShortPlaylistsValue => _opts?.FilterShortPlaylistsValue ?? 20;
-
-        public override bool UseImagePrefix => _opts?.UseImagePrefix ?? false;
-
-        public override string UseImagePrefixValue => _opts?.UseImagePrefixValue ?? "video-";
 
         public override bool KeepStreamOrder => _opts?.KeepStreamOrder ?? false;
 
@@ -42,7 +29,5 @@ namespace BDInfo
         public override bool IncludeVersionAndNotes => _opts?.IncludeVersionAndNotes ?? false;
 
         public override bool GroupByTime => _opts?.GroupByTime ?? false;
-
-        public bool IsExecutedAsScript => _opts?.IsScriptExecuted ?? false;
     }
 }

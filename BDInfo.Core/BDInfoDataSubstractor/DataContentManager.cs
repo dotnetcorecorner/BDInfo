@@ -5,8 +5,7 @@ namespace BDInfoDataSubstractor
 {
     internal static class DataContentManager
     {
-        private static readonly Regex _codeRegex = new Regex(@"\[code\](.+?)\[\/code\]", RegexOptions.Singleline);
-        private static readonly Regex _numericRegex = new Regex(@"(\d+,)+(\d+)");
+        private static readonly Regex _codeRegex = new(@"\[code\](.+?)\[\/code\]", RegexOptions.Singleline);
         private static readonly string[] _allowedQuickSummary = ["Disc Title", "Disc Label", "Disc Size", "Protection", "Playlist", "Size", "Length", "Total Bitrate", "Video", "Audio", "Subtitle"];
 
         public static async Task ParseValidDataAsync(string inputFile, string? outputFileBdInfoContent = null, string? outputFileQuickSummary = null)
@@ -15,27 +14,32 @@ namespace BDInfoDataSubstractor
             string content = await File.ReadAllTextAsync(inputFile);
 
             var discInfosSection = ExtractDiscInfo(content);
-            discInfosSection = discInfosSection.Where(c => IsValidDiscInfoSection(c)).OrderByDescending(c => GetPlaylistSize(c));
+            var summariesSection = ExtractSummaries(content);
 
-            var summariesSection = ExtractSummaries(content).DistinctBy(c => GetPlaylistName(c));
-            summariesSection = [.. summariesSection.Where(c => IsValidDiscInfoSection(c)).OrderByDescending(c => GetPlaylistSize(c))];
+            var filteredDiscSections = discInfosSection.Where(c => IsValidDiscInfoSection(c))
+                .OrderByDescending(c => c.Playlist.LongTotalBitrate)
+                .DistinctBy(c => c.Playlist.Name);
+
+            var filteredSummariesSection = summariesSection.Where(c => IsValidDiscInfoSection(c))
+                .OrderByDescending(c => c.Playlist.LongTotalBitrate)
+                .DistinctBy(c => c.Playlist.Name);
 
             var outFile = outputFileBdInfoContent;
             if (string.IsNullOrWhiteSpace(outFile))
             {
-                outFile = Path.Combine(Path.GetDirectoryName(inputFile)!, $"{name}.bdinfo.txt");
+                outFile = Path.Combine(Path.GetDirectoryName(inputFile)!, $"{name}.bdinfo1.txt");
             }
-            await File.WriteAllTextAsync(outFile, discInfosSection.First());
+            await File.WriteAllTextAsync(outFile, filteredDiscSections.First().InnerData);
 
             outFile = outputFileQuickSummary;
             if (string.IsNullOrWhiteSpace(outFile))
             {
-                outFile = Path.Combine(Path.GetDirectoryName(inputFile)!, $"{name}.quicksummary.txt");
+                outFile = Path.Combine(Path.GetDirectoryName(inputFile)!, $"{name}.quicksummary1.txt");
             }
-            await File.WriteAllTextAsync(outFile, summariesSection.First());
+            await File.WriteAllTextAsync(outFile, filteredSummariesSection.First().InnerData);
         }
 
-        private static IEnumerable<string> ExtractDiscInfo(string content)
+        private static IEnumerable<BdInfoDataModel> ExtractDiscInfo(string content)
         {
             var matches = _codeRegex.Matches(content);
 
@@ -43,68 +47,17 @@ namespace BDInfoDataSubstractor
             {
                 if (match.Groups[1].Value.Contains("disc info:", StringComparison.OrdinalIgnoreCase))
                 {
-                    yield return match.Groups[1].Value.Trim();
+                    yield return new(match.Groups[1].Value.Trim());
                 }
             }
         }
 
-        private static bool IsValidDiscInfoSection(string section)
+        private static bool IsValidDiscInfoSection(BdInfoDataModel model)
         {
-            var lines = section.Split(Environment.NewLine);
-            long discSize = 0;
-            long playlistSize = 0;
-
-            foreach (var line in lines)
-            {
-                var sline = line.Trim();
-
-                if (sline.StartsWith("disc size:", StringComparison.OrdinalIgnoreCase))
-                {
-                    var dscStr = _numericRegex.Match(sline).Groups[0].Value.Replace(",", "");
-                    _ = long.TryParse(dscStr, out discSize);
-                    continue;
-                }
-
-                if (sline.StartsWith("size:", StringComparison.OrdinalIgnoreCase))
-                {
-                    var dscStr = _numericRegex.Match(sline).Groups[0].Value.Replace(",", "");
-                    _ = long.TryParse(dscStr, out playlistSize);
-                    continue;
-                }
-            }
-
-            return playlistSize <= discSize;
+            return model.Playlist.LongSize < model.LongDiscSize && model.Playlist.LongLength > 5f;
         }
 
-        private static long GetPlaylistSize(string section)
-        {
-            foreach (var line in section.Split(Environment.NewLine))
-            {
-                if (line.StartsWith("size:", StringComparison.OrdinalIgnoreCase))
-                {
-                    var dscStr = _numericRegex.Match(line).Groups[0].Value.Replace(",", "");
-                    _ = long.TryParse(dscStr, out var playlistSize);
-                    return playlistSize;
-                }
-            }
-
-            return 0L;
-        }
-
-        private static string GetPlaylistName(string section)
-        {
-            foreach (var line in section.Split(Environment.NewLine))
-            {
-                if (line.StartsWith("playlist:", StringComparison.OrdinalIgnoreCase))
-                {
-                    return line;
-                }
-            }
-
-            return string.Empty;
-        }
-
-        private static List<string> ExtractSummaries(string content)
+        private static IEnumerable<BdInfoDataModel> ExtractSummaries(string content)
         {
             List<string> summaries = [];
             bool quickStart = false;
@@ -143,7 +96,7 @@ namespace BDInfoDataSubstractor
             }
 
             summaries.RemoveAll(c => string.IsNullOrWhiteSpace(c));
-            return summaries;
+            return summaries.Select(c => new BdInfoDataModel(c));
         }
     }
 }

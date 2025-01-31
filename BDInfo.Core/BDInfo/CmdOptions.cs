@@ -18,12 +18,6 @@ namespace BDInfo
         [Option('b', "enablessif", Required = false, Default = null, HelpText = "Enable SSIF support")]
         public bool? EnableSSIF { get; set; }
 
-        [Option('c', "displaychaptercount", Required = false, Default = null, HelpText = "Enable chapter count")]
-        public bool? DisplayChapterCount { get; set; }
-
-        [Option('f', "generateframedatafile", Required = false, Default = null, HelpText = "Generate frame data file")]
-        public bool? GenerateFrameDataFile { get; set; }
-
         [Option('l', "filterloopingplaylists", Required = false, Default = null, HelpText = "Filter loopig playlist")]
         public bool? FilterLoopingPlaylists { get; set; }
 
@@ -32,12 +26,6 @@ namespace BDInfo
 
         [Option('v', "filtershortplaylistvalue", Required = false, Default = 20, HelpText = "Filter number of short playlist")]
         public int FilterShortPlaylistsValue { get; set; }
-
-        [Option('i', "useimageprefix", Required = false, Default = null, HelpText = "Use image prefix")]
-        public bool? UseImagePrefix { get; set; }
-
-        [Option('x', "useimageprefixvalue", Required = false, Default = "video-", HelpText = "Image prefix")]
-        public string UseImagePrefixValue { get; set; }
 
         [Option('k', "keepstreamorder", Required = false, Default = null, HelpText = "Keep stream order")]
         public bool? KeepStreamOrder { get; set; }
@@ -53,8 +41,5 @@ namespace BDInfo
 
         [Option('j', "groupbytime", Required = false, Default = null, HelpText = "Group by time")]
         public bool? GroupByTime { get; set; }
-
-        [Option('d', "isexecutedasscript", Required = false, Default = null, HelpText = "Check if is executed as script")]
-        public bool? IsScriptExecuted { get; set; }
     }
 }
