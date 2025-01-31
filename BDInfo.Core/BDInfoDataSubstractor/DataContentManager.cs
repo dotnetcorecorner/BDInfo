@@ -54,7 +54,8 @@ namespace BDInfoDataSubstractor
 
         private static bool IsValidDiscInfoSection(BdInfoDataModel model)
         {
-            return model.Playlist.LongSize < model.LongDiscSize && model.Playlist.LongLength > 5f;
+            // get by size and length greater than 10 minute(s)
+            return model.Playlist.LongSize < model.LongDiscSize && model.Playlist.LongLength > 10 * 60;
         }
 
         private static IEnumerable<BdInfoDataModel> ExtractSummaries(string content)
