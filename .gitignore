@@ -8,3 +8,4 @@ obj
 packages
 *.user
 /BDInfo.Core/BDInfoDataSubstractor/Properties/launchSettings.json
+/BDInfo.Core/BDInfo/Properties/launchSettings.json
