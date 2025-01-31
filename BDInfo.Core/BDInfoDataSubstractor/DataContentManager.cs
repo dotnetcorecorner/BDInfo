@@ -27,14 +27,14 @@ namespace BDInfoDataSubstractor
             var outFile = outputFileBdInfoContent;
             if (string.IsNullOrWhiteSpace(outFile))
             {
-                outFile = Path.Combine(Path.GetDirectoryName(inputFile)!, $"{name}.bdinfo1.txt");
+                outFile = Path.Combine(Path.GetDirectoryName(inputFile)!, $"{name}.bdinfo.txt");
             }
             await File.WriteAllTextAsync(outFile, filteredDiscSections.First().InnerData);
 
             outFile = outputFileQuickSummary;
             if (string.IsNullOrWhiteSpace(outFile))
             {
-                outFile = Path.Combine(Path.GetDirectoryName(inputFile)!, $"{name}.quicksummary1.txt");
+                outFile = Path.Combine(Path.GetDirectoryName(inputFile)!, $"{name}.quicksummary.txt");
             }
             await File.WriteAllTextAsync(outFile, filteredSummariesSection.First().InnerData);
         }
