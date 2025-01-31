@@ -7,7 +7,7 @@ on:
     - 'v*'
     
 env:
-  version: 2.0.5
+  version: 2.0.6
   dotnetfolder: 'net9.0'
   bdinfo_key: "bdinfo"
   bdextract_key: "bdextractor"
