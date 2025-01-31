@@ -10,19 +10,14 @@ It scans bluray disc (full hd, ultra hd and 3D) on various operating systems. Th
 | _`-g`_ | _`--generatestreamdiagnostics`_ | Generate the stream diagnostics |  | False |
 | _`-e`_ | _`--extendedstreamdiagnostics`_ | Generete the extended stream diagnostics |  | False |
 | _`-b`_ | _`--enablessif`_ | Enable SSIF support |  | False |
-| _`-c`_ | _`--displaychaptercount`_ | Enable chapter count |  | False |
-| _`-f`_ | _`--generateframedatafile`_ | Generate frame data file |  | False |
 | _`-l`_ | _`--filterloopingplaylists`_ | Filter loopig playlist |  | False |
 | _`-y`_ | _`--filtershortplaylist`_ | Filter short playlist |  | True |
 | _`-v`_ | _`--filtershortplaylistvalue`_ | Filter number of short playlist |  | 20 |
-| _`-i`_ | _`--useimageprefix`_ | Use image prefix |  | False |
-| _`-x`_ | _`--useimageprefixvalue`_ | Image prefix |  | video- |
 | _`-k`_ | _`--keepstreamorder`_ | Keep stream order |  | False |
 | _`-m`_ | _`--generatetextsummary`_ | Generate summary |  | True |
 | _`-o`_ | _`--reportfilename`_ | The report filename with extension. If no extension provided then will append .txt at end of filename |  |  |
 | _`-q`_ | _`--includeversionandnotes`_ | Include version and notes inside report |  | False |
 | _`-j`_ | _`--groupbytime`_ | Group by time |  | False |
-| _`-d`_ | _`--isexecutedasscript`_ | Check if is executed as script |  | False |
 
 
 For linux, make `BDInfo` as executable (yes, that one without extension) using `chmod +x BDInfo`
