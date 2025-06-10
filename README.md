@@ -55,6 +55,20 @@ For linux, make `BDExtractor` as executable (yes, that one without extension) us
 `./BDExtractor -p PATH_TO_ISO_FILE -o FOLDER_OUTPUT`
 `./BDExtractor -p PATH_TO_ISO_FILE`
 
+# BDInfoDataSubstractor (beta)
+
+It extracts main playlist from very long text based on many criteria
+
+## How to use
+
+### Windows
+`BDInfoDataSubstractor.exe bdinfo.txt bdinfo2.txt`
+
+### Linux
+`./BDInfoDataSubstractor bdinfo.txt bdinfo2.txt`
+
+
+
 # Known issue
 
 https://github.com/DiscUtils/DiscUtils/issues/199

@@ -8,7 +8,7 @@ namespace BDInfoDataSubstractor
         private static readonly Regex _codeRegex = new(@"\[code\](.+?)\[\/code\]", RegexOptions.Singleline);
         private static readonly string[] _allowedQuickSummary = ["Disc Title", "Disc Label", "Disc Size", "Protection", "Playlist", "Size", "Length", "Total Bitrate", "Video", "Audio", "Subtitle"];
 
-        public static async Task ParseValidDataAsync(string inputFile, string? outputFileBdInfoContent = null, string? outputFileQuickSummary = null)
+        public static async Task SubstractDataAsync(string inputFile, string? outputFileBdInfoContent = null, string? outputFileQuickSummary = null)
         {
             string name = Path.GetFileNameWithoutExtension(inputFile);
             string content = await File.ReadAllTextAsync(inputFile);

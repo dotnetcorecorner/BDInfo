@@ -21,7 +21,7 @@
 
                 try
                 {
-                    await DataContentManager.ParseValidDataAsync(file);
+                    await DataContentManager.SubstractDataAsync(file);
                 }
                 catch (Exception ex)
                 {
